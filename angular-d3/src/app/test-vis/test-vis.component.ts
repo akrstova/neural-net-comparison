@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import * as d3 from 'd3';
+import {ModelsService} from '../service/models.service';
 
 
 @Component({
@@ -9,10 +9,34 @@ import * as d3 from 'd3';
 })
 export class TestVisComponent implements OnInit {
 
-  constructor() { }
+  allModels = [];
+  filteredModels = ['Please select first model'];
+
+  constructor(private modelsService: ModelsService) { }
 
   ngOnInit(): void {
-    d3.json('http://localhost:8080/model-ids').then(data => console.log(data));
+    this.getAvailableModels();
+  }
+
+  getAvailableModels(): void {
+    return this.modelsService.getModelIds()
+      .subscribe(data => {
+        data.map((entry) => {
+          this.getDetailsForModelId(entry).subscribe(result => {
+            this.allModels.push(result.label);
+          });
+        });
+      });
+  }
+
+  selectFirstModel(selectedValue): void {
+    const firstModel = selectedValue.target.value;
+    this.filteredModels = this.allModels.filter(model => model !== firstModel);
+    this.getDetailsForModelId(firstModel);
+  }
+
+  getDetailsForModelId(modelId): any {
+    return this.modelsService.getDetailsForModelId(modelId);
   }
 
 }
