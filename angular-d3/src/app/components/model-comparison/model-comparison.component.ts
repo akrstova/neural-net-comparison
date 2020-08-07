@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import {ModelsService} from '../service/models.service';
+import {ModelsService} from '../../service/models.service';
 
 
 @Component({
   selector: 'app-test-vis',
-  templateUrl: './test-vis.component.html',
-  styleUrls: ['./test-vis.component.css']
+  templateUrl: './model-comparison.component.html',
+  styleUrls: ['./model-comparison.component.css']
 })
-export class TestVisComponent implements OnInit {
+export class ModelComparisonComponent implements OnInit {
 
   allModels = [];
   filteredModels = ['Please select first model'];

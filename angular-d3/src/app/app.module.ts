@@ -3,14 +3,14 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { TestVisComponent } from './test-vis/test-vis.component';
+import { ModelComparisonComponent } from './components/model-comparison/model-comparison.component';
 import {HttpClientModule} from '@angular/common/http';
 import {ModelsService} from './service/models.service';
 
 @NgModule({
   declarations: [
     AppComponent,
-    TestVisComponent
+    ModelComparisonComponent
   ],
   imports: [
     BrowserModule,

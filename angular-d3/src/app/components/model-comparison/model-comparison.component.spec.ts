@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TestVisComponent } from './test-vis.component';
+import { ModelComparisonComponent } from './model-comparison.component';
 
 describe('TestVisComponent', () => {
-  let component: TestVisComponent;
-  let fixture: ComponentFixture<TestVisComponent>;
+  let component: ModelComparisonComponent;
+  let fixture: ComponentFixture<ModelComparisonComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ TestVisComponent ]
+      declarations: [ ModelComparisonComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(TestVisComponent);
+    fixture = TestBed.createComponent(ModelComparisonComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
