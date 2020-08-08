@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {ModelsService} from '../../service/models.service';
+import {Observable} from "rxjs";
+import {Network} from "../../model/network/network-model.model";
+import {DropdownOption} from "../../model/options/dropdown-option.model";
 
 @Component({
   selector: 'app-model-comparison',
@@ -10,8 +13,8 @@ export class ModelComparisonComponent implements OnInit {
 
   allModels = [];
   filteredModels = ['Please select first model'];
-  firstModel: any;
-  secondModel: any;
+  firstModel: null;
+  secondModel: null;
 
   constructor(private modelsService: ModelsService) { }
 
@@ -24,7 +27,10 @@ export class ModelComparisonComponent implements OnInit {
       .subscribe(data => {
         data.map((entry) => {
           this.getDetailsForModelId(entry).subscribe(result => {
-            this.allModels.push(result.label);
+            const model = {} as DropdownOption;
+            model.modelId = result.id;
+            model.modelName = result.label;
+            this.allModels.push(model);
           });
         });
       });
@@ -32,6 +38,7 @@ export class ModelComparisonComponent implements OnInit {
 
   selectModel(): void {
     this.filteredModels = this.allModels.filter(model => model !== this.firstModel);
+    console.log(this.firstModel);
     this.drawModel(this.firstModel);
     if (this.secondModel !== null) {
       this.drawModel(this.secondModel);
@@ -47,7 +54,9 @@ export class ModelComparisonComponent implements OnInit {
     return this.modelsService.getDetailsForModelId(modelId);
   }
 
-  getGraphForModelId(modelId): any {
-    return this.modelsService.getGraphForModelId(modelId);
+  getGraphForModelId(modelId): Observable<Network> {
+    return this.modelsService.getGraphForModelId(modelId).subscribe(graph => {
+      console.log(graph);
+    });
   }
 }

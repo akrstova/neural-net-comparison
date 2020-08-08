@@ -1,8 +1,8 @@
 <p>Please choose two models to compare</p>
-<select  class="selectpicker dropdown mt-4 ml-3" id="first-model" data-live-search="true" [ngModel]="firstModel" (change)="selectModel()">
-  <option *ngFor="let option of allModels">{{option}}</option>
+<select  class="selectpicker dropdown mt-4 ml-3" id="first-model" data-live-search="true" [(ngModel)]="firstModel" (change)="selectModel()">
+  <option *ngFor="let model of allModels" [ngValue]="model.modelId">{{model.modelName}}</option>
 </select>
 <br>
-<select  class="selectpicker dropdown mt-4 ml-3" id="second-model" data-live-search="true"  [ngModel]="secondModel" (change)="selectModel()">
-  <option *ngFor="let option of filteredModels" >{{option}}</option>
+<select  class="selectpicker dropdown mt-4 ml-3" id="second-model" data-live-search="true"  [(ngModel)]="secondModel" (change)="selectModel()">
+  <option *ngFor="let model of filteredModels" [ngValue]="model.modelId">{{model.modelName}}</option>
 </select>

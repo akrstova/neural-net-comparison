@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import { ModelComparisonComponent } from './components/model-comparison/model-comparison.component';
 import {HttpClientModule} from '@angular/common/http';
 import {ModelsService} from './service/models.service';
-import {FormsModule} from "@angular/forms";
+import {FormsModule} from '@angular/forms';
 
 @NgModule({
   declarations: [

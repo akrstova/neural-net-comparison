@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import {Network} from '../model/network/network-model.model';
 
 @Injectable()
 export class ModelsService {
@@ -17,7 +18,8 @@ export class ModelsService {
   }
 
   getGraphForModelId(modelId): any {
-    return this.http.get(this.baseUrl + '/model/' + modelId + '/graph');
+    console.log(modelId);
+    return this.http.get<Network>(this.baseUrl + '/model/' + modelId + '/graph');
   }
 
 }

@@ -2,7 +2,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ModelComparisonComponent } from './model-comparison.component';
 
-describe('TestVisComponent', () => {
+describe('ModelComparisonComponent', () => {
   let component: ModelComparisonComponent;
   let fixture: ComponentFixture<ModelComparisonComponent>;
 
