@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { ModelComparisonComponent } from './components/model-comparison/model-comparison.component';
 import {HttpClientModule} from '@angular/common/http';
 import {ModelsService} from './service/models.service';
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import {ModelsService} from './service/models.service';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule
   ],
   providers: [ModelsService],
   bootstrap: [AppComponent]

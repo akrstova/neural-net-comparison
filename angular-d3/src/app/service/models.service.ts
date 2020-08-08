@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, retry } from 'rxjs/operators';
 
 @Injectable()
 export class ModelsService {
@@ -16,6 +14,10 @@ export class ModelsService {
 
   getDetailsForModelId(modelId): any {
     return this.http.get(this.baseUrl + '/model/' + modelId);
+  }
+
+  getGraphForModelId(modelId): any {
+    return this.http.get(this.baseUrl + '/model/' + modelId + '/graph');
   }
 
 }
