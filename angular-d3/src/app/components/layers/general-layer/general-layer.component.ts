@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
+import {NetworkNode} from '../../../model/network/network-node.model';
 
 @Component({
   selector: 'app-general-layer',
@@ -6,6 +7,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./general-layer.component.css']
 })
 export class GeneralLayerComponent implements OnInit {
+
+  @Input() networkNodeData: NetworkNode;
 
   constructor() { }
 

@@ -1,4 +1,3 @@
-
 export class NetworkNode {
   name: string;
   clsName: string;

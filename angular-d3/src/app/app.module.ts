@@ -9,13 +9,15 @@ import {FormsModule} from '@angular/forms';
 import { GeneralLayerComponent } from './components/layers/general-layer/general-layer.component';
 import {NetworkComponent} from './components/network/network.component';
 import {NetworkComparisonComponent} from './components/network-comparison/network-comparison.component';
+import { LayerLoaderDirective } from './directives/layer-loader.directive';
 
 @NgModule({
   declarations: [
     AppComponent,
     NetworkComparisonComponent,
     NetworkComponent,
-    GeneralLayerComponent
+    GeneralLayerComponent,
+    LayerLoaderDirective
   ],
   imports: [
     BrowserModule,

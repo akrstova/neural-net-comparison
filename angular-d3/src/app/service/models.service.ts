@@ -17,9 +17,8 @@ export class ModelsService {
     return this.http.get(this.baseUrl + '/model/' + modelId);
   }
 
-  getGraphForModelId(modelId): any {
-    console.log(modelId);
-    return this.http.get<Network>(this.baseUrl + '/model/' + modelId + '/graph');
+  async getGraphForModelId(modelId) {
+    return await this.http.get<Network>(this.baseUrl + '/model/' + modelId + '/graph').toPromise();
   }
 
 }
