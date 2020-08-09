@@ -3,15 +3,19 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { ModelComparisonComponent } from './components/model-comparison/model-comparison.component';
 import {HttpClientModule} from '@angular/common/http';
 import {ModelsService} from './service/models.service';
 import {FormsModule} from '@angular/forms';
+import { GeneralLayerComponent } from './components/layers/general-layer/general-layer.component';
+import {NetworkComponent} from './components/network/network.component';
+import {NetworkComparisonComponent} from './components/network-comparison/network-comparison.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ModelComparisonComponent
+    NetworkComparisonComponent,
+    NetworkComponent,
+    GeneralLayerComponent
   ],
   imports: [
     BrowserModule,
@@ -22,4 +26,7 @@ import {FormsModule} from '@angular/forms';
   providers: [ModelsService],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+  constructor() {
+  }
+}

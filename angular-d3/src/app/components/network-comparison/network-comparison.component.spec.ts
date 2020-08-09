@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ModelComparisonComponent } from './model-comparison.component';
+import { NetworkComparisonComponent } from './network-comparison.component';
 
 describe('ModelComparisonComponent', () => {
-  let component: ModelComparisonComponent;
-  let fixture: ComponentFixture<ModelComparisonComponent>;
+  let component: NetworkComparisonComponent;
+  let fixture: ComponentFixture<NetworkComparisonComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ModelComparisonComponent ]
+      declarations: [ NetworkComparisonComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ModelComparisonComponent);
+    fixture = TestBed.createComponent(NetworkComparisonComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
