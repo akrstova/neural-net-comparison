@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {ModelsService} from '../../service/models.service';
-import {Observable, of, Subject} from 'rxjs';
+import {Subject} from 'rxjs';
 import {Network} from '../../model/network/network-model.model';
 import {DropdownOption} from '../../model/options/dropdown-option.model';
-import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-network-comparison',
@@ -18,7 +17,8 @@ export class NetworkComparisonComponent implements OnInit {
   secondModelId: null;
   firstModelGraph = {} as Network;
   secondModelGraph = {} as Network;
-  graphChangedEvent: Subject<void> = new Subject<void>();
+  firstGraphChangedEvent: Subject<Network> = new Subject<Network>();
+  secondGraphChangedEvent: Subject<Network> = new Subject<Network>();
 
   constructor(private modelsService: ModelsService) { }
 
@@ -42,18 +42,29 @@ export class NetworkComparisonComponent implements OnInit {
 
   async loadGraphs() {
    this.firstModelGraph = await this.getGraphForModelId(this.firstModelId);
-   console.log('WAITING FOR 1', this.firstModelGraph);
-   this.secondModelGraph = await this.getGraphForModelId(this.secondModelId);
-   console.log('WAITING FOR 2', this.secondModelGraph);
-   this.graphChangedEvent.next();
+   this.firstGraphChangedEvent.next();
+
   }
 
   async selectModel() {
-    this.filteredModels = this.allModels.filter(model => model.modelId !== this.firstModelId);
     if (this.firstModelId != null && this.secondModelId != null) {
       await this.loadGraphs();
     }
   }
+
+  async selectFirstModel() {
+    this.filteredModels = this.allModels.filter(model => model.modelId !== this.firstModelId);
+    this.getGraphForModelId(this.firstModelId).then((graph) => {
+      this.firstGraphChangedEvent.next(graph);
+    });
+  }
+
+  async selectSecondModel() {
+    this.getGraphForModelId(this.secondModelId).then((graph) => {
+      this.secondGraphChangedEvent.next(graph);
+    });
+  }
+
 
   getDetailsForModelId(modelId): any {
     return this.modelsService.getDetailsForModelId(modelId);

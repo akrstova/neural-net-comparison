@@ -11,7 +11,7 @@ import {Observable, Subscription} from 'rxjs';
   templateUrl: './network.component.html',
   styleUrls: ['./network.component.css']
 })
-export class NetworkComponent implements OnInit, AfterViewInit {
+export class NetworkComponent implements AfterViewInit {
 
   private eventsSubscription: Subscription;
 
@@ -22,26 +22,20 @@ export class NetworkComponent implements OnInit, AfterViewInit {
   constructor(private componentFactoryResolver: ComponentFactoryResolver) { }
 
   ngAfterViewInit(): void {
-    this.eventsSubscription = this.events.subscribe(() => {
+    this.eventsSubscription = this.events.subscribe((data) => {
       console.log('received');
-      this.loadNetworkLayers();
+      this.loadNetworkLayers(data);
     });
     }
 
-  ngOnInit(): void {
-    // this.loadNetworkLayers();
-  }
-
-
-
-  loadNetworkLayers(): void {
+  loadNetworkLayers(data): void {
     console.log('yey');
     console.log(this.graph);
-    if (this.graph != null) {
+    console.log(data);
+    if (data != null) {
       // tslint:disable-next-line:prefer-for-of
-      for (let i = 0; i < this.graph.nodes.length; i++) {
-        const layer = new NetworkItem(GeneralLayerComponent, this.graph.nodes[i] as NetworkNode);
-        console.log(this.graph.nodes[i]);
+      for (let i = 0; i < data.nodes.length; i++) {
+        const layer = new NetworkItem(GeneralLayerComponent, data.nodes[i] as NetworkNode);
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(layer.component);
 
         const viewContainerRef = this.layerLoader.viewContainerRef;
