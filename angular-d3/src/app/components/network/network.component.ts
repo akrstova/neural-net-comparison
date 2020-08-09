@@ -45,7 +45,6 @@ export class NetworkComponent implements OnInit, AfterViewInit {
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(layer.component);
 
         const viewContainerRef = this.layerLoader.viewContainerRef;
-        viewContainerRef.clear();
 
         const componentRef = viewContainerRef.createComponent<GeneralLayerComponent>(componentFactory);
         componentRef.instance.networkNodeData = layer.data;
