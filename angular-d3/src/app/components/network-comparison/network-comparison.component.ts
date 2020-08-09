@@ -41,30 +41,20 @@ export class NetworkComparisonComponent implements OnInit {
   }
 
   async loadGraphs() {
-   this.firstModelGraph = await this.getGraphForModelId(this.firstModelId);
-   this.firstGraphChangedEvent.next();
-
-  }
-
-  async selectModel() {
-    if (this.firstModelId != null && this.secondModelId != null) {
-      await this.loadGraphs();
-    }
-  }
-
-  async selectFirstModel() {
-    this.filteredModels = this.allModels.filter(model => model.modelId !== this.firstModelId);
     this.getGraphForModelId(this.firstModelId).then((graph) => {
       this.firstGraphChangedEvent.next(graph);
     });
-  }
-
-  async selectSecondModel() {
     this.getGraphForModelId(this.secondModelId).then((graph) => {
       this.secondGraphChangedEvent.next(graph);
     });
   }
 
+  async selectModel() {
+    this.filteredModels = this.allModels.filter(model => model.modelId !== this.firstModelId);
+    if (this.firstModelId != null && this.secondModelId != null) {
+      await this.loadGraphs();
+    }
+  }
 
   getDetailsForModelId(modelId): any {
     return this.modelsService.getDetailsForModelId(modelId);

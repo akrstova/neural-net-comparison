@@ -19,23 +19,18 @@ export class NetworkComponent implements AfterViewInit {
   @Input() events: Observable<void>;
   @ViewChild(LayerLoaderDirective, {static: true}) layerLoader: LayerLoaderDirective;
 
-  constructor(private componentFactoryResolver: ComponentFactoryResolver) { }
+  constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
 
   ngAfterViewInit(): void {
     this.eventsSubscription = this.events.subscribe((data) => {
-      console.log('received');
       this.loadNetworkLayers(data);
     });
-    }
+  }
 
   loadNetworkLayers(data): void {
-    console.log('yey');
-    console.log(this.graph);
-    console.log(data);
     if (data != null) {
-      // tslint:disable-next-line:prefer-for-of
-      for (let i = 0; i < data.nodes.length; i++) {
-        const layer = new NetworkItem(GeneralLayerComponent, data.nodes[i] as NetworkNode);
+      for (const node of data.nodes) {
+        const layer = new NetworkItem(GeneralLayerComponent, node as NetworkNode);
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(layer.component);
 
         const viewContainerRef = this.layerLoader.viewContainerRef;
@@ -43,6 +38,6 @@ export class NetworkComponent implements AfterViewInit {
         const componentRef = viewContainerRef.createComponent<GeneralLayerComponent>(componentFactory);
         componentRef.instance.networkNodeData = layer.data;
       }
-        }
+    }
   }
 }
