@@ -5,7 +5,7 @@ import {Network} from '../../model/network/network-model.model';
 import {DropdownOption} from '../../model/options/dropdown-option.model';
 
 @Component({
-  selector: 'app-model-comparison',
+  selector: 'app-network-comparison',
   templateUrl: './network-comparison.component.html',
   styleUrls: ['./network-comparison.component.css']
 })
@@ -13,8 +13,10 @@ export class NetworkComparisonComponent implements OnInit {
 
   allModels = [];
   filteredModels = [];
-  firstModel: null;
-  secondModel: null;
+  firstModelId: null;
+  secondModelId: null;
+  firstModelGraph = {} as Network;
+  secondModelGraph = {} as Network;
 
   constructor(private modelsService: ModelsService) { }
 
@@ -37,18 +39,16 @@ export class NetworkComparisonComponent implements OnInit {
   }
 
   selectModel(): void {
-    this.filteredModels = this.allModels.filter(model => model !== this.firstModel);
-    this.drawModel(this.firstModel);
-    if (this.secondModel !== null) {
-      this.drawModel(this.secondModel);
+    this.filteredModels = this.allModels.filter(model => model !== this.firstModelId);
+    if (this.firstModelId != null) {
+      console.log(this.firstModelId);
+      this.getGraphForModelId(this.firstModelId).subscribe(graph => {
+        this.firstModelGraph = graph;
+      });
     }
-  }
-
-  drawModel(selectedId): any {
-    const graph = this.getGraphForModelId(selectedId).subscribe(graph => {
-      console.log('Graph');
-      console.log(graph);
-    });
+    if (this.secondModelId != null) {
+      this.getGraphForModelId(this.secondModelId).subscribe(graph => this.secondModelGraph = graph);
+    }
   }
 
   getDetailsForModelId(modelId): any {
