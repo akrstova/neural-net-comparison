@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, ElementRef, Input, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {NetworkNode} from '../../../model/network/network-node.model';
 import * as d3 from 'd3';
 import {InputShape} from '../../../model/network/input-shape';
@@ -12,13 +12,20 @@ import {InputShape} from '../../../model/network/input-shape';
 export class GeneralLayerComponent implements OnInit {
 
   @Input() networkNodeData: NetworkNode;
+  @ViewChild('parent', {static: true}) parentContainer: ElementRef;
+  @ViewChild('visArea', {static: true}) visArea: ElementRef;
   visWidth: 30;
   visHeight: 30;
+  containerStyle: any;
 
-  constructor() { }
+  constructor(private renderer: Renderer2) { }
+
 
   ngOnInit(): void {
-    console.log('My data', this.networkNodeData);
+    const containerStyle = {
+      'width': 30,
+      'height': 30
+    };
     const layerShape = this.getInputShape(this.networkNodeData.inputShape) as InputShape;
     const processed = [];
 
@@ -29,15 +36,18 @@ export class GeneralLayerComponent implements OnInit {
       });
     }
 
+    this.renderer.setStyle(this.visArea, 'width', '100px');
+    this.renderer.setStyle(this.visArea, 'height', '100px');
+
     console.log('Shape', layerShape);
     console.log('Processed ', processed);
 
-
-    const svg = d3.select('.visArea').append('svg')
-      .attr('width', this.visHeight)
+    const svg = d3.select(this.visArea.nativeElement).append('svg')
+      .attr('width', this.visWidth)
       .attr('height', this.visHeight)
-      .append('g')
-      .attr('transform', 'translate(' + this.visWidth / 2 + ',' + this.visHeight / 2 + ')');
+      .attr('id', 'Layer_' + this.networkNodeData.clsName)
+      .append('g');
+
 
     svg.selectAll('rect')
       .data(processed)

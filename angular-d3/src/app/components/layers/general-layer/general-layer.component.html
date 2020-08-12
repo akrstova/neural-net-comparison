@@ -1,7 +1,5 @@
-<div style="border: floralwhite solid 1px">
+<div #parent style="border: floralwhite solid 1px" >
   <h6>{{networkNodeData.clsName}}</h6>
   <p>{{networkNodeData.inputShape[3]}}x{{networkNodeData.inputShape[1]}}x{{networkNodeData.inputShape[2]}}</p>
-  <div class="visArea">
-
-  </div>
+  <div #visArea [ngStyle]="containerStyle"></div>
 </div>
