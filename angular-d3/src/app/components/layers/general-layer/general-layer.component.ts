@@ -20,7 +20,6 @@ export class GeneralLayerComponent implements OnInit {
 
   constructor(private renderer: Renderer2) { }
 
-
   ngOnInit(): void {
     const containerStyle = {
       'width': 30,
@@ -36,11 +35,8 @@ export class GeneralLayerComponent implements OnInit {
       });
     }
 
-    this.renderer.setStyle(this.visArea, 'width', '100px');
-    this.renderer.setStyle(this.visArea, 'height', '100px');
-
-    console.log('Shape', layerShape);
-    console.log('Processed ', processed);
+    // this.renderer.setStyle(this.visArea, 'width', '100px');
+    // this.renderer.setStyle(this.visArea, 'height', '100px');
 
     const svg = d3.select(this.visArea.nativeElement).append('svg')
       .attr('width', this.visWidth)
@@ -58,7 +54,6 @@ export class GeneralLayerComponent implements OnInit {
       .attr('height', (d, i) => d.height)
       .attr('fill', 'white')
       .attr('stroke', 'black');
-
   }
 
   getInputShape(inputShape): InputShape {

@@ -1,1 +1,13 @@
+#first-model-vis {
+  display: inline-block;
+  width: 50%;
+  align-items: flex-start;
+  background: #7f7f7f;
+}
 
+#second-model-vis {
+  display: inline-block;
+  width: 50%;
+  align-items: flex-end;
+  background: #7ec699;
+}

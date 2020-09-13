@@ -1,17 +1,19 @@
 <p>Please choose two models to compare</p>
-<select  class="selectpicker dropdown mt-4 ml-3" id="first-model" data-live-search="true" [(ngModel)]="firstModelId" (change)="selectModel()">
+<select class="selectpicker dropdown mt-4 ml-3" id="first-model" data-live-search="true" [(ngModel)]="firstModelId"
+        (change)="selectModel()">
   <option *ngFor="let model of allModels" [ngValue]="model.modelId">{{model.modelName}}</option>
 </select>
 <br>
-<select  class="selectpicker dropdown mt-4 ml-3" id="second-model" data-live-search="true"  [(ngModel)]="secondModelId" (change)="selectModel()">
+<select class="selectpicker dropdown mt-4 ml-3" id="second-model" data-live-search="true" [(ngModel)]="secondModelId"
+        (change)="selectModel()">
   <option *ngFor="let model of filteredModels" [ngValue]="model.modelId">{{model.modelName}}</option>
 </select>
 <br>
-<div style="width: 100%; background: #7f7f7f;">
-  <app-network [graph]="firstModelGraph" [events]="firstGraphChangedEvent.asObservable()"></app-network>
+<div id="container" style="width: 100%; display: flex;">
+  <div id="first-model-vis">
+    <app-network [graph]="firstModelGraph" [events]="firstGraphChangedEvent.asObservable()"></app-network>
+  </div>
+  <div id="second-model-vis">
+    <app-network [graph]="secondModelGraph" [events]="secondGraphChangedEvent.asObservable()"></app-network>
+  </div>
 </div>
-<br>
-<div style="width: 100%; background: #7ec699;">
-  <app-network [graph]="secondModelGraph" [events]="secondGraphChangedEvent.asObservable()"></app-network>
-</div>
-
