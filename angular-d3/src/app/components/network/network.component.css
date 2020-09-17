@@ -1,1 +1,6 @@
-
+.network-container {
+  display: inline;
+  width: 100%;
+  overflow: scroll;
+  white-space: nowrap;
+}

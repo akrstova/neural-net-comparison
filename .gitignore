@@ -6,6 +6,11 @@ angular-d3/tmp
 angular-d3/out-tsc
 # Only exists if Bazel was run
 angular-d3/bazel-out
+angular-d3/tslint.json
+angular-d3/tsconfig.json
+angular-d3/tsconfig.base.json
+angular-d3/tsconfig.spec.json
+angular-d3/tsconfig.app.json
 
 # dependencies
 angular-d3/node_modules

@@ -12,6 +12,7 @@ import {InputShape} from '../../../model/network/input-shape';
 export class GeneralLayerComponent implements OnInit {
 
   @Input() networkNodeData: NetworkNode;
+  @Input() layerShape: any;
   @ViewChild('parent', {static: true}) parentContainer: ElementRef;
   @ViewChild('visArea', {static: true}) visArea: ElementRef;
   visWidth: 30;
@@ -25,13 +26,13 @@ export class GeneralLayerComponent implements OnInit {
       'width': 30,
       'height': 30
     };
-    const layerShape = this.getInputShape(this.networkNodeData.inputShape) as InputShape;
+    this.layerShape = this.getInputShape(this.networkNodeData.inputShape) as InputShape;
     const processed = [];
 
-    for (let i = 0; i < layerShape.depth; i++) {
+    for (let i = 0; i < this.layerShape.depth; i++) {
       processed.push({
-        width: layerShape.width,
-        height: layerShape.height
+        width: this.layerShape.width,
+        height: this.layerShape.height
       });
     }
 
@@ -48,8 +49,8 @@ export class GeneralLayerComponent implements OnInit {
     svg.selectAll('rect')
       .data(processed)
       .enter().append('rect')
-      .attr('x', (d, i) => 10 + i * 10)
-      .attr('y', (d, i) => 10 + i * 10)
+      .attr('x', (d, i) => 10 + i * this.calculateDistanceBetweenObjects(d.width))
+      .attr('y', (d, i) => 10 + i * this.calculateDistanceBetweenObjects(d.width))
       .attr('width', (d, i) => d.width)
       .attr('height', (d, i) => d.height)
       .attr('fill', 'white')
@@ -70,4 +71,7 @@ export class GeneralLayerComponent implements OnInit {
     return obj;
   }
 
+  calculateDistanceBetweenObjects(size) {
+    return Math.ceil(Math.sqrt(size));
+  }
 }

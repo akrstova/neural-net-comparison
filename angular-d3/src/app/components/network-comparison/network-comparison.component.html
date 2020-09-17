@@ -9,11 +9,10 @@
   <option *ngFor="let model of filteredModels" [ngValue]="model.modelId">{{model.modelName}}</option>
 </select>
 <br>
-<div id="container" style="width: 100%; display: flex;">
-  <div id="first-model-vis">
-    <app-network [graph]="firstModelGraph" [events]="firstGraphChangedEvent.asObservable()"></app-network>
-  </div>
-  <div id="second-model-vis">
-    <app-network [graph]="secondModelGraph" [events]="secondGraphChangedEvent.asObservable()"></app-network>
-  </div>
+<div #scrollOne (scroll)="scrollTwo.scrollLeft = scrollOne.scrollLeft" class="network-container" id="first-model-vis">
+  <app-network [graph]="firstModelGraph" [events]="firstGraphChangedEvent.asObservable()"></app-network>
+</div>
+<br>
+<div #scrollTwo class="network-container" id="second-model-vis">
+  <app-network [graph]="secondModelGraph" [events]="secondGraphChangedEvent.asObservable()"></app-network>
 </div>
