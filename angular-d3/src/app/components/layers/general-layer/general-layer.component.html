@@ -1,4 +1,4 @@
-<div #parent style="border-right: grey solid 1px; display: inline-block; text-align: center">
+<div #parent class="svg-container" [ngClass]="{'added': networkNodeData.added == true}">
   <h6 style="vertical-align: middle; margin: auto">{{networkNodeData.clsName}}</h6>
   <p>{{layerShape.width}}x{{layerShape.height}}x{{layerShape.depth}}</p>
   <div #visArea [ngStyle]="containerStyle"></div>

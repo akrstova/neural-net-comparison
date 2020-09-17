@@ -6,4 +6,5 @@ export class NetworkNode {
   inputShape: string[];
   outputShape: string[];
   numParameter: number;
+  added?: boolean;
 }

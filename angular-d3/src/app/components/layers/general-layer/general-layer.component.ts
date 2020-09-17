@@ -15,8 +15,6 @@ export class GeneralLayerComponent implements OnInit {
   @Input() layerShape: any;
   @ViewChild('parent', {static: true}) parentContainer: ElementRef;
   @ViewChild('visArea', {static: true}) visArea: ElementRef;
-  visWidth: 60;
-  visHeight: 60;
   containerStyle: any;
 
   constructor(private renderer: Renderer2) { }
@@ -28,7 +26,6 @@ export class GeneralLayerComponent implements OnInit {
     };
     this.layerShape = this.getInputShape(this.networkNodeData.inputShape) as InputShape;
     const processed = [];
-    console.log(this.networkNodeData);
 
     for (let i = 0; i < this.layerShape.depth; i++) {
       processed.push({
@@ -36,10 +33,6 @@ export class GeneralLayerComponent implements OnInit {
         height: this.layerShape.height
       });
     }
-
-    console.log(this.visHeight);
-    // this.renderer.setStyle(this.visArea, 'width', '100px');
-    // this.renderer.setStyle(this.visArea, 'height', '100px');
 
     const svg = d3.select(this.visArea.nativeElement).append('svg')
       .attr('width', containerStyle.width + 'px')
