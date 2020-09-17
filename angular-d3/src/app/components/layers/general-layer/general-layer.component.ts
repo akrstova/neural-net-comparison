@@ -15,19 +15,20 @@ export class GeneralLayerComponent implements OnInit {
   @Input() layerShape: any;
   @ViewChild('parent', {static: true}) parentContainer: ElementRef;
   @ViewChild('visArea', {static: true}) visArea: ElementRef;
-  visWidth: 30;
-  visHeight: 30;
+  visWidth: 60;
+  visHeight: 60;
   containerStyle: any;
 
   constructor(private renderer: Renderer2) { }
 
   ngOnInit(): void {
     const containerStyle = {
-      'width': 30,
-      'height': 30
+      'width': 200,
+      'height': 200
     };
     this.layerShape = this.getInputShape(this.networkNodeData.inputShape) as InputShape;
     const processed = [];
+    console.log(this.networkNodeData);
 
     for (let i = 0; i < this.layerShape.depth; i++) {
       processed.push({
@@ -36,12 +37,13 @@ export class GeneralLayerComponent implements OnInit {
       });
     }
 
+    console.log(this.visHeight);
     // this.renderer.setStyle(this.visArea, 'width', '100px');
     // this.renderer.setStyle(this.visArea, 'height', '100px');
 
     const svg = d3.select(this.visArea.nativeElement).append('svg')
-      .attr('width', this.visWidth)
-      .attr('height', this.visHeight)
+      .attr('width', containerStyle.width + 'px')
+      .attr('height', containerStyle.height + 'px')
       .attr('id', 'Layer_' + this.networkNodeData.clsName)
       .append('g');
 
