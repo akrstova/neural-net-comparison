@@ -13,6 +13,6 @@
   <app-network [graph]="firstModelGraph" [events]="firstGraphChangedEvent.asObservable()"></app-network>
 </div>
 <br>
-<div #scrollTwo class="network-container" id="second-model-vis">
+<div #scrollTwo (scroll)="scrollOne.scrollLeft = scrollTwo.scrollLeft" class="network-container" id="second-model-vis">
   <app-network [graph]="secondModelGraph" [events]="secondGraphChangedEvent.asObservable()"></app-network>
 </div>

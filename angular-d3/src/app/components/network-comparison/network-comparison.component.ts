@@ -3,6 +3,7 @@ import {ModelsService} from '../../service/models.service';
 import {Subject} from 'rxjs';
 import {Network} from '../../model/network/network-model.model';
 import {DropdownOption} from '../../model/options/dropdown-option.model';
+import {NetworkNode} from '../../model/network/network-node.model';
 
 @Component({
   selector: 'app-network-comparison',
@@ -43,11 +44,12 @@ export class NetworkComparisonComponent implements OnInit {
   async loadGraphs() {
     this.getGraphForModelId(this.firstModelId).then((graph) => {
       this.firstModelGraph = graph;
-      this.firstGraphChangedEvent.next(this.firstModelGraph);
     });
     this.getGraphForModelId(this.secondModelId).then((graph) => {
       this.secondModelGraph = graph;
+      console.log(this.firstModelGraph, this.secondModelGraph);
       this.compareModels(this.firstModelGraph, this.secondModelGraph);
+      this.firstGraphChangedEvent.next(this.firstModelGraph);
       this.secondGraphChangedEvent.next(this.secondModelGraph);
     });
   }
@@ -68,9 +70,17 @@ export class NetworkComparisonComponent implements OnInit {
   }
 
   compareModels(firstGraph, secondGraph) {
-      if (firstGraph.nodes.length < secondGraph.nodes.length) {
+    if (firstGraph.nodes.length < secondGraph.nodes.length) {
         for (let i = firstGraph.nodes.length; i < secondGraph.nodes.length; i++) {
           secondGraph.nodes[i].added = true;
+          const node = new NetworkNode();
+          node.clsName = 'Empty';
+          node.config = null;
+          node.inputShape = ['1', '1'];
+          node.name = 'Empty';
+          node.id = '1';
+          node.numParameter = 0;
+          firstGraph.nodes.push(node);
         }
       }
   }

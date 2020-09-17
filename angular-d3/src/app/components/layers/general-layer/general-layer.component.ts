@@ -24,6 +24,7 @@ export class GeneralLayerComponent implements OnInit {
       'width': 200,
       'height': 200
     };
+
     this.layerShape = this.getInputShape(this.networkNodeData.inputShape) as InputShape;
     const processed = [];
 
