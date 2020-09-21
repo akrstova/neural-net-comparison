@@ -28,7 +28,9 @@ export class GeneralLayerComponent implements OnInit {
     this.layerShape = this.getInputShape(this.networkNodeData.inputShape) as InputShape;
     const processed = [];
 
-    for (let i = 0; i < this.layerShape.depth; i++) {
+    const maxDepth = Math.min(this.layerShape.depth, 48);
+
+    for (let i = 0; i < maxDepth; i++) {
       processed.push({
         width: this.layerShape.width,
         height: this.layerShape.height
