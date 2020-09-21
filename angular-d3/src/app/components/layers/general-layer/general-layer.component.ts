@@ -53,7 +53,7 @@ export class GeneralLayerComponent implements OnInit {
         .attr('y', (d, i) => 10 + i * this.calculateDistanceBetweenObjects(d.width))
         .attr('width', (d, i) => d.width)
         .attr('height', (d, i) => d.height)
-        .attr('fill', 'white')
+        .attr('fill', (d, i) => i % 2 === 0 ? 'white' : 'lightgrey')
         .attr('stroke', 'black');
     } else {
       // Append polygon for Dense layers
