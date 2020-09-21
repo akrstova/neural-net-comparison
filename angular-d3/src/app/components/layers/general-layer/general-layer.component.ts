@@ -17,7 +17,8 @@ export class GeneralLayerComponent implements OnInit {
   @ViewChild('visArea', {static: true}) visArea: ElementRef;
   containerStyle: any;
 
-  constructor(private renderer: Renderer2) { }
+  constructor(private renderer: Renderer2) {
+  }
 
   ngOnInit(): void {
     const containerStyle = {
@@ -43,16 +44,36 @@ export class GeneralLayerComponent implements OnInit {
       .attr('id', 'Layer_' + this.networkNodeData.clsName)
       .append('g');
 
-
-    svg.selectAll('rect')
-      .data(processed)
-      .enter().append('rect')
-      .attr('x', (d, i) => 10 + i * this.calculateDistanceBetweenObjects(d.width))
-      .attr('y', (d, i) => 10 + i * this.calculateDistanceBetweenObjects(d.width))
-      .attr('width', (d, i) => d.width)
-      .attr('height', (d, i) => d.height)
-      .attr('fill', 'white')
-      .attr('stroke', 'black');
+    if (processed.length > 1) {
+      // Append multiple rectangles for layers other than Dense
+      svg.selectAll('rect')
+        .data(processed)
+        .enter().append('rect')
+        .attr('x', (d, i) => 10 + i * this.calculateDistanceBetweenObjects(d.width))
+        .attr('y', (d, i) => 10 + i * this.calculateDistanceBetweenObjects(d.width))
+        .attr('width', (d, i) => d.width)
+        .attr('height', (d, i) => d.height)
+        .attr('fill', 'white')
+        .attr('stroke', 'black');
+    } else {
+      // Append polygon for Dense layers
+      const maxHeight = Math.min(processed[0].height, 128);
+      const x1 = Math.ceil(maxHeight / Math.tan(45)) + 30;
+      const poly = [{'x': 10, 'y': 10},
+        {'x': x1, 'y': maxHeight},
+        {'x': x1 + 10, 'y': maxHeight},
+        {'x': 20, 'y': 10}];
+      svg.selectAll('polygon')
+        .data([poly])
+        .enter().append('polygon')
+        .attr('points', (d) => {
+          return d.map((p) => {
+            return [p.x, p.y].join(',');
+          }).join(' ');
+        })
+        .attr('fill', 'lightgrey')
+        .attr('stroke', 'black');
+    }
   }
 
   getInputShape(inputShape): InputShape {
