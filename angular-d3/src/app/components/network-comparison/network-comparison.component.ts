@@ -20,8 +20,11 @@ export class NetworkComparisonComponent implements OnInit {
   secondModelGraph = {} as Network;
   firstGraphChangedEvent: Subject<Network> = new Subject<Network>();
   secondGraphChangedEvent: Subject<Network> = new Subject<Network>();
+  defaultOption: any;
 
   constructor(private modelsService: ModelsService) {
+    this.defaultOption = new DropdownOption();
+    this.defaultOption.modelName = 'Select new model';
   }
 
   ngOnInit(): void {
@@ -39,6 +42,8 @@ export class NetworkComparisonComponent implements OnInit {
             this.allModels.push(model);
           });
         });
+        this.allModels.push(this.defaultOption);
+        this.filteredModels.push(this.defaultOption);
       });
   }
 
@@ -56,6 +61,7 @@ export class NetworkComparisonComponent implements OnInit {
 
   async selectModel() {
     this.filteredModels = this.allModels.filter(model => model.modelId !== this.firstModelId);
+    this.filteredModels.push(this.defaultOption);
     if (this.firstModelId != null && this.secondModelId != null) {
       await this.loadGraphs();
     }
