@@ -55,7 +55,7 @@ export class GeneralLayerComponent implements OnInit {
         .attr('height', (d, i) => d.height)
         .attr('fill', (d, i) => i % 2 === 0 ? 'white' : 'lightgrey')
         .attr('stroke', 'black');
-    } else {
+    } else if (processed.length === 1) {
       // Append polygon for Dense layers
       const maxHeight = Math.min(processed[0].height, 128);
       const x1 = Math.ceil(maxHeight / Math.tan(45)) + 30;

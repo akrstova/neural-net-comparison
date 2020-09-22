@@ -4,7 +4,7 @@ export class NetworkNode {
   id?: string;
   config?: any;
   inputShape?: string[];
-  outputShape?: string[];
   numParameter?: number;
   added?: boolean;
+  removed?: boolean;
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ModelsService} from '../../service/models.service';
 import {Subject} from 'rxjs';
 import {Network} from '../../model/network/network-model.model';
@@ -21,7 +21,8 @@ export class NetworkComparisonComponent implements OnInit {
   firstGraphChangedEvent: Subject<Network> = new Subject<Network>();
   secondGraphChangedEvent: Subject<Network> = new Subject<Network>();
 
-  constructor(private modelsService: ModelsService) { }
+  constructor(private modelsService: ModelsService) {
+  }
 
   ngOnInit(): void {
     this.getAvailableModels();
@@ -47,7 +48,6 @@ export class NetworkComparisonComponent implements OnInit {
     });
     this.getGraphForModelId(this.secondModelId).then((graph) => {
       this.secondModelGraph = graph;
-      console.log(this.firstModelGraph, this.secondModelGraph);
       this.compareModels(this.firstModelGraph, this.secondModelGraph);
       this.firstGraphChangedEvent.next(this.firstModelGraph);
       this.secondGraphChangedEvent.next(this.secondModelGraph);
@@ -71,17 +71,28 @@ export class NetworkComparisonComponent implements OnInit {
 
   compareModels(firstGraph, secondGraph) {
     if (firstGraph.nodes.length < secondGraph.nodes.length) {
-        for (let i = firstGraph.nodes.length; i < secondGraph.nodes.length; i++) {
-          secondGraph.nodes[i].added = true;
-          const node = new NetworkNode();
-          node.clsName = 'Empty';
-          node.config = null;
-          node.inputShape = ['1', '1'];
-          node.name = 'Empty';
-          node.id = '1';
-          node.numParameter = 0;
-          firstGraph.nodes.push(node);
-        }
+      for (let i = firstGraph.nodes.length; i < secondGraph.nodes.length; i++) {
+        secondGraph.nodes[i].added = true;
+        const node = this.createEmptyNode();
+        firstGraph.nodes.push(node);
       }
+    } else {
+      for (let i = secondGraph.nodes.length; i < firstGraph.nodes.length; i++) {
+        firstGraph.nodes[i].removed = true;
+        const node = this.createEmptyNode();
+        secondGraph.nodes.push(node);
+      }
+    }
+  }
+
+  createEmptyNode() {
+    const node = new NetworkNode();
+    node.clsName = '';
+    node.config = null;
+    node.inputShape = [];
+    node.name = '';
+    node.id = '1';
+    node.numParameter = 0;
+    return node;
   }
 }
