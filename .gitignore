@@ -1,19 +1,20 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # compiled output
-angular-d3/dist
-angular-d3/tmp
-angular-d3/out-tsc
+nn-comparison-frontend/dist
+nn-comparison-frontend/tmp
+nn-comparison-frontend/out-tsc
 # Only exists if Bazel was run
-angular-d3/bazel-out
-angular-d3/tslint.json
-angular-d3/tsconfig.json
-angular-d3/tsconfig.base.json
-angular-d3/tsconfig.spec.json
-angular-d3/tsconfig.app.json
+nn-comparison-frontend/bazel-out
+nn-comparison-frontend/tslint.json
+nn-comparison-frontend/tsconfig.json
+nn-comparison-frontend/tsconfig.base.json
+nn-comparison-frontend/tsconfig.spec.json
+nn-comparison-frontend/tsconfig.app.json
 
 # dependencies
-angular-d3/node_modules
+nn-comparison-frontend/node_modules
+nn-comparison-frontend/e2e/*
 
 # profiling files
 chrome-profiler-events*.json
@@ -49,4 +50,4 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
-/angular-d3/e2e/
+/nn-comparison-frontend/e2e/

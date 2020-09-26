@@ -23,13 +23,13 @@ describe('AppComponent', () => {
   it(`should have as title 'angular-d3'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('angular-d3');
+    expect(app.title).toEqual('nn-comparison-frontend');
   });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('.content span').textContent).toContain('angular-d3 app is running!');
+    expect(compiled.querySelector('.content span').textContent).toContain('nn-comparison-frontend app is running!');
   });
 });
