@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Network} from '../model/network/network-model.model';
 
 @Injectable()
 export class ModelsService {
   baseUrl = 'http://localhost:8080';
+  httpOptions: any;
 
   constructor(private http: HttpClient) {
   }
@@ -21,4 +22,13 @@ export class ModelsService {
     return await this.http.get<Network>(this.baseUrl + '/model/' + modelId + '/graph').toPromise();
   }
 
+  compareGraphsNetworkX(firstModelGraph: Network, secondModelGraph: Network) {
+    const graphsJson = {'firstGraph': firstModelGraph, 'secondGraph': secondModelGraph};
+    this.httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    }
+    return this.http.post('http://localhost:5000/compare', JSON.stringify(graphsJson), this.httpOptions)
+  }
 }

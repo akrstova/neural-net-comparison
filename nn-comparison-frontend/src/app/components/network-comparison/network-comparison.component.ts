@@ -101,4 +101,8 @@ export class NetworkComparisonComponent implements OnInit {
     node.numParameter = 0;
     return node;
   }
+
+  getModelSimilarity() {
+    return this.modelsService.compareGraphsNetworkX(this.firstModelGraph, this.secondModelGraph);
+  }
 }
