@@ -2,7 +2,6 @@ from flask import Flask, request
 from flask_cors import CORS, cross_origin
 import networkx as nx
 from networkx.readwrite import json_graph
-import gmatch4py as gm
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -17,8 +16,7 @@ def compare_models():
     second_graph = graphs['secondGraph']
     first_graph_x = json_graph.node_link_graph(first_graph)
     second_graph_x = json_graph.node_link_graph(second_graph)
-    ged = gm.GraphEditDistance(1, 1, 1, 1)
-    result = ged.compare([first_graph_x, second_graph_x], None)
+    result = nx.graph_edit_distance(first_graph_x, second_graph_x, roots=('139798833639120', '139798838186512'))
     return result
 
 
