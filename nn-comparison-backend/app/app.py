@@ -41,8 +41,8 @@ def create_graph_embedding(graph):
         node = graph.nodes[id]
         in_degree = graph.in_degree(id)
         out_degree = graph.out_degree(id)
-        embeddings.append(NodeEmbedding(node['clsName'], in_degree, out_degree))
-        print(in_degree)
+        if node['clsName'] != '':
+            embeddings.append(NodeEmbedding(node['clsName'], in_degree, out_degree))
     return embeddings
 
 
@@ -55,6 +55,7 @@ def assign_positions_to_nodes(graph):
     for i in range(len(graph)):
         graph[i].position = i
     return graph
+
 
 if __name__ == '__main__':
     app.run(port=5000, host='0.0.0.0')
