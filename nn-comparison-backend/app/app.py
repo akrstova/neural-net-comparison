@@ -19,9 +19,15 @@ def compare_models():
     second_graph = graphs['secondGraph']
     first_graph_x = json_graph.node_link_graph(first_graph)
     second_graph_x = json_graph.node_link_graph(second_graph)
-    result = nx.graph_edit_distance(first_graph_x, second_graph_x, roots=('139798833639120', '139798838186512'))
+    # result = nx.graph_edit_distance(first_graph_x, second_graph_x, roots=('139798833639120', '139798838186512'))
+    result = 0
     g1_embedded = assign_positions_to_nodes(create_graph_embedding(first_graph_x))
     g2_embedded = assign_positions_to_nodes(create_graph_embedding(second_graph_x))
+    g1_embedded = comparison(g1_embedded, g2_embedded)
+    return result
+
+
+def simple_comparison(g1_embedded, g2_embedded):
     for node in g1_embedded:
         all_pairs = list(itertools.product([node], g2_embedded))
         min = 1000
@@ -32,7 +38,20 @@ def compare_models():
                 min = sim
                 match = pair[1]
         print("Node {} corresponds with node {}".format(node.name, match.name))
-    return result
+
+
+def comparison(g1, g2):
+    last_matched_pos = -1
+    for i in range(len(g1)):
+        cur_node = g1[i]
+        for j in range(last_matched_pos + 1, len(g2)):
+            if cur_node.name == g2[j].name:
+                last_matched_pos = j
+                print("Node {} {} from G1 corresponds to node {} {} from G2".format(cur_node.name, cur_node.id, g2[j].name, g2[j].id))
+                cur_node.match_id = g2[j].id
+                break
+    return g1
+
 
 
 def create_graph_embedding(graph):
@@ -42,7 +61,7 @@ def create_graph_embedding(graph):
         in_degree = graph.in_degree(id)
         out_degree = graph.out_degree(id)
         if node['clsName'] != '':
-            embeddings.append(NodeEmbedding(node['clsName'], in_degree, out_degree))
+            embeddings.append(NodeEmbedding(id, node['clsName'], in_degree, out_degree))
     return embeddings
 
 
