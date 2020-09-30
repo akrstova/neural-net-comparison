@@ -1,8 +1,11 @@
 import itertools
 import networkx as nx
+import json
+import jsonpickle
 from networkx.readwrite import json_graph
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
+
 
 from app.model.NodeEmbedding import NodeEmbedding
 
@@ -19,12 +22,11 @@ def compare_models():
     second_graph = graphs['secondGraph']
     first_graph_x = json_graph.node_link_graph(first_graph)
     second_graph_x = json_graph.node_link_graph(second_graph)
-    # result = nx.graph_edit_distance(first_graph_x, second_graph_x, roots=('139798833639120', '139798838186512'))
-    result = 0
+    result = nx.graph_edit_distance(first_graph_x, second_graph_x)
     g1_embedded = assign_positions_to_nodes(create_graph_embedding(first_graph_x))
     g2_embedded = assign_positions_to_nodes(create_graph_embedding(second_graph_x))
     g1_embedded = comparison(g1_embedded, g2_embedded)
-    return result
+    return jsonpickle.dumps(g1_embedded)
 
 
 def simple_comparison(g1_embedded, g2_embedded):
@@ -47,11 +49,15 @@ def comparison(g1, g2):
         for j in range(last_matched_pos + 1, len(g2)):
             if cur_node.name == g2[j].name:
                 last_matched_pos = j
-                print("Node {} {} from G1 corresponds to node {} {} from G2".format(cur_node.name, cur_node.id, g2[j].name, g2[j].id))
+                print("Node {} {} at pos {} from G1 corresponds to node {} {} from G2 at pos".format(cur_node.name,
+                                                                                                     cur_node.id,
+                                                                                                     cur_node.position,
+                                                                                                     g2[j].name,
+                                                                                                     g2[j].id,
+                                                                                                     g2[j].position))
                 cur_node.match_id = g2[j].id
                 break
     return g1
-
 
 
 def create_graph_embedding(graph):

@@ -103,6 +103,8 @@ export class NetworkComparisonComponent implements OnInit {
   }
 
   getModelSimilarity() {
-    return this.modelsService.compareGraphsNetworkX(this.firstModelGraph, this.secondModelGraph);
+    return this.modelsService.compareGraphsNetworkX(this.firstModelGraph, this.secondModelGraph).subscribe(data => {
+      console.log(data);
+    });
   }
 }
