@@ -6,7 +6,6 @@ from networkx.readwrite import json_graph
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 
-
 from app.model.NodeEmbedding import NodeEmbedding
 
 app = Flask(__name__)
@@ -67,7 +66,9 @@ def create_graph_embedding(graph):
         in_degree = graph.in_degree(id)
         out_degree = graph.out_degree(id)
         if node['clsName'] != '':
-            embeddings.append(NodeEmbedding(id, node['clsName'], in_degree, out_degree))
+            embeddings.append(NodeEmbedding(id=id, name=node['clsName'], in_degree=in_degree, out_degree=out_degree,
+                                            clsName=node['clsName'], inputShape=node['inputShape'],
+                                            numParameter=node['numParameter']))
     return embeddings
 
 
