@@ -89,8 +89,20 @@ export class NetworkComparisonComponent implements OnInit {
           }
         }
       }
-      return firstGraph;
+      this.makeGraphsSameLength(firstGraph, secondGraph);
+  }
 
+  makeGraphsSameLength(firstGraph, secondGraph) {
+    const node = this.createEmptyNode();
+    if (firstGraph.nodes.length < secondGraph.nodes.length) {
+      for (let i = firstGraph.nodes.length; i < secondGraph.nodes.length; i++) {
+        firstGraph.nodes.push(node);
+      }
+    } else {
+      for (let i = secondGraph.nodes.length; i < firstGraph.nodes.length; i++) {
+        secondGraph.nodes.push(node);
+      }
+    }
   }
 
   getIndexOfMatchedNode(nodeId, graph) {

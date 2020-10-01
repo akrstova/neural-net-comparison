@@ -1,5 +1,5 @@
 <div #parent class="svg-container" [ngClass]="{'added': networkNodeData.added == true, 'removed': networkNodeData.removed}">
   <h6 style="vertical-align: middle; margin: auto">{{networkNodeData.clsName}}</h6>
-  <p *ngIf="layerShape.width > 1">{{layerShape.width}}x{{layerShape.height}}x{{layerShape.depth}}</p>
+  <p *ngIf="networkNodeData.name !== ''">{{layerShape.width > 1 ? layerShape.width : 1}}x{{layerShape.height ? layerShape.height : 1}}x{{layerShape.depth ? layerShape.depth : 1}}</p>
   <div #visArea [ngStyle]="containerStyle"></div>
 </div>
