@@ -51,10 +51,11 @@ export class NetworkComparisonComponent implements OnInit {
     this.getGraphForModelId(this.firstModelId).then((graph) => {
       this.firstModelGraph = graph;
     });
-    this.getGraphForModelId(this.secondModelId).then((graph) => {
+    this.getGraphForModelId(this.secondModelId).then(async (graph) => {
       this.secondModelGraph = graph;
-      this.compareModels(this.firstModelGraph, this.secondModelGraph);
-      this.firstGraphChangedEvent.next(this.firstModelGraph);
+      await this.compareModels(this.firstModelGraph, this.secondModelGraph);
+      console.log(this.firstModelGraph);
+      await this.firstGraphChangedEvent.next(this.firstModelGraph);
       this.secondGraphChangedEvent.next(this.secondModelGraph);
     });
   }
@@ -75,18 +76,28 @@ export class NetworkComparisonComponent implements OnInit {
     return await this.modelsService.getGraphForModelId(modelId);
   }
 
-  compareModels(firstGraph, secondGraph) {
-    if (firstGraph.nodes.length < secondGraph.nodes.length) {
-      for (let i = firstGraph.nodes.length; i < secondGraph.nodes.length; i++) {
-        secondGraph.nodes[i].added = true;
-        const node = this.createEmptyNode();
-        firstGraph.nodes.push(node);
+  async compareModels(firstGraph, secondGraph) {
+    const data = await this.modelsService.compareGraphsSimple(this.firstModelGraph, this.secondModelGraph).toPromise();
+      firstGraph.nodes = data['g1'];
+      secondGraph.nodes = data['g2'];
+      for (let i = 0; i < firstGraph.nodes.length; i++) {
+        const current = firstGraph.nodes[i] as NetworkNode;
+        if (current.match_id) {
+          const matchId = this.getIndexOfMatchedNode(current.match_id, secondGraph);
+          for (let j = i; j < matchId; j++) {
+            firstGraph.nodes.splice(j, 0, this.createEmptyNode());
+          }
+        }
       }
-    } else {
-      for (let i = secondGraph.nodes.length; i < firstGraph.nodes.length; i++) {
-        firstGraph.nodes[i].removed = true;
-        const node = this.createEmptyNode();
-        secondGraph.nodes.push(node);
+      return firstGraph;
+
+  }
+
+  getIndexOfMatchedNode(nodeId, graph) {
+    for (let i = 0; i < graph.nodes.length; i++) {
+      const current = graph.nodes[i] as NetworkNode;
+      if (current.id === nodeId) {
+        return current.position;
       }
     }
   }
@@ -102,9 +113,4 @@ export class NetworkComparisonComponent implements OnInit {
     return node;
   }
 
-  getModelSimilarity() {
-    return this.modelsService.compareGraphsNetworkX(this.firstModelGraph, this.secondModelGraph).subscribe(data => {
-      console.log(data);
-    });
-  }
 }

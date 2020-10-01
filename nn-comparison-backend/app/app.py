@@ -26,7 +26,7 @@ def compare_models():
     g1_embedded = assign_positions_to_nodes(create_graph_embedding(first_graph_x))
     g2_embedded = assign_positions_to_nodes(create_graph_embedding(second_graph_x))
     g1_embedded = comparison(g1_embedded, g2_embedded)
-    return jsonpickle.dumps(g1_embedded)
+    return jsonpickle.dumps({'g1': g1_embedded, 'g2': g2_embedded})
 
 
 def simple_comparison(g1_embedded, g2_embedded):

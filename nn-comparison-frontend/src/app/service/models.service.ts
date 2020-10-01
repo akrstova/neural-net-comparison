@@ -22,7 +22,7 @@ export class ModelsService {
     return await this.http.get<Network>(this.baseUrl + '/model/' + modelId + '/graph').toPromise();
   }
 
-  compareGraphsNetworkX(firstModelGraph: Network, secondModelGraph: Network) {
+  compareGraphsSimple(firstModelGraph: Network, secondModelGraph: Network) {
     const graphsJson = {'firstGraph': firstModelGraph, 'secondGraph': secondModelGraph};
     this.httpOptions = {
       headers: new HttpHeaders({

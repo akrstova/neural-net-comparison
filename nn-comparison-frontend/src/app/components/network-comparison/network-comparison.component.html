@@ -16,4 +16,3 @@
 <div #scrollTwo (scroll)="scrollOne.scrollLeft = scrollTwo.scrollLeft" class="network-container" id="second-model-vis">
   <app-network [graph]="secondModelGraph" [events]="secondGraphChangedEvent.asObservable()"></app-network>
 </div>
-<button (click)="getModelSimilarity()">Compare</button>
