@@ -19,13 +19,50 @@ def compare_models():
     graphs = request.get_json()
     first_graph = graphs['firstGraph']
     second_graph = graphs['secondGraph']
-    first_graph_x = json_graph.node_link_graph(first_graph)
-    second_graph_x = json_graph.node_link_graph(second_graph)
+    first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
+    second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
     result = nx.graph_edit_distance(first_graph_x, second_graph_x)
-    g1_embedded = assign_positions_to_nodes(create_graph_embedding(first_graph_x))
-    g2_embedded = assign_positions_to_nodes(create_graph_embedding(second_graph_x))
-    g1_embedded = comparison(g1_embedded, g2_embedded)
-    return jsonpickle.dumps({'g1': g1_embedded, 'g2': g2_embedded})
+
+    g1_mapped = compare_networkx(first_graph_x, second_graph_x)
+    unmatched_nodes_g2 = list(set(second_graph_x.nodes) - set(g1_mapped.values()))
+    if len(unmatched_nodes_g2) > 0:
+        print('Unmatched ', unmatched_nodes_g2)
+        for unmatched in unmatched_nodes_g2:
+            index = list(second_graph_x.nodes).index(unmatched)
+
+
+
+    # g1_embedded = assign_positions_to_nodes(create_graph_embedding(first_graph_x))
+    # g2_embedded = assign_positions_to_nodes(create_graph_embedding(second_graph_x))
+    # g1_embedded = comparison(g1_embedded, g2_embedded)
+    # return jsonpickle.dumps({'g1': g1_embedded, 'g2': g2_embedded})
+    return jsonpickle.dumps("")
+
+
+def compare_networkx(g1, g2):
+    paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes)
+    g1_mapped = {}
+    for tup in paths[0][0]:
+        if tup[0] is not None and tup[1] is not None:
+            print(get_node_by_id(g1, tup[0])['name'], " corresponds to ", get_node_by_id(g2, tup[1])['name'])
+            node_g1 = get_node_by_id(g1, tup[0])
+            node_g2 = get_node_by_id(g2, tup[1])
+            g1_mapped[tup[0]] = tup[1]
+    return g1_mapped
+
+
+def add_degree_info_to_nodes(graph):
+    for id in graph.nodes:
+        in_degree = graph.in_degree(id)
+        out_degree = graph.out_degree(id)
+        graph.nodes[id]['in_degree'] = in_degree
+        graph.nodes[id]['out_degree'] = out_degree
+    return graph
+
+
+def equal_nodes(n1, n2):
+    return n1['clsName'] == n2['clsName'] and n1['in_degree'] == n2['in_degree'] and n1['out_degree'] == n2[
+        'out_degree']
 
 
 def simple_comparison(g1_embedded, g2_embedded):
@@ -81,6 +118,12 @@ def assign_positions_to_nodes(graph):
     for i in range(len(graph)):
         graph[i].position = i
     return graph
+
+
+def get_node_by_id(graph, target_id):
+    for id in graph.nodes:
+        if id == target_id:
+            return graph.nodes[id]
 
 
 if __name__ == '__main__':
