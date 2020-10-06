@@ -1,6 +1,7 @@
 import numpy as np
 import itertools
 import networkx as nx
+import pickle
 import jsonpickle
 from networkx.readwrite import json_graph
 from flask import Flask, request, jsonify
@@ -155,8 +156,20 @@ def combine_adjacency_matrices(g1, g2):
     zero_A2 = np.zeros(A2.shape)
     combined_adj_mat = np.vstack((np.hstack((A1, zero_A1)), np.hstack((A2, zero_A2))))
     combined_g = nx.from_numpy_matrix(combined_adj_mat)
-    file = open('DATA_combined_edges.txt', 'wb')
-    nx.write_edgelist(combined_g, file)
+    matrix_file = open('DATA_combined_edges.txt', 'wb')
+    nx.write_edgelist(combined_g, matrix_file)
+    true_alignments = {
+        0: 7,
+        1: 8,
+        2: 9,
+        3: 10,
+        4: 11,
+        5: 12,
+        6: 13
+    }
+    true_alignments_file = open('DATA_edges-mapping-permutation.txt', 'wb')
+    pickle.dump(true_alignments, true_alignments_file, protocol=2)
+
 
 
 if __name__ == '__main__':
