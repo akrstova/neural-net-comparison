@@ -21,6 +21,7 @@ export class NetworkComparisonComponent implements OnInit {
   firstGraphChangedEvent: Subject<Network> = new Subject<Network>();
   secondGraphChangedEvent: Subject<Network> = new Subject<Network>();
   defaultOption: any;
+  comparisonEnabled: boolean;
 
   constructor(private modelsService: ModelsService) {
     this.defaultOption = new DropdownOption();
@@ -62,6 +63,7 @@ export class NetworkComparisonComponent implements OnInit {
     this.filteredModels.push(this.defaultOption);
     if (this.firstModelId != null && this.secondModelId != null) {
       await this.loadGraphs();
+      this.comparisonEnabled = true;
     }
   }
 
@@ -82,9 +84,9 @@ export class NetworkComparisonComponent implements OnInit {
 
   async compareNetworkx(firstGraph, secondGraph) {
     const data = await this.modelsService.compareGraphsNetworkX(this.firstModelGraph, this.secondModelGraph).toPromise();
-      firstGraph.nodes = data['g1'];
-      secondGraph.nodes = data['g2'];
-      console.log(data);
+    firstGraph.nodes = data['g1'];
+    secondGraph.nodes = data['g2'];
+    this.makeGraphsSameLength(firstGraph, secondGraph);
   }
 
   async callCustomComparison() {
@@ -98,7 +100,6 @@ export class NetworkComparisonComponent implements OnInit {
     const data = await this.modelsService.compareGraphsSimple(this.firstModelGraph, this.secondModelGraph).toPromise();
     firstGraph.nodes = data['g1'];
     secondGraph.nodes = data['g2'];
-    console.log(data);
     for (let i = 0; i < firstGraph.nodes.length; i++) {
       const current = firstGraph.nodes[i] as NetworkNode;
       if (current.match_id) {
