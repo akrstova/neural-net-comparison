@@ -9,6 +9,8 @@
   <option *ngFor="let model of filteredModels" [ngValue]="model.modelId">{{model.modelName}}</option>
 </select>
 <br>
+<button id="compare-networkx" (click)="callNetworkxComparison()">Compare with networkx</button>
+<button id="compare-custom" (click)="callCustomComparison()">Compare with custom algo</button>
 <div #scrollOne (scroll)="scrollTwo.scrollLeft = scrollOne.scrollLeft" class="network-container" id="first-model-vis">
   <app-network [graph]="firstModelGraph" [events]="firstGraphChangedEvent.asObservable()"></app-network>
 </div>

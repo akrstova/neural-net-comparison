@@ -53,12 +53,9 @@ export class NetworkComparisonComponent implements OnInit {
     });
     this.getGraphForModelId(this.secondModelId).then(async (graph) => {
       this.secondModelGraph = graph;
-      await this.compareModels(this.firstModelGraph, this.secondModelGraph);
-      console.log(this.firstModelGraph);
-      await this.firstGraphChangedEvent.next(this.firstModelGraph);
-      this.secondGraphChangedEvent.next(this.secondModelGraph);
     });
   }
+
 
   async selectModel() {
     this.filteredModels = this.allModels.filter(model => model.modelId !== this.firstModelId);
@@ -76,21 +73,42 @@ export class NetworkComparisonComponent implements OnInit {
     return await this.modelsService.getGraphForModelId(modelId);
   }
 
-  async compareModels(firstGraph, secondGraph) {
-    const data = await this.modelsService.compareGraphsSimple(this.firstModelGraph, this.secondModelGraph).toPromise();
+  async callNetworkxComparison() {
+    await this.compareNetworkx(this.firstModelGraph, this.secondModelGraph);
+    console.log(this.firstModelGraph);
+    await this.firstGraphChangedEvent.next(this.firstModelGraph);
+    this.secondGraphChangedEvent.next(this.secondModelGraph);
+  }
+
+  async compareNetworkx(firstGraph, secondGraph) {
+    const data = await this.modelsService.compareGraphsNetworkX(this.firstModelGraph, this.secondModelGraph).toPromise();
       firstGraph.nodes = data['g1'];
       secondGraph.nodes = data['g2'];
       console.log(data);
-      // for (let i = 0; i < firstGraph.nodes.length; i++) {
-      //   const current = firstGraph.nodes[i] as NetworkNode;
-      //   if (current.match_id) {
-      //     const matchId = this.getIndexOfMatchedNode(current.match_id, secondGraph);
-      //     for (let j = i; j < matchId; j++) {
-      //       firstGraph.nodes.splice(j, 0, this.createEmptyNode());
-      //     }
-      //   }
-      // }
-      // this.makeGraphsSameLength(firstGraph, secondGraph);
+  }
+
+  async callCustomComparison() {
+    await this.compareCustom(this.firstModelGraph, this.secondModelGraph);
+    console.log(this.firstModelGraph);
+    await this.firstGraphChangedEvent.next(this.firstModelGraph);
+    this.secondGraphChangedEvent.next(this.secondModelGraph);
+  }
+
+  async compareCustom(firstGraph, secondGraph) {
+    const data = await this.modelsService.compareGraphsSimple(this.firstModelGraph, this.secondModelGraph).toPromise();
+    firstGraph.nodes = data['g1'];
+    secondGraph.nodes = data['g2'];
+    console.log(data);
+    for (let i = 0; i < firstGraph.nodes.length; i++) {
+      const current = firstGraph.nodes[i] as NetworkNode;
+      if (current.match_id) {
+        const matchId = this.getIndexOfMatchedNode(current.match_id, secondGraph);
+        for (let j = i; j < matchId; j++) {
+          firstGraph.nodes.splice(j, 0, this.createEmptyNode());
+        }
+      }
+    }
+    this.makeGraphsSameLength(firstGraph, secondGraph);
   }
 
   makeGraphsSameLength(firstGraph, secondGraph) {

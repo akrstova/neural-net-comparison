@@ -10,3 +10,10 @@
   overflow-x: scroll;
   width: 100%;
 }
+.button {
+  color: ghostwhite;
+}
+
+#compare-custom {
+  margin-left: 1em;
+}
