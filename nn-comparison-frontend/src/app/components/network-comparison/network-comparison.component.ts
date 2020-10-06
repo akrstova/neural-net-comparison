@@ -80,16 +80,17 @@ export class NetworkComparisonComponent implements OnInit {
     const data = await this.modelsService.compareGraphsSimple(this.firstModelGraph, this.secondModelGraph).toPromise();
       firstGraph.nodes = data['g1'];
       secondGraph.nodes = data['g2'];
-      for (let i = 0; i < firstGraph.nodes.length; i++) {
-        const current = firstGraph.nodes[i] as NetworkNode;
-        if (current.match_id) {
-          const matchId = this.getIndexOfMatchedNode(current.match_id, secondGraph);
-          for (let j = i; j < matchId; j++) {
-            firstGraph.nodes.splice(j, 0, this.createEmptyNode());
-          }
-        }
-      }
-      this.makeGraphsSameLength(firstGraph, secondGraph);
+      console.log(data);
+      // for (let i = 0; i < firstGraph.nodes.length; i++) {
+      //   const current = firstGraph.nodes[i] as NetworkNode;
+      //   if (current.match_id) {
+      //     const matchId = this.getIndexOfMatchedNode(current.match_id, secondGraph);
+      //     for (let j = i; j < matchId; j++) {
+      //       firstGraph.nodes.splice(j, 0, this.createEmptyNode());
+      //     }
+      //   }
+      // }
+      // this.makeGraphsSameLength(firstGraph, secondGraph);
   }
 
   makeGraphsSameLength(firstGraph, secondGraph) {

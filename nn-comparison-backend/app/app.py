@@ -13,7 +13,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 
-@app.route('/compare', methods=['POST'])
+@app.route('/networkx', methods=['POST'])
 @cross_origin()
 def compare_models():
     graphs = request.get_json()
@@ -21,22 +21,40 @@ def compare_models():
     second_graph = graphs['secondGraph']
     first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
-    result = nx.graph_edit_distance(first_graph_x, second_graph_x)
-
     g1_mapped = compare_networkx(first_graph_x, second_graph_x)
     unmatched_nodes_g2 = list(set(second_graph_x.nodes) - set(g1_mapped.values()))
     if len(unmatched_nodes_g2) > 0:
         print('Unmatched ', unmatched_nodes_g2)
         for unmatched in unmatched_nodes_g2:
-            index = list(second_graph_x.nodes).index(unmatched)
+            index = second_graph_x.nodes[unmatched]['index']
+            first_graph['nodes'].insert(index, create_empty_node())
+    return jsonpickle.dumps({'g1': first_graph['nodes'], 'g2': second_graph['nodes']})
 
 
+@app.route('/simple', methods=['POST'])
+@cross_origin()
+def compare_models_networkx():
+    graphs = request.get_json()
+    first_graph = graphs['firstGraph']
+    second_graph = graphs['secondGraph']
+    first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
+    second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
+    g1_embedded = assign_positions_to_nodes(create_graph_embedding(first_graph_x))
+    g2_embedded = assign_positions_to_nodes(create_graph_embedding(second_graph_x))
+    g1_embedded = comparison(g1_embedded, g2_embedded)
+    return jsonpickle.dumps({'g1': g1_embedded, 'g2': g2_embedded})
 
-    # g1_embedded = assign_positions_to_nodes(create_graph_embedding(first_graph_x))
-    # g2_embedded = assign_positions_to_nodes(create_graph_embedding(second_graph_x))
-    # g1_embedded = comparison(g1_embedded, g2_embedded)
-    # return jsonpickle.dumps({'g1': g1_embedded, 'g2': g2_embedded})
-    return jsonpickle.dumps("")
+
+def create_empty_node():
+    return {
+        'clsName': '',
+        'config': {},
+        'id': 'empty',
+        'inputShape': [],
+        'name': '',
+        'numParameter': 0,
+        'outputShape': []
+    }
 
 
 def compare_networkx(g1, g2):
@@ -52,11 +70,14 @@ def compare_networkx(g1, g2):
 
 
 def add_degree_info_to_nodes(graph):
+    i = 0
     for id in graph.nodes:
         in_degree = graph.in_degree(id)
         out_degree = graph.out_degree(id)
         graph.nodes[id]['in_degree'] = in_degree
         graph.nodes[id]['out_degree'] = out_degree
+        graph.nodes[id]['index'] = i
+        i += 1
     return graph
 
 
