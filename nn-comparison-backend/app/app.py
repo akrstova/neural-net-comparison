@@ -1,6 +1,6 @@
+import numpy as np
 import itertools
 import networkx as nx
-import json
 import jsonpickle
 from networkx.readwrite import json_graph
 from flask import Flask, request, jsonify
@@ -59,6 +59,7 @@ def create_empty_node():
 
 def compare_networkx(g1, g2):
     paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes)
+    combine_adjacency_matrices(g1, g2)
     g1_mapped = {}
     for tup in paths[0][0]:
         if tup[0] is not None and tup[1] is not None:
@@ -145,6 +146,17 @@ def get_node_by_id(graph, target_id):
     for id in graph.nodes:
         if id == target_id:
             return graph.nodes[id]
+
+
+def combine_adjacency_matrices(g1, g2):
+    A1 = nx.to_numpy_matrix(g1)
+    A2 = nx.to_numpy_matrix(g2)
+    zero_A1 = np.zeros(A1.shape)
+    zero_A2 = np.zeros(A2.shape)
+    combined_adj_mat = np.vstack((np.hstack((A1, zero_A1)), np.hstack((A2, zero_A2))))
+    combined_g = nx.from_numpy_matrix(combined_adj_mat)
+    file = open('DATA_combined_edges.txt', 'wb')
+    nx.write_edgelist(combined_g, file)
 
 
 if __name__ == '__main__':
