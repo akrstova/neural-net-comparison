@@ -23,7 +23,7 @@ def compare_models():
     first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
     g1_mapped = compare_networkx(first_graph_x, second_graph_x)
-    combine_adjacency_matrices(first_graph_x, second_graph_x, first_graph['modelName'], second_graph['modelName'])
+    generate_regal_files(first_graph_x, second_graph_x, first_graph['modelName'], second_graph['modelName'])
     unmatched_nodes_g2 = list(set(second_graph_x.nodes) - set(g1_mapped.values()))
     if len(unmatched_nodes_g2) > 0:
         print('Unmatched ', unmatched_nodes_g2)
@@ -149,7 +149,7 @@ def get_node_by_id(graph, target_id):
             return graph.nodes[id]
 
 
-def combine_adjacency_matrices(g1, g2, id1, id2):
+def generate_regal_files(g1, g2, id1, id2):
     A1 = nx.to_numpy_matrix(g1)
     A2 = nx.to_numpy_matrix(g2)
     zero_A1 = np.zeros(A1.shape)
@@ -169,6 +169,13 @@ def combine_adjacency_matrices(g1, g2, id1, id2):
     }
     true_alignments_file = open(id1 + '+' + id2 + '_edges-mapping-permutation.txt', 'wb')
     pickle.dump(true_alignments, true_alignments_file, protocol=2)
+    attributes_g1 = nx.get_node_attributes(g1, 'clsName')
+    attributes_g2 = nx.get_node_attributes(g2, 'clsName')
+    combined_attributes = np.array(list(attributes_g1.values())+ list(attributes_g2.values()))
+    combined_attributes_mat = combined_attributes.reshape(len(combined_attributes), 1)
+    attributes_file = open(id1 + '+' + id2 + 'attributes.npy', 'wb')
+    np.save(attributes_file, combined_attributes_mat)
+
 
 
 if __name__ == '__main__':
