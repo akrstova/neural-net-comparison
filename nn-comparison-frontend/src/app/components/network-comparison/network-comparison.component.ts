@@ -48,12 +48,23 @@ export class NetworkComparisonComponent implements OnInit {
       });
   }
 
+  getModelLabelById(id) {
+    for (const i in this.allModels) {
+      const model = this.allModels[i] as any
+      if ((model as any).modelId ==id ) {
+        return (model as any).modelName;
+      }
+    }
+  }
+
   async loadGraphs() {
     this.getGraphForModelId(this.firstModelId).then((graph) => {
       this.firstModelGraph = graph;
+      this.firstModelGraph['modelName'] = this.getModelLabelById(this.firstModelId);
     });
     this.getGraphForModelId(this.secondModelId).then(async (graph) => {
       this.secondModelGraph = graph;
+      this.secondModelGraph['modelName'] = this.getModelLabelById(this.secondModelId);
     });
   }
 
@@ -77,7 +88,6 @@ export class NetworkComparisonComponent implements OnInit {
 
   async callNetworkxComparison() {
     await this.compareNetworkx(this.firstModelGraph, this.secondModelGraph);
-    console.log(this.firstModelGraph);
     await this.firstGraphChangedEvent.next(this.firstModelGraph);
     this.secondGraphChangedEvent.next(this.secondModelGraph);
   }
@@ -91,7 +101,6 @@ export class NetworkComparisonComponent implements OnInit {
 
   async callCustomComparison() {
     await this.compareCustom(this.firstModelGraph, this.secondModelGraph);
-    console.log(this.firstModelGraph);
     await this.firstGraphChangedEvent.next(this.firstModelGraph);
     this.secondGraphChangedEvent.next(this.secondModelGraph);
   }

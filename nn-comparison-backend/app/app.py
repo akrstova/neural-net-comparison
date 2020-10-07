@@ -23,6 +23,7 @@ def compare_models():
     first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
     g1_mapped = compare_networkx(first_graph_x, second_graph_x)
+    combine_adjacency_matrices(first_graph_x, second_graph_x, first_graph['modelName'], second_graph['modelName'])
     unmatched_nodes_g2 = list(set(second_graph_x.nodes) - set(g1_mapped.values()))
     if len(unmatched_nodes_g2) > 0:
         print('Unmatched ', unmatched_nodes_g2)
@@ -60,7 +61,6 @@ def create_empty_node():
 
 def compare_networkx(g1, g2):
     paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes)
-    combine_adjacency_matrices(g1, g2)
     g1_mapped = {}
     for tup in paths[0][0]:
         if tup[0] is not None and tup[1] is not None:
@@ -149,14 +149,14 @@ def get_node_by_id(graph, target_id):
             return graph.nodes[id]
 
 
-def combine_adjacency_matrices(g1, g2):
+def combine_adjacency_matrices(g1, g2, id1, id2):
     A1 = nx.to_numpy_matrix(g1)
     A2 = nx.to_numpy_matrix(g2)
     zero_A1 = np.zeros(A1.shape)
     zero_A2 = np.zeros(A2.shape)
     combined_adj_mat = np.vstack((np.hstack((A1, zero_A1)), np.hstack((A2, zero_A2))))
     combined_g = nx.from_numpy_matrix(combined_adj_mat)
-    matrix_file = open('DATA_combined_edges.txt', 'wb')
+    matrix_file = open(id1 + '+' + id2 + '_combined_edges.txt', 'wb')
     nx.write_edgelist(combined_g, matrix_file)
     true_alignments = {
         0: 7,
@@ -167,9 +167,8 @@ def combine_adjacency_matrices(g1, g2):
         5: 12,
         6: 13
     }
-    true_alignments_file = open('DATA_edges-mapping-permutation.txt', 'wb')
+    true_alignments_file = open(id1 + '+' + id2 + '_edges-mapping-permutation.txt', 'wb')
     pickle.dump(true_alignments, true_alignments_file, protocol=2)
-
 
 
 if __name__ == '__main__':
