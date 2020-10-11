@@ -14,7 +14,7 @@ export class GeneralLayerComponent implements OnInit {
   @Input() networkNodeData: NetworkNode;
   @Input() layerShape: any;
   @ViewChild('parent', {static: true}) parentContainer: ElementRef;
-  @ViewChild('visArea', {static: true}) visArea: ElementRef;
+  // @ViewChild('visArea', {static: true}) visArea: ElementRef;
   containerStyle: any;
 
   constructor(private renderer: Renderer2) {
@@ -38,10 +38,7 @@ export class GeneralLayerComponent implements OnInit {
       });
     }
 
-    const svg = d3.select(this.visArea.nativeElement).append('svg')
-      .attr('width', containerStyle.width + 'px')
-      .attr('height', containerStyle.height + 'px')
-      .attr('id', 'Layer_' + this.networkNodeData.clsName)
+    const svg = d3.select(this.parentContainer.nativeElement)
       .append('g');
 
     if (processed.length > 1) {

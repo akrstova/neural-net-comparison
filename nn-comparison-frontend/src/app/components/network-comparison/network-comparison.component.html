@@ -12,9 +12,11 @@
 <button id="compare-networkx" (click)="callNetworkxComparison()" [disabled]="!comparisonEnabled">Compare with networkx</button>
 <button id="compare-custom" (click)="callCustomComparison()" [disabled]="!comparisonEnabled">Compare with custom algo</button>
 <div #scrollOne (scroll)="scrollTwo.scrollLeft = scrollOne.scrollLeft" class="network-container" id="first-model-vis">
-  <app-network [graph]="firstModelGraph" [events]="firstGraphChangedEvent.asObservable()"></app-network>
+<!--  <app-network [graph]="firstModelGraph" [events]="firstGraphChangedEvent.asObservable()"></app-network>-->
+  <app-network-simple [graph]="firstModelGraph" [events]="firstGraphChangedEvent.asObservable()"></app-network-simple>
 </div>
 <br>
 <div #scrollTwo (scroll)="scrollOne.scrollLeft = scrollTwo.scrollLeft" class="network-container" id="second-model-vis">
-  <app-network [graph]="secondModelGraph" [events]="secondGraphChangedEvent.asObservable()"></app-network>
+<!--  <app-network [graph]="secondModelGraph" [events]="secondGraphChangedEvent.asObservable()"></app-network>-->
+  <app-network-simple [graph]="secondModelGraph" [events]="secondGraphChangedEvent.asObservable()"></app-network-simple>
 </div>

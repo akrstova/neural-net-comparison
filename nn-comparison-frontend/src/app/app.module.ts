@@ -10,6 +10,7 @@ import { GeneralLayerComponent } from './components/layers/general-layer/general
 import {NetworkComponent} from './components/network/network.component';
 import {NetworkComparisonComponent} from './components/network-comparison/network-comparison.component';
 import { LayerLoaderDirective } from './directives/layer-loader.directive';
+import { NetworkSimpleComponent } from './components/network-simple/network-simple.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { LayerLoaderDirective } from './directives/layer-loader.directive';
     NetworkComparisonComponent,
     NetworkComponent,
     GeneralLayerComponent,
-    LayerLoaderDirective
+    LayerLoaderDirective,
+    NetworkSimpleComponent
   ],
   imports: [
     BrowserModule,
