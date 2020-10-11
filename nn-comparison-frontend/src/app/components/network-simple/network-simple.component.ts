@@ -3,6 +3,7 @@ import {Network} from "../../model/network/network-model.model";
 import {Observable, Subscription} from "rxjs";
 import * as d3 from 'd3';
 import {InputShape} from "../../model/network/input-shape";
+import {D3Model} from '../../model/network/d3-model.model';
 import validate = WebAssembly.validate;
 
 
@@ -45,6 +46,9 @@ export class NetworkSimpleComponent implements OnInit {
     // .attr('id', 'Layer_' + this.networkNodeData.clsName)
 
     for(const i in data.nodes) {
+      const d3Model = new D3Model(svg, data.nodes);
+      d3Model.drawElements();
+
       const layer = data.nodes[i] as any;
       const layerShape = this.getInputShape(layer.inputShape);
       const processed = [];

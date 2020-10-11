@@ -1,7 +1,0 @@
-<svg #parent class="svg-container" [ngClass]="{'added': networkNodeData.added == true, 'removed': networkNodeData.removed}">
-  <h6 style="vertical-align: middle; margin: auto">{{networkNodeData.clsName}}</h6>
-  <p *ngIf="networkNodeData.name !== ''">{{layerShape.width > 1 ? layerShape.width : 1}}x{{layerShape.height ? layerShape.height : 1}}x{{layerShape.depth ? layerShape.depth : 1}}</p>
-  <div [ngStyle]="containerStyle">
-    <svg #visArea></svg>
-  </div>
-</svg>

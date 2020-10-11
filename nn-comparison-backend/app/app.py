@@ -43,6 +43,7 @@ def compare_models_networkx():
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
     g1_embedded = assign_positions_to_nodes(create_graph_embedding(first_graph_x))
     g2_embedded = assign_positions_to_nodes(create_graph_embedding(second_graph_x))
+    # generate_regal_files(first_graph_x, second_graph_x, first_graph['modelName'], second_graph['modelName'])
     g1_embedded = comparison(g1_embedded, g2_embedded)
     return jsonpickle.dumps({'g1': g1_embedded, 'g2': g2_embedded})
 
@@ -154,7 +155,8 @@ def generate_regal_files(g1, g2, id1, id2):
     A2 = nx.to_numpy_matrix(g2)
     zero_A1 = np.zeros(A1.shape)
     zero_A2 = np.zeros(A2.shape)
-    combined_adj_mat = np.vstack((np.hstack((A1, zero_A1)), np.hstack((A2, zero_A2))))
+    combined_adj_mat = np.vstack((np.hstack((A1, zero_A1)), np.hstack((zero_A2, A2))))
+    print(combined_adj_mat)
     combined_g = nx.from_numpy_matrix(combined_adj_mat)
     matrix_file = open(id1 + '+' + id2 + '_combined_edges.txt', 'wb')
     nx.write_edgelist(combined_g, matrix_file)
