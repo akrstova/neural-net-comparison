@@ -155,19 +155,29 @@ def generate_regal_files(g1, g2, id1, id2):
     A2 = nx.to_numpy_matrix(g2)
     zero_A1 = np.zeros(A1.shape)
     zero_A2 = np.zeros(A2.shape)
-    combined_adj_mat = np.vstack((np.hstack((A1, zero_A1)), np.hstack((zero_A2, A2))))
+    A1_stack =np.hstack((A1, zero_A1))
+    A2_stack = np.hstack((zero_A2, A2))
+    shape_diff = np.subtract(A1_stack.shape, A2_stack.shape)
+    if shape_diff is not None:
+        # G1 has more nodes
+        if shape_diff[0] > 0:
+            A2_stack = np.pad(A2_stack, ((shape_diff[0], 0), (0, shape_diff[1])), mode='constant')
+        else:
+            A1_stack = np.pad(A1_stack, ((0, shape_diff[0]), (shape_diff[1], 0)), mode='constant')
+
+    combined_adj_mat = np.vstack((A1_stack, A2_stack))
     print(combined_adj_mat)
     combined_g = nx.from_numpy_matrix(combined_adj_mat)
     matrix_file = open(id1 + '+' + id2 + '_combined_edges.txt', 'wb')
     nx.write_edgelist(combined_g, matrix_file)
     true_alignments = {
-        0: 7,
-        1: 8,
-        2: 9,
-        3: 10,
-        4: 11,
-        5: 12,
-        6: 13
+        0: 0,
+        1: 1,
+        2: 2,
+        3: 3,
+        4: 4,
+        5: 5,
+        7: 6
     }
     true_alignments_file = open(id1 + '+' + id2 + '_edges-mapping-permutation.txt', 'wb')
     pickle.dump(true_alignments, true_alignments_file, protocol=2)
