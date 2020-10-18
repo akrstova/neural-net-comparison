@@ -13,7 +13,7 @@ nn-comparison-frontend/tsconfig.spec.json
 nn-comparison-frontend/tsconfig.app.json
 
 # dependencies
-nn-comparison-frontend/node_modules
+nn-comparison-frontend/node_modules/*
 nn-comparison-frontend/e2e/*
 
 # profiling files
@@ -50,4 +50,3 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
-/nn-comparison-frontend/e2e/

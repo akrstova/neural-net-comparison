@@ -16,14 +16,13 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route('/networkx', methods=['POST'])
 @cross_origin()
-def compare_models():
+def compare_models_networkx():
     graphs = request.get_json()
     first_graph = graphs['firstGraph']
     second_graph = graphs['secondGraph']
     first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
     g1_mapped = compare_networkx(first_graph_x, second_graph_x)
-    generate_regal_files(first_graph_x, second_graph_x, first_graph['modelName'], second_graph['modelName'])
     unmatched_nodes_g2 = list(set(second_graph_x.nodes) - set(g1_mapped.values()))
     if len(unmatched_nodes_g2) > 0:
         print('Unmatched ', unmatched_nodes_g2)
@@ -35,7 +34,7 @@ def compare_models():
 
 @app.route('/simple', methods=['POST'])
 @cross_origin()
-def compare_models_networkx():
+def compare_models():
     graphs = request.get_json()
     first_graph = graphs['firstGraph']
     second_graph = graphs['secondGraph']
@@ -43,9 +42,19 @@ def compare_models_networkx():
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
     g1_embedded = assign_positions_to_nodes(create_graph_embedding(first_graph_x))
     g2_embedded = assign_positions_to_nodes(create_graph_embedding(second_graph_x))
-    # generate_regal_files(first_graph_x, second_graph_x, first_graph['modelName'], second_graph['modelName'])
     g1_embedded = comparison(g1_embedded, g2_embedded)
     return jsonpickle.dumps({'g1': g1_embedded, 'g2': g2_embedded})
+
+
+@app.route('/regal', methods=['POST'])
+@cross_origin()
+def compare_models_regal():
+    graphs = request.get_json()
+    first_graph = graphs['firstGraph']
+    second_graph = graphs['secondGraph']
+    first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
+    second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
+    generate_regal_files(first_graph_x, second_graph_x, first_graph['modelName'], second_graph['modelName'])
 
 
 def create_empty_node():
