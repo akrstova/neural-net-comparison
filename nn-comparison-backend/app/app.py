@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import itertools
 import networkx as nx
@@ -6,6 +7,7 @@ import jsonpickle
 from networkx.readwrite import json_graph
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
+import requests
 
 from app.model.NodeEmbedding import NodeEmbedding
 
@@ -54,7 +56,13 @@ def compare_models_regal():
     second_graph = graphs['secondGraph']
     first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
-    generate_regal_files(first_graph_x, second_graph_x, first_graph['modelName'], second_graph['modelName'])
+    matrix_file, attributes_file, true_alignments_file = generate_regal_files(first_graph_x, second_graph_x, first_graph['modelName'], second_graph['modelName'])
+    files = {
+        'matrix': os.path.abspath(matrix_file),
+        'attributes': os.path.abspath(attributes_file),
+        'alignments': os.path.abspath(true_alignments_file)
+    }
+    res = requests.post('http://localhost:8000/regal', json=files)
 
 
 def create_empty_node():
@@ -186,7 +194,7 @@ def generate_regal_files(g1, g2, id1, id2):
         3: 3,
         4: 4,
         5: 5,
-        7: 6
+        6: 6
     }
     true_alignments_file = open(id1 + '+' + id2 + '_edges-mapping-permutation.txt', 'wb')
     pickle.dump(true_alignments, true_alignments_file, protocol=2)
@@ -196,7 +204,7 @@ def generate_regal_files(g1, g2, id1, id2):
     combined_attributes_mat = combined_attributes.reshape(len(combined_attributes), 1)
     attributes_file = open(id1 + '+' + id2 + 'attributes.npy', 'wb')
     np.save(attributes_file, combined_attributes_mat)
-
+    return matrix_file.name, attributes_file.name, true_alignments_file.name
 
 
 if __name__ == '__main__':
