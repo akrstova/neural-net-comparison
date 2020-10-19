@@ -51,18 +51,22 @@ def compare_models():
 @app.route('/regal', methods=['POST'])
 @cross_origin()
 def compare_models_regal():
-    graphs = request.get_json()
-    first_graph = graphs['firstGraph']
-    second_graph = graphs['secondGraph']
+    data = request.get_json()
+    first_graph = data['firstGraph']
+    second_graph = data['secondGraph']
+    sim_measure = data['simMeasure']
     first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
     matrix_file, attributes_file, true_alignments_file = generate_regal_files(first_graph_x, second_graph_x, first_graph['modelName'], second_graph['modelName'])
-    files = {
+    to_send = {
         'matrix': os.path.abspath(matrix_file),
         'attributes': os.path.abspath(attributes_file),
-        'alignments': os.path.abspath(true_alignments_file)
+        'alignments': os.path.abspath(true_alignments_file),
+        'g1_nodes': len(first_graph_x.nodes),
+        'g2_nodes': len(second_graph_x.nodes),
+        'sim_measure': sim_measure
     }
-    res = requests.post('http://localhost:8000/regal', json=files)
+    res = requests.post('http://localhost:8000/regal', json=to_send)
 
 
 def create_empty_node():

@@ -16,6 +16,7 @@ export class NetworkComparisonComponent implements OnInit {
   filteredModels = [];
   firstModelId: null;
   secondModelId: null;
+  simMeasure = 'Euclidean';
   firstModelGraph = {} as Network;
   secondModelGraph = {} as Network;
   firstGraphChangedEvent: Subject<Network> = new Subject<Network>();
@@ -87,11 +88,11 @@ export class NetworkComparisonComponent implements OnInit {
   }
 
   async callRegalComparison() {
-    await this.compareRegal(this.firstModelGraph, this.secondModelGraph);
+    await this.compareRegal(this.firstModelGraph, this.secondModelGraph, this.simMeasure);
   }
 
-  async compareRegal(firstGraph, secondGraph) {
-    const data = await this.modelsService.compareGraphsRegal(this.firstModelGraph, this.secondModelGraph).toPromise();
+  async compareRegal(firstGraph, secondGraph, simMeasure) {
+    const data = await this.modelsService.compareGraphsRegal(this.firstModelGraph, this.secondModelGraph, simMeasure).toPromise();
     console.log(data);
   }
 

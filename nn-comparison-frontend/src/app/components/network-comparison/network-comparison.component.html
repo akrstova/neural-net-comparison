@@ -10,8 +10,15 @@
 </select>
 <br>
 <button id="compare-networkx" (click)="callNetworkxComparison()" [disabled]="!comparisonEnabled">Compare with networkx</button>
-<button id="compare-regal" (click)="callRegalComparison()" [disabled]="!comparisonEnabled">Compare with REGAL</button>
+<br>
 <button id="compare-custom" (click)="callCustomComparison()" [disabled]="!comparisonEnabled">Compare with custom algo</button>
+<br>
+<select [(ngModel)]="simMeasure" style="margin-right: 1em">
+  <option>Euclidean</option>
+  <option>Cosine</option>
+  <option>Manhattan</option>
+</select>
+<button id="compare-regal" (click)="callRegalComparison()" [disabled]="!comparisonEnabled">Compare with REGAL</button>
 <div #scrollOne (scroll)="scrollTwo.scrollLeft = scrollOne.scrollLeft" class="network-container" id="first-model-vis">
   <app-network-simple [graph]="firstModelGraph" [events]="firstGraphChangedEvent.asObservable()"></app-network-simple>
 </div>

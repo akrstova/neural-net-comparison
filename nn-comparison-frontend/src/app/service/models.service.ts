@@ -44,8 +44,8 @@ export class ModelsService {
     return this.http.post('http://localhost:5000/networkx', JSON.stringify(graphsJson), this.httpOptions)
   }
 
-  compareGraphsRegal(firstModelGraph: Network, secondModelGraph: Network) {
-    const graphsJson = {'firstGraph': firstModelGraph, 'secondGraph': secondModelGraph};
+  compareGraphsRegal(firstModelGraph: Network, secondModelGraph: Network, simMeasure: String) {
+    const graphsJson = {'firstGraph': firstModelGraph, 'secondGraph': secondModelGraph, 'simMeasure': simMeasure};
     this.httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
