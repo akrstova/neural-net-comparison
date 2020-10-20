@@ -1,3 +1,4 @@
+import json
 import os
 import numpy as np
 import itertools
@@ -66,7 +67,8 @@ def compare_models_regal():
         'g2_nodes': len(second_graph_x.nodes),
         'sim_measure': sim_measure
     }
-    res = requests.post('http://localhost:8000/regal', json=to_send)
+    matched_nodes = requests.post('http://localhost:8000/regal', json=to_send)
+    return jsonpickle.dumps({'data': json.loads(matched_nodes.content)})
 
 
 def create_empty_node():

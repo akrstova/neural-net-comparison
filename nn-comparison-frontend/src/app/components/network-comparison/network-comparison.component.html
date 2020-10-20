@@ -26,3 +26,15 @@
 <div #scrollTwo (scroll)="scrollOne.scrollLeft = scrollTwo.scrollLeft" class="network-container" id="second-model-vis">
   <app-network-simple [graph]="secondModelGraph" [events]="secondGraphChangedEvent.asObservable()"></app-network-simple>
 </div>
+
+<div id="regal-comparison" style="width: 100%;">
+  <div id="original-graph1" style="float: left; width: 30%;">
+    <p *ngFor="let node of firstModelGraph.nodes">{{node.name}}</p>
+  </div>
+  <div id="original-graph2" style="float: left; width: 30%;">
+    <p *ngFor="let node of secondModelGraph.nodes">{{node.name}}</p>
+  </div>
+  <div id="matches" style="float: left; width: 30%;">
+    <p *ngFor="let item of matchedRegal | keyvalue">{{item.key}} and {{item.value}}</p>
+  </div>
+</div>

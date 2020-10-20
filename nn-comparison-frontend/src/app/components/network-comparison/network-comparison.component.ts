@@ -4,6 +4,7 @@ import {Subject} from 'rxjs';
 import {Network} from '../../model/network/network-model.model';
 import {DropdownOption} from '../../model/options/dropdown-option.model';
 import {NetworkNode} from '../../model/network/network-node.model';
+import {async} from "rxjs/internal/scheduler/async";
 
 @Component({
   selector: 'app-network-comparison',
@@ -14,6 +15,7 @@ export class NetworkComparisonComponent implements OnInit {
 
   allModels = [];
   filteredModels = [];
+  matchedRegal: any;
   firstModelId: null;
   secondModelId: null;
   simMeasure = 'Euclidean';
@@ -21,8 +23,10 @@ export class NetworkComparisonComponent implements OnInit {
   secondModelGraph = {} as Network;
   firstGraphChangedEvent: Subject<Network> = new Subject<Network>();
   secondGraphChangedEvent: Subject<Network> = new Subject<Network>();
+  regalResultsAvailable: Subject<Network> = new Subject<Network>();
   defaultOption: any;
   comparisonEnabled: boolean;
+
 
   constructor(private modelsService: ModelsService) {
     this.defaultOption = new DropdownOption();
@@ -89,11 +93,18 @@ export class NetworkComparisonComponent implements OnInit {
 
   async callRegalComparison() {
     await this.compareRegal(this.firstModelGraph, this.secondModelGraph, this.simMeasure);
+    this.regalResultsAvailable.next();
   }
 
   async compareRegal(firstGraph, secondGraph, simMeasure) {
-    const data = await this.modelsService.compareGraphsRegal(this.firstModelGraph, this.secondModelGraph, simMeasure).toPromise();
-    console.log(data);
+    let data = await this.modelsService.compareGraphsRegal(this.firstModelGraph, this.secondModelGraph, simMeasure).toPromise();
+    let matchedNodes = {};
+    data = data['data'];
+    for(const key in data) {
+      const value = data[key].toString();
+      matchedNodes[firstGraph.nodes[key]['name']] = secondGraph.nodes[value]['name'];
+    }
+    this.matchedRegal = matchedNodes;
   }
 
   async callNetworkxComparison() {
