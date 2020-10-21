@@ -89,6 +89,8 @@ export class NetworkComparisonComponent implements OnInit {
 
   async callRegalComparison() {
     await this.compareRegal(this.firstModelGraph, this.secondModelGraph, this.simMeasure);
+    await this.firstGraphChangedEvent.next(this.firstModelGraph);
+    this.secondGraphChangedEvent.next(this.secondModelGraph);
   }
 
   async compareRegal(firstGraph, secondGraph, simMeasure) {
@@ -106,7 +108,7 @@ export class NetworkComparisonComponent implements OnInit {
     const data = await this.modelsService.compareGraphsNetworkX(this.firstModelGraph, this.secondModelGraph).toPromise();
     firstGraph.nodes = data['g1'];
     secondGraph.nodes = data['g2'];
-    // this.makeGraphsSameLength(firstGraph, secondGraph);
+    this.makeGraphsSameLength(firstGraph, secondGraph);
   }
 
   async callCustomComparison() {
@@ -124,7 +126,9 @@ export class NetworkComparisonComponent implements OnInit {
       if (current.match_id) {
         const matchId = this.getIndexOfMatchedNode(current.match_id, secondGraph);
         for (let j = i; j < matchId; j++) {
-          firstGraph.nodes.splice(j, 0, this.createEmptyNode());
+          const insertedNode = this.createEmptyNode();
+          insertedNode['position'] = j;
+          firstGraph.nodes.splice(j, 0, insertedNode);
         }
       }
     }
@@ -135,10 +139,12 @@ export class NetworkComparisonComponent implements OnInit {
     const node = this.createEmptyNode();
     if (firstGraph.nodes.length < secondGraph.nodes.length) {
       for (let i = firstGraph.nodes.length; i < secondGraph.nodes.length; i++) {
+        node['position'] = i;
         firstGraph.nodes.push(node);
       }
     } else {
       for (let i = secondGraph.nodes.length; i < firstGraph.nodes.length; i++) {
+        node['position'] = i;
         secondGraph.nodes.push(node);
       }
     }

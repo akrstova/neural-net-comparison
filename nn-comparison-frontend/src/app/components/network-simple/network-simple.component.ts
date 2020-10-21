@@ -33,7 +33,6 @@ export class NetworkSimpleComponent implements OnInit {
   }
 
   loadNetworkLayers(data) {
-    console.log(data);
     const containerStyle = {
       'width': 1000,
       'height': 200
@@ -46,8 +45,8 @@ export class NetworkSimpleComponent implements OnInit {
     // .attr('id', 'Layer_' + this.networkNodeData.clsName)
 
     for(const i in data.nodes) {
-      const d3Model = new D3Model(svg, data.nodes);
-      d3Model.drawElements();
+      // const d3Model = new D3Model(svg, data.nodes);
+      // d3Model.drawElements();
 
       const layer = data.nodes[i] as any;
       const layerShape = this.getInputShape(layer.inputShape);
@@ -65,45 +64,46 @@ export class NetworkSimpleComponent implements OnInit {
 
       const links = this.mapLinkIdsToNodePosition(data);
 
-      const startXOffset = layer.position * 80;
+      // @ts-ignore
+      const startXOffset = i * 80;
 
-      if (processed.length > 1) {
-        // Append multiple rectangles for layers other than Dense
-        svg.selectAll('rect')
-          .data(processed)
-          .enter().append('rect')
-          .attr('x', (d, i) => 10 + i * this.calculateDistanceBetweenObjects(d.width))
-          .attr('y', (d, i) => 10 + i * this.calculateDistanceBetweenObjects(d.width))
-          .attr('width', (d, i) => d.width)
-          .attr('height', (d, i) => d.height)
-          .attr('fill', (d, i) => i % 2 === 0 ? 'white' : 'lightgrey')
-          .attr('stroke', 'black');
-      } else if (processed.length === 1) {
-        // Append polygon for Dense layers
-        // const maxHeight = Math.min(processed[0].height, 128);
-        // const x1 = Math.ceil(maxHeight / Math.tan(45)) + 30;
-        // const poly = [{'x': startXOffset, 'y': 20},
-        //   {'x': x1, 'y': maxHeight},
-        //   {'x': x1 + 10, 'y': maxHeight},
-        //   {'x': startXOffset + 10, 'y': 10}];
-        // svg.selectAll('polygon')
-        //   .data([poly])
-        //   .enter().append('polygon')
-        //   .attr('points', (d) => {
-        //     return d.map((p) => {
-        //       return [p.x, p.y].join(',');
-        //     }).join(' ');
-        //   })
-        //   .attr('fill', 'lightgrey')
-        //   .attr('stroke', 'black');
-        svg.append('rect')
-          .attr('x', (d, i) => startXOffset)
-          .attr('y', (d, i) => 10)
-          .attr('width', (d, i) => 20)
-          .attr('height', (d, i) => 60)
-          .attr('fill', (d, i) => i % 2 === 0 ? 'white' : 'white')
-          .attr('stroke', 'black');
-      }
+      // if (processed.length > 1) {
+      //   // Append multiple rectangles for layers other than Dense
+      //   svg.selectAll('rect')
+      //     .data(processed)
+      //     .enter().append('rect')
+      //     .attr('x', (d, i) => 10 + i * this.calculateDistanceBetweenObjects(d.width))
+      //     .attr('y', (d, i) => 10 + i * this.calculateDistanceBetweenObjects(d.width))
+      //     .attr('width', (d, i) => d.width)
+      //     .attr('height', (d, i) => d.height)
+      //     .attr('fill', (d, i) => i % 2 === 0 ? 'white' : 'lightgrey')
+      //     .attr('stroke', 'black');
+      // } else if (processed.length === 1) {
+      //   // Append polygon for Dense layers
+      //   // const maxHeight = Math.min(processed[0].height, 128);
+      //   // const x1 = Math.ceil(maxHeight / Math.tan(45)) + 30;
+      //   // const poly = [{'x': startXOffset, 'y': 20},
+      //   //   {'x': x1, 'y': maxHeight},
+      //   //   {'x': x1 + 10, 'y': maxHeight},
+      //   //   {'x': startXOffset + 10, 'y': 10}];
+      //   // svg.selectAll('polygon')
+      //   //   .data([poly])
+      //   //   .enter().append('polygon')
+      //   //   .attr('points', (d) => {
+      //   //     return d.map((p) => {
+      //   //       return [p.x, p.y].join(',');
+      //   //     }).join(' ');
+      //   //   })
+      //   //   .attr('fill', 'lightgrey')
+      //   //   .attr('stroke', 'black');
+      //   svg.append('rect')
+      //     .attr('x', (d, i) => startXOffset)
+      //     .attr('y', (d, i) => 10)
+      //     .attr('width', (d, i) => 20)
+      //     .attr('height', (d, i) => 60)
+      //     .attr('fill', (d, i) => i % 2 === 0 ? 'white' : 'white')
+      //     .attr('stroke', 'black');
+      // }
 
     svg.append('text')
       .attr('x', startXOffset)
@@ -111,7 +111,6 @@ export class NetworkSimpleComponent implements OnInit {
       .attr('font-size', '0.8em')
       .text(layer.name)
 
-      console.log(layerShape);
       svg.append('text')
         .attr('x', startXOffset)
         .attr('y', 120)
@@ -125,13 +124,13 @@ export class NetworkSimpleComponent implements OnInit {
         const x2 = x1 + (80 * (position - layer.position));
         const y1 = 30;
         const y2 = 30;
-        svg.append('line')
-          .style("stroke", "darkgrey")
-          .style("stroke-width", 2)
-          .attr("x1", x1)
-          .attr("x2", x2)
-          .attr("y1", y1)
-          .attr("y2", y2);
+        // svg.append('line')
+        //   .style("stroke", "darkgrey")
+        //   .style("stroke-width", 2)
+        //   .attr("x1", x1)
+        //   .attr("x2", x2)
+        //   .attr("y1", y1)
+        //   .attr("y2", y2);
       }
     }
 
@@ -147,6 +146,11 @@ export class NetworkSimpleComponent implements OnInit {
       obj.width = 1;
       obj.height = inputShape[1];
       obj.depth = 1;
+
+    } else if (inputShape.length === 0) {
+      obj.width = 0;
+      obj.height = 0;
+      obj.depth = 0;
     }
     return obj;
   }

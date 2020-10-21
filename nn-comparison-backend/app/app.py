@@ -1,3 +1,4 @@
+import json
 import os
 import numpy as np
 import itertools
@@ -66,7 +67,8 @@ def compare_models_regal():
         'g2_nodes': len(second_graph_x.nodes),
         'sim_measure': sim_measure
     }
-    res = requests.post('http://localhost:8000/regal', json=to_send)
+    matched_nodes = requests.post('http://localhost:8000/regal', json=to_send)
+    return jsonpickle.dumps({'data': json.loads(matched_nodes.content)})
 
 
 def create_empty_node():
@@ -184,7 +186,7 @@ def generate_regal_files(g1, g2, id1, id2):
         if shape_diff[0] > 0:
             A2_stack = np.pad(A2_stack, ((shape_diff[0], 0), (0, shape_diff[1])), mode='constant')
         else:
-            A1_stack = np.pad(A1_stack, ((0, shape_diff[0]), (shape_diff[1], 0)), mode='constant')
+            A1_stack = np.pad(A1_stack, ((0, abs(shape_diff[0])), (abs(shape_diff[1]), 0)), mode='constant')
 
     combined_adj_mat = np.vstack((A1_stack, A2_stack))
     print(combined_adj_mat)
