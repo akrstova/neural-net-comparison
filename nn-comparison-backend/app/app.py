@@ -25,7 +25,20 @@ def compare_models_networkx():
     second_graph = graphs['secondGraph']
     first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
-    g1_mapped = compare_networkx(first_graph_x, second_graph_x)
+    matrix_file, attributes_file, true_alignments_file = generate_regal_files(first_graph_x, second_graph_x,
+                                                                              first_graph['modelName'],
+                                                                        second_graph['modelName'])
+    to_send = {
+        'matrix': os.path.abspath(matrix_file),
+        'attributes': os.path.abspath(attributes_file),
+        'alignments': os.path.abspath(true_alignments_file),
+        'g1_nodes': len(first_graph_x.nodes),
+        'g2_nodes': len(second_graph_x.nodes),
+        'sim_measure': 'Euclidean'
+    }
+    embeddings = requests.post('http://localhost:8000/embeddings', json=to_send)
+    embeddings_arr = np.array(json.loads(embeddings.content))
+    g1_mapped = compare_networkx(first_graph_x, second_graph_x, embeddings_arr)
     unmatched_nodes_g2 = list(set(second_graph_x.nodes) - set(g1_mapped.values()))
     if len(unmatched_nodes_g2) > 0:
         print('Unmatched ', unmatched_nodes_g2)
@@ -58,7 +71,9 @@ def compare_models_regal():
     sim_measure = data['simMeasure']
     first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
-    matrix_file, attributes_file, true_alignments_file = generate_regal_files(first_graph_x, second_graph_x, first_graph['modelName'], second_graph['modelName'])
+    matrix_file, attributes_file, true_alignments_file = generate_regal_files(first_graph_x, second_graph_x,
+                                                                              first_graph['modelName'],
+                                                                              second_graph['modelName'])
     to_send = {
         'matrix': os.path.abspath(matrix_file),
         'attributes': os.path.abspath(attributes_file),
@@ -83,7 +98,7 @@ def create_empty_node():
     }
 
 
-def compare_networkx(g1, g2):
+def compare_networkx(g1, g2, embeddings):
     paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes)
     g1_mapped = {}
     for tup in paths[0][0]:
@@ -178,7 +193,7 @@ def generate_regal_files(g1, g2, id1, id2):
     A2 = nx.to_numpy_matrix(g2)
     zero_A1 = np.zeros(A1.shape)
     zero_A2 = np.zeros(A2.shape)
-    A1_stack =np.hstack((A1, zero_A1))
+    A1_stack = np.hstack((A1, zero_A1))
     A2_stack = np.hstack((zero_A2, A2))
     shape_diff = np.subtract(A1_stack.shape, A2_stack.shape)
     if shape_diff is not None:
@@ -186,7 +201,7 @@ def generate_regal_files(g1, g2, id1, id2):
         if shape_diff[0] > 0:
             A2_stack = np.pad(A2_stack, ((shape_diff[0], 0), (0, shape_diff[1])), mode='constant')
         else:
-            A1_stack = np.pad(A1_stack, ((0, abs(shape_diff[0])), (abs(shape_diff[1]), 0)), mode='constant')
+            A1_stack = np.pad(A1_stack, ((0, abs(shape_diff[0])), (0, abs(shape_diff[1]))), mode='constant')
 
     combined_adj_mat = np.vstack((A1_stack, A2_stack))
     print(combined_adj_mat)
@@ -206,7 +221,7 @@ def generate_regal_files(g1, g2, id1, id2):
     pickle.dump(true_alignments, true_alignments_file, protocol=2)
     attributes_g1 = nx.get_node_attributes(g1, 'clsName')
     attributes_g2 = nx.get_node_attributes(g2, 'clsName')
-    combined_attributes = np.array(list(attributes_g1.values())+ list(attributes_g2.values()))
+    combined_attributes = np.array(list(attributes_g1.values()) + list(attributes_g2.values()))
     combined_attributes_mat = combined_attributes.reshape(len(combined_attributes), 1)
     attributes_file = open(id1 + '+' + id2 + 'attributes.npy', 'wb')
     np.save(attributes_file, combined_attributes_mat)

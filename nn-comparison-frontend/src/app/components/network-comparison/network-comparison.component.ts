@@ -23,6 +23,7 @@ export class NetworkComparisonComponent implements OnInit {
   secondGraphChangedEvent: Subject<Network> = new Subject<Network>();
   defaultOption: any;
   comparisonEnabled: boolean;
+  matchesRegal: any;
 
   constructor(private modelsService: ModelsService) {
     this.defaultOption = new DropdownOption();
@@ -95,6 +96,7 @@ export class NetworkComparisonComponent implements OnInit {
 
   async compareRegal(firstGraph, secondGraph, simMeasure) {
     const data = await this.modelsService.compareGraphsRegal(this.firstModelGraph, this.secondModelGraph, simMeasure).toPromise();
+    this.matchesRegal = data['data'];
     console.log(data);
   }
 
