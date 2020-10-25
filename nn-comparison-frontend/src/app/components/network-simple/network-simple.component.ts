@@ -117,6 +117,12 @@ export class NetworkSimpleComponent implements OnInit {
         .attr('font-size', '0.8em')
         .text(layerShape.depth + '@' + layerShape.width + 'x' + layerShape.height)
 
+      svg.append('text')
+        .attr('x', startXOffset)
+        .attr('y', 140)
+        .attr('font-size', '0.8em')
+        .text(i)
+
       const layerLinks = links[layer.position];
       for (const l in layerLinks) {
         const position = layerLinks[l] as number;

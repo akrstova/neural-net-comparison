@@ -27,7 +27,7 @@ def compare_models_networkx():
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
     matrix_file, attributes_file, true_alignments_file = generate_regal_files(first_graph_x, second_graph_x,
                                                                               first_graph['modelName'],
-                                                                        second_graph['modelName'])
+                                                                             second_graph['modelName'])
     to_send = {
         'matrix': os.path.abspath(matrix_file),
         'attributes': os.path.abspath(attributes_file),
@@ -38,6 +38,10 @@ def compare_models_networkx():
     }
     embeddings = requests.post('http://localhost:8000/embeddings', json=to_send)
     embeddings_arr = np.array(json.loads(embeddings.content))
+    global embeddings_g1
+    embeddings_g1 = embeddings_arr[:len(first_graph_x.nodes)]
+    global embeddings_g2
+    embeddings_g2 = embeddings_arr[len(first_graph_x.nodes):]
     g1_mapped = compare_networkx(first_graph_x, second_graph_x, embeddings_arr)
     unmatched_nodes_g2 = list(set(second_graph_x.nodes) - set(g1_mapped.values()))
     if len(unmatched_nodes_g2) > 0:
@@ -99,7 +103,7 @@ def create_empty_node():
 
 
 def compare_networkx(g1, g2, embeddings):
-    paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes)
+    paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes, node_del_cost=node_del, node_ins_cost=node_ins, node_subst_cost=node_subst)
     g1_mapped = {}
     for tup in paths[0][0]:
         if tup[0] is not None and tup[1] is not None:
@@ -123,8 +127,21 @@ def add_degree_info_to_nodes(graph):
 
 
 def equal_nodes(n1, n2):
-    return n1['clsName'] == n2['clsName'] and n1['in_degree'] == n2['in_degree'] and n1['out_degree'] == n2[
-        'out_degree']
+    return n1['config']['name'] == n2['config']['name'] and n1['in_degree'] == n2['in_degree'] and n1['out_degree'] == \
+           n2[
+               'out_degree']
+
+
+def node_subst(n1, n2):
+    return compute_similarity_nodes(n1, n2)
+
+
+def node_del(n1):
+    return 4
+
+
+def node_ins(n1):
+    return 5
 
 
 def simple_comparison(g1_embedded, g2_embedded):
@@ -172,8 +189,8 @@ def create_graph_embedding(graph):
 
 
 def compute_similarity_nodes(node1, node2):
-    return int(node1.name != node2.name) + abs(node1.in_degree - node2.in_degree) + abs(
-        node1.out_degree - node2.out_degree) + abs(node1.position - node2.position)
+    return int(node1['clsName'] != node2['clsName']) + abs(node1['in_degree'] - node2['in_degree']) + abs(
+        node1['out_degree'] - node2['out_degree'])
 
 
 def assign_positions_to_nodes(graph):
