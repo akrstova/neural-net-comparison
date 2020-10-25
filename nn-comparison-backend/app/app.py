@@ -6,6 +6,10 @@ import networkx as nx
 import pickle
 import jsonpickle
 from networkx.readwrite import json_graph
+from scipy import spatial
+from matplotlib import pyplot as plt
+import seaborn as sb
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 import requests
@@ -15,6 +19,9 @@ from app.model.NodeEmbedding import NodeEmbedding
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
+embeddings_g1 = None
+embeddings_g2 = None
+subst_cost_list = list()
 
 
 @app.route('/networkx', methods=['POST'])
@@ -44,6 +51,10 @@ def compare_models_networkx():
     embeddings_g2 = embeddings_arr[len(first_graph_x.nodes):]
     g1_mapped = compare_networkx(first_graph_x, second_graph_x, embeddings_arr)
     unmatched_nodes_g2 = list(set(second_graph_x.nodes) - set(g1_mapped.values()))
+    subst_cost_matrix = np.reshape(subst_cost_list, (len(first_graph_x.nodes), len(second_graph_x.nodes))).T
+    fig, ax = plt.subplots(figsize=(11, 9))
+    sb.heatmap(subst_cost_matrix, annot=True)
+    plt.show()
     if len(unmatched_nodes_g2) > 0:
         print('Unmatched ', unmatched_nodes_g2)
         for unmatched in unmatched_nodes_g2:
@@ -128,12 +139,15 @@ def add_degree_info_to_nodes(graph):
 
 def equal_nodes(n1, n2):
     return n1['config']['name'] == n2['config']['name'] and n1['in_degree'] == n2['in_degree'] and n1['out_degree'] == \
-           n2[
-               'out_degree']
+           n2['out_degree']
 
 
 def node_subst(n1, n2):
-    return compute_similarity_nodes(n1, n2)
+    cost = compute_similarity_nodes(n1, n2)
+    # cost = compute_similarity_node_embeddings(embeddings_g1[n1['index']], embeddings_g2[n2['index']])
+    global subst_cost_list
+    subst_cost_list.append(cost)
+    return cost
 
 
 def node_del(n1):
@@ -142,6 +156,10 @@ def node_del(n1):
 
 def node_ins(n1):
     return 5
+
+
+def compute_similarity_node_embeddings(e1, e2):
+    return spatial.distance.cosine(e1.tolist(), e2.tolist())
 
 
 def simple_comparison(g1_embedded, g2_embedded):
