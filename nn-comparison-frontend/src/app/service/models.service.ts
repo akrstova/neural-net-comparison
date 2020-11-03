@@ -54,4 +54,15 @@ export class ModelsService {
     }
     return this.http.post('http://localhost:5000/regal', JSON.stringify(graphsJson), this.httpOptions)
   }
+
+  compareGraphsIGraph(firstModelGraph: Network, secondModelGraph: Network) {
+    const graphsJson = {'firstGraph': firstModelGraph, 'secondGraph': secondModelGraph};
+    this.httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin':'*'
+      })
+    }
+    return this.http.post('http://localhost:5000/igraph', JSON.stringify(graphsJson), this.httpOptions)
+  }
 }

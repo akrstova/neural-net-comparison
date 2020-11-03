@@ -9,6 +9,7 @@ from networkx.readwrite import json_graph
 from scipy import spatial
 from matplotlib import pyplot as plt
 import seaborn as sb
+import igraph
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
@@ -22,6 +23,20 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 embeddings_g1 = None
 embeddings_g2 = None
 subst_cost_list = list()
+
+@app.route('/igraph', methods=['POST'])
+@cross_origin()
+def compare_models_igraph():
+    graphs = request.get_json()
+    first_graph = graphs['firstGraph']
+    second_graph = graphs['secondGraph']
+    first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
+    second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
+    first_igraph = igraph.Graph.from_networkx(first_graph_x)
+    second_igraph = igraph.Graph.from_networkx(second_graph_x)
+    result = first_igraph.isomorphic_bliss(second_igraph, return_mapping_12=True, return_mapping_21=True)
+    print(result)
+
 
 
 @app.route('/networkx', methods=['POST'])

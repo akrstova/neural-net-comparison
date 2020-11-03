@@ -101,6 +101,8 @@ export class NetworkComparisonComponent implements OnInit {
   }
 
   async callNetworkxComparison() {
+    console.log(this.firstModelGraph);
+    console.log(this.secondModelGraph);
     await this.compareNetworkx(this.firstModelGraph, this.secondModelGraph);
     await this.firstGraphChangedEvent.next(this.firstModelGraph);
     this.secondGraphChangedEvent.next(this.secondModelGraph);
@@ -119,6 +121,7 @@ export class NetworkComparisonComponent implements OnInit {
     this.secondGraphChangedEvent.next(this.secondModelGraph);
   }
 
+
   async compareCustom(firstGraph, secondGraph) {
     const data = await this.modelsService.compareGraphsSimple(this.firstModelGraph, this.secondModelGraph).toPromise();
     firstGraph.nodes = data['g1'];
@@ -135,6 +138,16 @@ export class NetworkComparisonComponent implements OnInit {
       }
     }
     this.makeGraphsSameLength(firstGraph, secondGraph);
+  }
+
+  async callIGraphComparison() {
+    await this.compareIGraph(this.firstModelGraph, this.secondModelGraph);
+    await this.firstGraphChangedEvent.next(this.firstModelGraph);
+    this.secondGraphChangedEvent.next(this.secondModelGraph);
+  }
+
+  async compareIGraph(firstGraph, secondGraph) {
+    const data = await this.modelsService.compareGraphsIGraph(this.firstModelGraph, this.secondModelGraph).toPromise();
   }
 
   makeGraphsSameLength(firstGraph, secondGraph) {

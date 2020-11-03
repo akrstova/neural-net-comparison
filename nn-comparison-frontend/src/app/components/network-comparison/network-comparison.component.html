@@ -13,6 +13,8 @@
 <br>
 <button id="compare-custom" (click)="callCustomComparison()" [disabled]="!comparisonEnabled">Compare with custom algo</button>
 <br>
+<button id="compare-igraph" (click)="callIGraphComparison()" [disabled]="!comparisonEnabled">Compare with igraph</button>
+<br>
 <select [(ngModel)]="simMeasure" style="margin-right: 1em">
   <option>Euclidean</option>
   <option>Cosine</option>
