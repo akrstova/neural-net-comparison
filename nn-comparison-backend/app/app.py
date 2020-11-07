@@ -1,5 +1,6 @@
 import json
 import os
+from random import randint
 import numpy as np
 import itertools
 import networkx as nx
@@ -24,6 +25,7 @@ embeddings_g1 = None
 embeddings_g2 = None
 subst_cost_list = list()
 
+
 @app.route('/igraph', methods=['POST'])
 @cross_origin()
 def compare_models_igraph():
@@ -32,11 +34,25 @@ def compare_models_igraph():
     second_graph = graphs['secondGraph']
     first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
+    num_nodes_first = len(first_graph_x.nodes)
+    num_nodes_second = len(second_graph_x.nodes)
+    diff = abs(num_nodes_first - num_nodes_second)
+    if num_nodes_first > num_nodes_second:
+        for i in range(diff):
+            new_node = randint(1000, 9999)
+            second_graph_x.add_node(new_node)
+            second_graph_x.add_edge(list(second_graph_x.nodes.keys())[-2],
+                                    new_node)
+    elif num_nodes_first < num_nodes_second:
+        for i in range(diff):
+            new_node = randint(1000, 9999)
+            first_graph_x.add_node(new_node)
+            first_graph_x.add_edge(list(first_graph_x.nodes.keys())[-2],
+                                    new_node)
     first_igraph = igraph.Graph.from_networkx(first_graph_x)
     second_igraph = igraph.Graph.from_networkx(second_graph_x)
     result = first_igraph.isomorphic_bliss(second_igraph, return_mapping_12=True, return_mapping_21=True)
     print(result)
-
 
 
 @app.route('/networkx', methods=['POST'])
@@ -49,7 +65,7 @@ def compare_models_networkx():
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
     matrix_file, attributes_file, true_alignments_file = generate_regal_files(first_graph_x, second_graph_x,
                                                                               first_graph['modelName'],
-                                                                             second_graph['modelName'])
+                                                                              second_graph['modelName'])
     to_send = {
         'matrix': os.path.abspath(matrix_file),
         'attributes': os.path.abspath(attributes_file),
@@ -129,7 +145,8 @@ def create_empty_node():
 
 
 def compare_networkx(g1, g2, embeddings):
-    paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes, node_del_cost=node_del, node_ins_cost=node_ins, node_subst_cost=node_subst)
+    paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes, node_del_cost=node_del, node_ins_cost=node_ins,
+                                        node_subst_cost=node_subst)
     g1_mapped = {}
     for tup in paths[0][0]:
         if tup[0] is not None and tup[1] is not None:
