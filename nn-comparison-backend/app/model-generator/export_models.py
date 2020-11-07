@@ -13,24 +13,23 @@ def generate_and_export_models():
 
     # Changing parameters
     base_architectures = ['VGG16', 'InceptionV3', 'ResNet50']
-    input_shapes = [(224, 224, 3), (128, 128, 3), (75, 75, 3)]
-    dense_sizes = [4096, 1024, 512]
-    dropout_values = [0.5, 0.3, 0.1]
+    input_shapes = [(256, 256, 3), (224, 224, 3), (128, 128, 3), (75, 75, 3)]
+    dense_sizes = [4096, 2048, 1024, 512]
+    dropout_values = [0.5, 0.2, 0.3, 0.1]
     for model_type in base_architectures:
         # Make 4 variations of each model
-        for i in range(3):
+        for i in range(4):
             if model_type == 'VGG16':
                 # load vgg16 without dense layer and with Theano dim ordering
                 base_model = VGG16(weights='imagenet', include_top=False, input_shape=input_shapes[i])
             elif model_type == 'InceptionV3':
                 base_model = InceptionV3(weights='imagenet', include_top=False, input_shape=input_shapes[i])
             else:
-                base_model = ResNet50(weights='imagenet', input_shape=input_shapes[i])
+                base_model = ResNet50(weights='imagenet', include_top=False, input_shape=input_shapes[i])
 
             x = Flatten()(base_model.output)
             x = Dense(dense_sizes[i], activation='relu')(x)
             x = Dropout(dropout_values[i])(x)
-            # x = BatchNormalization()(x)
             predictions = Dense(num_classes, activation='softmax')(x)
 
             # create graph of your new model
