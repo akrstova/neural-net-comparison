@@ -1,13 +1,12 @@
+import json
 import random
-
-import keras
-import tensorflow
-from tensorflow.keras import backend
+import networkx as nx
 from tensorflow.keras.applications.vgg16 import VGG16
 from tensorflow.keras.applications.inception_v3 import InceptionV3
 from tensorflow.keras.applications.resnet50 import ResNet50
 from tensorflow.keras.models import Model, Sequential
-from tensorflow.keras.layers import Input, Flatten, Dense, Dropout, Conv2D, LSTM, GRU, SimpleRNN, BatchNormalization, MaxPooling2D, AveragePooling2D, GlobalMaxPooling2D
+from tensorflow.keras.layers import Input, Flatten, Dense, Dropout, Conv2D, LSTM, GRU, SimpleRNN, BatchNormalization, \
+    MaxPooling2D, AveragePooling2D, GlobalMaxPooling2D
 
 
 def generate_and_export_models():
@@ -40,13 +39,14 @@ def generate_and_export_models():
 
             # compile the model
             head_model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
-            model_json = head_model.to_json()
+            model_graph = model_to_networkx_graph(head_model)
 
             outfile = 'KerasModels/{0}_{1}.json'.format(model_type, str(i))
             with open(outfile, 'w') as file:
-                file.write(model_json)
+                json.dump(nx.json_graph.node_link_data(model_graph), file, indent=4)
 
 
+# TODO fix size compatibility and layer logic
 def generate_and_export_models_sequential():
     model_size = random.randint(5, 8)
     num_classes = random.randint(2, 10)
@@ -90,13 +90,71 @@ def generate_and_export_models_sequential():
     # Finally add the output layer
     model.add(Dense(num_classes))
     model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
-    model_json = model.to_json()
 
     outfile = 'KerasModels/Custom/{0}.json'.format('Sequential')
-    with open(outfile, 'w') as file:
-        file.write(model_json)
+    model_graph = model_to_networkx_graph(model)
+
+    for n in model_graph.nodes():
+        node = model_graph.nodes[n]
+        corr_layers = [l for l in model.layers if l.name == node["name"]]
+
+        if len(corr_layers) == 1:
+            corr_layer = corr_layers[0]
+            node["config"] = corr_layer.get_config()
+
+        # Input layer has no shape information. Extract from config and append
+        if node["clsName"] == "InputLayer":
+            node["clsName"] = "Input"
+            node["inputShape"] = node["config"]["batch_input_shape"]
+            node["outputShape"] = node["config"]["batch_input_shape"]
+
+    with open(outfile, "w") as f:
+        json.dump(nx.json_graph.node_link_data(model_graph), f, indent=4)
+
+
+def model_to_networkx_graph(model):
+    relevant_nodes = []
+    for v in model._nodes_by_depth.values():
+        relevant_nodes += v
+
+    nodes = []
+    links = []
+
+    for layer in model.layers:
+        layer_id = str(id(layer))
+
+        # Iterate over inbound nodes to extract links that end in current layer
+        for node in layer._inbound_nodes:
+            if node in relevant_nodes:
+                for inbound_layer, _, _, _ in node.iterate_inbound():
+                    inbound_layer_id = str(id(inbound_layer))
+                    links.append({
+                        "id_from": inbound_layer_id,
+                        "id_to": layer_id,
+                    })
+
+        nodes.append({
+            "id": layer_id,
+            "name": layer.name,
+            "clsName": layer.__class__.__name__,
+            "inputShape": layer.input_shape,
+            "outputShape": layer.output_shape,
+            "numParameter": layer.count_params()
+        })
+
+    # Create directed networkx-graph
+    nx_graph = nx.DiGraph()
+
+    # Add nodes to graph and append attributes
+    nx_graph.add_nodes_from([node["id"] for node in nodes])
+    nx.set_node_attributes(nx_graph, {node["id"]: node for node in nodes})
+
+    # Add edges to graph
+    nx_graph.add_edges_from([(link["id_from"], link["id_to"]) for link in links])
+
+    return nx_graph
 
 
 if __name__ == '__main__':
-    # generate_and_export_models()
-    generate_and_export_models_sequential()
+    generate_and_export_models()
+    # generate_and_export_models_sequential()
