@@ -10,6 +10,10 @@ export class ModelsService {
   constructor(private http: HttpClient) {
   }
 
+  getLocalModels(): any {
+    return this.http.get('http://localhost:5000/models');
+  }
+
   getModelIds(): any {
     return this.http.get(this.baseUrl + '/model-ids');
   }

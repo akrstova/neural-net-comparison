@@ -12,6 +12,8 @@ import {NetworkNode} from '../../model/network/network-node.model';
 })
 export class NetworkComparisonComponent implements OnInit {
 
+  localModels = {};
+  localModelIds = [];
   allModels = [];
   filteredModels = [];
   firstModelId: null;
@@ -32,12 +34,27 @@ export class NetworkComparisonComponent implements OnInit {
 
   ngOnInit(): void {
     this.getAvailableModels();
+    this.getLocalModels();
   }
 
   restartComparison() {
     if(this.secondModelId != null) {
       window.location.reload();
     }
+  }
+
+  getLocalModels(): void {
+    return this.modelsService.getLocalModels().subscribe(data => {
+      data['localModels'].map((entry) => {
+        const model = {} as DropdownOption;
+        model.modelId = Math.random().toString(36).substring(7);
+        model.modelName = entry['modelName'];
+        this.allModels.push(model);
+        this.localModelIds.push(model.modelId);
+        this.localModels[model.modelId] = entry['model'];
+        }
+      )
+    })
   }
 
   getAvailableModels(): void {
@@ -66,14 +83,25 @@ export class NetworkComparisonComponent implements OnInit {
   }
 
   async loadGraphs() {
-    this.getGraphForModelId(this.firstModelId).then((graph) => {
-      this.firstModelGraph = graph;
-      this.firstModelGraph['modelName'] = this.getModelLabelById(this.firstModelId);
-    });
-    this.getGraphForModelId(this.secondModelId).then(async (graph) => {
-      this.secondModelGraph = graph;
-      this.secondModelGraph['modelName'] = this.getModelLabelById(this.secondModelId);
-    });
+    if (this.localModelIds.includes(this.firstModelId)) {
+      this.firstModelGraph = this.localModels[this.firstModelId as any];
+      this.firstModelGraph['modelName'] = this.allModels.filter((e) => e['modelId'] == this.firstModelId)[0]['modelName'];
+    } else {
+      this.getGraphForModelId(this.firstModelId).then((graph) => {
+        this.firstModelGraph = graph;
+        this.firstModelGraph['modelName'] = this.getModelLabelById(this.firstModelId);
+      });
+    }
+    if (this.localModelIds.includes(this.secondModelId)) {
+      this.secondModelGraph = this.localModels[this.secondModelId as any];
+      this.secondModelGraph['modelName'] = this.allModels.filter((e) => e['modelId'] == this.secondModelId)[0]['modelName'];
+    }
+    else {
+      this.getGraphForModelId(this.secondModelId).then(async (graph) => {
+        this.secondModelGraph = graph;
+        this.secondModelGraph['modelName'] = this.getModelLabelById(this.secondModelId);
+      });
+    }
   }
 
 
@@ -103,12 +131,9 @@ export class NetworkComparisonComponent implements OnInit {
   async compareRegal(firstGraph, secondGraph, simMeasure) {
     const data = await this.modelsService.compareGraphsRegal(this.firstModelGraph, this.secondModelGraph, simMeasure).toPromise();
     this.matchesRegal = data['data'];
-    console.log(data);
   }
 
   async callNetworkxComparison() {
-    console.log(this.firstModelGraph);
-    console.log(this.secondModelGraph);
     await this.compareNetworkx(this.firstModelGraph, this.secondModelGraph);
     await this.firstGraphChangedEvent.next(this.firstModelGraph);
     this.secondGraphChangedEvent.next(this.secondModelGraph);

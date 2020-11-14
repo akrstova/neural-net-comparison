@@ -1,5 +1,7 @@
 import json
 import os
+from os import listdir
+from os.path import join, isfile
 from random import randint
 import numpy as np
 import itertools
@@ -26,6 +28,18 @@ embeddings_g2 = None
 subst_cost_list = list()
 
 
+@app.route('/models', methods=['GET'])
+@cross_origin()
+def serve_models():
+    path = '.'
+    model_files = [f for f in listdir(path) if isfile(join(path, f)) and '.json' in f]
+    models = []
+    for file in model_files:
+        with open(file) as f:
+            models.append({'modelName': file, 'model': json.load(f)})
+    return jsonpickle.dumps({'localModels': models})
+
+
 @app.route('/igraph', methods=['POST'])
 @cross_origin()
 def compare_models_igraph():
@@ -48,7 +62,7 @@ def compare_models_igraph():
             new_node = randint(1000, 9999)
             first_graph_x.add_node(new_node)
             first_graph_x.add_edge(list(first_graph_x.nodes.keys())[-2],
-                                    new_node)
+                                   new_node)
     first_igraph = igraph.Graph.from_networkx(first_graph_x)
     second_igraph = igraph.Graph.from_networkx(second_graph_x)
     result = first_igraph.isomorphic_bliss(second_igraph, return_mapping_12=True, return_mapping_21=True)
