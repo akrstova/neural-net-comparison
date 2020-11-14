@@ -34,6 +34,12 @@ export class NetworkComparisonComponent implements OnInit {
     this.getAvailableModels();
   }
 
+  restartComparison() {
+    if(this.secondModelId != null) {
+      window.location.reload();
+    }
+  }
+
   getAvailableModels(): void {
     return this.modelsService.getModelIds()
       .subscribe(data => {
