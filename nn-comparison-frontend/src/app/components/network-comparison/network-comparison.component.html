@@ -32,5 +32,5 @@
   <app-network-simple [graph]="secondModelGraph" [events]="secondGraphChangedEvent.asObservable()"></app-network-simple>
 </div>
 <div id="regal-results">
-  <p *ngFor="let item of matchesRegal | keyvalue">{{item.key}} --> {{item.value}}</p>
+  <p *ngFor="let item of matchesRegal | keyvalue: null">{{item.key}} --> {{item.value}}</p>
 </div>
