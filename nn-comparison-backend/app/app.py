@@ -32,7 +32,7 @@ subst_cost_list = list()
 @cross_origin()
 def serve_models():
     path = '.'
-    model_files = [f for f in listdir(path) if isfile(join(path, f)) and '.json' in f]
+    model_files = [f for f in listdir(path) if isfile(join(path, f)) and f.endswith('.json')]
     models = []
     for file in model_files:
         with open(file) as f:
@@ -72,6 +72,8 @@ def compare_models_igraph():
 @app.route('/networkx', methods=['POST'])
 @cross_origin()
 def compare_models_networkx():
+    global subst_cost_list
+    subst_cost_list = list()
     graphs = request.get_json()
     first_graph = graphs['firstGraph']
     second_graph = graphs['secondGraph']
@@ -94,12 +96,8 @@ def compare_models_networkx():
     embeddings_g1 = embeddings_arr[:len(first_graph_x.nodes)]
     global embeddings_g2
     embeddings_g2 = embeddings_arr[len(first_graph_x.nodes):]
-    g1_mapped = compare_networkx(first_graph_x, second_graph_x, embeddings_arr)
+    g1_mapped = compare_networkx(first_graph_x, second_graph_x, embeddings=True)
     unmatched_nodes_g2 = list(set(second_graph_x.nodes) - set(g1_mapped.values()))
-    subst_cost_matrix = np.reshape(subst_cost_list, (len(first_graph_x.nodes), len(second_graph_x.nodes))).T
-    fig, ax = plt.subplots(figsize=(11, 9))
-    sb.heatmap(subst_cost_matrix, annot=True)
-    plt.show()
     if len(unmatched_nodes_g2) > 0:
         print('Unmatched ', unmatched_nodes_g2)
         for unmatched in unmatched_nodes_g2:
@@ -158,15 +156,28 @@ def create_empty_node():
     }
 
 
-def compare_networkx(g1, g2, embeddings):
-    paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes, node_del_cost=node_del, node_ins_cost=node_ins,
-                                        node_subst_cost=node_subst)
+def compare_networkx(g1, g2, embeddings=False):
+    if not embeddings:
+        paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes, node_del_cost=node_del,
+                                            node_ins_cost=node_ins,
+                                            node_subst_cost=node_subst)
+
+    else:
+        paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes, node_del_cost=node_del,
+                                            node_ins_cost=node_ins,
+                                            node_subst_cost=node_subst_embeddings)
+    # Visualize subst cost
+    global subst_cost_list
+    subst_cost_list = np.array(subst_cost_list)
+    subst_cost_list = np.reshape(subst_cost_list, (len(g1.nodes), len(g2.nodes)))
+    for n in range(len(g1.nodes)):
+        plt.plot(subst_cost_list[n])
+        plt.ylabel('Cost for matching node {}'.format(n))
+        plt.show()
     g1_mapped = {}
     for tup in paths[0][0]:
         if tup[0] is not None and tup[1] is not None:
             print(get_node_by_id(g1, tup[0])['name'], " corresponds to ", get_node_by_id(g2, tup[1])['name'])
-            node_g1 = get_node_by_id(g1, tup[0])
-            node_g2 = get_node_by_id(g2, tup[1])
             g1_mapped[tup[0]] = tup[1]
     return g1_mapped
 
@@ -190,7 +201,13 @@ def equal_nodes(n1, n2):
 
 def node_subst(n1, n2):
     cost = compute_similarity_nodes(n1, n2)
-    # cost = compute_similarity_node_embeddings(embeddings_g1[n1['index']], embeddings_g2[n2['index']])
+    global subst_cost_list
+    subst_cost_list.append(cost)
+    return cost
+
+
+def node_subst_embeddings(n1, n2):
+    cost = compute_similarity_node_embeddings(embeddings_g1[n1['index']], embeddings_g2[n2['index']])
     global subst_cost_list
     subst_cost_list.append(cost)
     return cost
