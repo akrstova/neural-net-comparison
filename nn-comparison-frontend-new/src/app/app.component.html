@@ -11,7 +11,7 @@
   <mat-drawer #drawer class="example-sidenav" mode="side">
     <mat-form-field appearance="fill">
       <mat-label>Model 1</mat-label>
-      <mat-select>
+      <mat-select [(ngModel)]="firstModel">
         <mat-optgroup *ngFor="let group of modelGroups | keyvalue" [label]="group.key">
           <mat-option *ngFor="let model of group.value" [value]="model.id">
             {{model.name}}
@@ -22,7 +22,7 @@
     <br>
     <mat-form-field appearance="fill">
       <mat-label>Model 2</mat-label>
-      <mat-select>
+      <mat-select [(ngModel)]="secondModel">
         <mat-optgroup *ngFor="let group of modelGroups | keyvalue" [label]="group.key">
           <mat-option *ngFor="let model of group.value" [value]="model.id">
             {{model.name}}
@@ -34,7 +34,6 @@
     <mat-form-field appearance="fill">
       <mat-label>Algorithm</mat-label>
       <mat-select [(ngModel)]="selectedAlgorithm" (selectionChange)="selectAlgorithm()">
-        <mat-option>-- None --</mat-option>
         <mat-option *ngFor="let algo of algorithms" [value]="algo">
           {{algo}}
         </mat-option>
@@ -43,18 +42,18 @@
     <br>
     <mat-form-field appearance="fill">
       <mat-label>Distance metric</mat-label>
-      <mat-select [disabled]="disableMetric">
-        <mat-option>Manhattan</mat-option>
-        <mat-option>Cosine</mat-option>
-        <mat-option>Euclidean</mat-option>
+      <mat-select [(ngModel)]="selectedMetric" [disabled]="disableMetric">
+        <mat-option *ngFor="let metric of metrics" [value]="metric">
+          {{metric}}
+        </mat-option>
       </mat-select>
     </mat-form-field>
     <br>
-    <mat-checkbox [disabled]="disableEmbeddings">
+    <mat-checkbox [(ngModel)]="useEmbeddings" [disabled]="disableEmbeddings">
       Use node embeddings
     </mat-checkbox>
     <br><br>
-    <button mat-stroked-button color="primary">Compare</button>
+    <button mat-stroked-button color="primary" (click)="compareModels()">Compare</button>
 
   </mat-drawer>
 

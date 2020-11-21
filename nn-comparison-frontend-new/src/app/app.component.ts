@@ -1,6 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-
-import {FormControl} from '@angular/forms';
 import {ModelsService} from "./service/models.service";
 import {Network} from "./model/network/network-model.model";
 
@@ -23,12 +21,22 @@ class Model {
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-
+  // Setup comparison
   modelGroups = {};
-  algorithms = ["GED", "REGAL", "Custom"];
+  modelGraphs = {}; // Easier for passing graphs to the comparison
+  firstModel = null;
+  secondModel = null;
+
+  algorithms = ['GED', 'REGAL', 'Custom'];
   selectedAlgorithm = null;
+
+  metrics = ['Manhattan', 'Euclidean', 'Cosine']
+
   disableMetric = true;
+  selectedMetric = null;
+
   disableEmbeddings = true;
+  useEmbeddings = false;
 
   constructor(private modelsService: ModelsService) {
   }
@@ -45,7 +53,8 @@ export class AppComponent implements OnInit {
       data.map((entry) => {
         this.modelsService.getDetailsForModelId(entry).subscribe(result => {
           this.modelsService.getGraphForModelId(result['id']).subscribe(graph => {
-            innspectorModels.push(new Model(result['id'], result['label'], graph as Network))
+            innspectorModels.push(new Model(result['id'], result['label'], graph as Network));
+            this.modelGraphs[result['id']] = graph;
           })
         });
       });
@@ -65,6 +74,7 @@ export class AppComponent implements OnInit {
         if (!this.modelGroups[modelType])
           this.modelGroups[modelType] = [];
         this.modelGroups[name.split('_')[0]].push(model);
+        this.modelGraphs[id] = graph;
       });
     });
   }
@@ -80,6 +90,11 @@ export class AppComponent implements OnInit {
         this.disableMetric = false;
       }
     }
+  }
+
+  compareModels() {
+    console.log(this.firstModel, this.secondModel, this.selectedAlgorithm, this.selectedMetric, this.useEmbeddings);
+    console.log(this.modelGraphs[this.firstModel])
   }
 
 }
