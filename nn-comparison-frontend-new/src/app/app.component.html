@@ -1,0 +1,68 @@
+<p>
+  <mat-toolbar>
+    <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon"
+            (click)="drawer.toggle()">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <span>Neural Network Comparison</span>
+  </mat-toolbar>
+</p>
+<mat-drawer-container class="example-container" autosize>
+  <mat-drawer #drawer class="example-sidenav" mode="side">
+    <mat-form-field appearance="fill">
+      <mat-label>Model 1</mat-label>
+      <mat-select [formControl]="pokemonControl">
+        <mat-option>-- None --</mat-option>
+        <mat-optgroup *ngFor="let group of pokemonGroups" [label]="group.name"
+                      [disabled]="group.disabled">
+          <mat-option *ngFor="let pokemon of group.pokemon" [value]="pokemon.value">
+            {{pokemon.viewValue}}
+          </mat-option>
+        </mat-optgroup>
+      </mat-select>
+    </mat-form-field>
+    <br>
+    <mat-form-field appearance="fill">
+      <mat-label>Model 2</mat-label>
+      <mat-select [formControl]="pokemonControl">
+        <mat-option>-- None --</mat-option>
+        <mat-optgroup *ngFor="let group of pokemonGroups" [label]="group.name"
+                      [disabled]="group.disabled">
+          <mat-option *ngFor="let pokemon of group.pokemon" [value]="pokemon.value">
+            {{pokemon.viewValue}}
+          </mat-option>
+        </mat-optgroup>
+      </mat-select>
+    </mat-form-field>
+    <br>
+    <mat-form-field appearance="fill">
+      <mat-label>Algorithm</mat-label>
+      <mat-select>
+        <mat-option>GED</mat-option>
+        <mat-option>REGAL</mat-option>
+        <mat-option>Custom</mat-option>
+        <mat-option>Isomorphic BLISS</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <br>
+    <mat-form-field appearance="fill">
+      <mat-label>Distance metric</mat-label>
+      <mat-select [disabled]="disableMetric">
+        <mat-option>Manhattan</mat-option>
+        <mat-option>Cosine</mat-option>
+        <mat-option>Euclidean</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <br>
+    <mat-checkbox [disabled]="disableEmbeddings">
+      Use node embeddings
+    </mat-checkbox>
+
+  </mat-drawer>
+
+  <div class="example-sidenav-content">
+    <p>
+      This is where the comparison will be displayed
+    </p>
+  </div>
+</mat-drawer-container>
