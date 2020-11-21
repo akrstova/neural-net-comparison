@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import {MatIconModule} from "@angular/material/icon";
@@ -9,8 +10,12 @@ import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatButtonModule} from "@angular/material/button";
 import {MatSidenavModule} from "@angular/material/sidenav";
 import {MatSelectModule} from "@angular/material/select";
-import {ReactiveFormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatCheckboxModule} from "@angular/material/checkbox";
+import {ModelsService} from "./service/models.service";
+import {HttpClientModule} from "@angular/common/http";
+
+
 
 @NgModule({
   declarations: [
@@ -18,6 +23,7 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
     MatIconModule,
     NoopAnimationsModule,
@@ -26,9 +32,11 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
     MatSidenavModule,
     MatSelectModule,
     ReactiveFormsModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    FormsModule,
+    HttpClientModule
   ],
-  providers: [],
+  providers: [ModelsService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

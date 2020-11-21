@@ -14,3 +14,7 @@
 .example-sidenav {
   padding: 5px;
 }
+
+mat-sidenav {
+  transition: 1s;
+}

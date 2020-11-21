@@ -1,16 +1,19 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
 import {FormControl} from '@angular/forms';
+import {ModelsService} from "./service/models.service";
+import {Network} from "./model/network/network-model.model";
 
-interface Pokemon {
-  value: string;
-  viewValue: string;
-}
-
-interface PokemonGroup {
-  disabled?: boolean;
+class Model {
+  id: string;
   name: string;
-  pokemon: Pokemon[];
+  graph: Network;
+
+  constructor(modelId, modelName, graph) {
+    this.id = modelId;
+    this.name = modelName;
+    this.graph = graph;
+  }
 }
 
 
@@ -19,45 +22,64 @@ interface PokemonGroup {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
-  showFiller = false;
+export class AppComponent implements OnInit {
+
+  modelGroups = {};
+  algorithms = ["GED", "REGAL", "Custom"];
+  selectedAlgorithm = null;
   disableMetric = true;
   disableEmbeddings = true;
 
-  pokemonControl = new FormControl();
-  pokemonGroups: PokemonGroup[] = [
-    {
-      name: 'Grass',
-      pokemon: [
-        {value: 'bulbasaur-0', viewValue: 'Bulbasaur'},
-        {value: 'oddish-1', viewValue: 'Oddish'},
-        {value: 'bellsprout-2', viewValue: 'Bellsprout'}
-      ]
-    },
-    {
-      name: 'Water',
-      pokemon: [
-        {value: 'squirtle-3', viewValue: 'Squirtle'},
-        {value: 'psyduck-4', viewValue: 'Psyduck'},
-        {value: 'horsea-5', viewValue: 'Horsea'}
-      ]
-    },
-    {
-      name: 'Fire',
-      disabled: true,
-      pokemon: [
-        {value: 'charmander-6', viewValue: 'Charmander'},
-        {value: 'vulpix-7', viewValue: 'Vulpix'},
-        {value: 'flareon-8', viewValue: 'Flareon'}
-      ]
-    },
-    {
-      name: 'Psychic',
-      pokemon: [
-        {value: 'mew-9', viewValue: 'Mew'},
-        {value: 'mewtwo-10', viewValue: 'Mewtwo'},
-      ]
+  constructor(private modelsService: ModelsService) {
+  }
+
+  ngOnInit(): void {
+    this.getAvailableModels();
+  }
+
+  getAvailableModels() {
+    // Get models from iNNspector
+    let innspectorModels = [];
+    this.modelsService.getModelIds().subscribe(data => {
+      console.log('Data', data);
+      data.map((entry) => {
+        this.modelsService.getDetailsForModelId(entry).subscribe(result => {
+          this.modelsService.getGraphForModelId(result['id']).subscribe(graph => {
+            innspectorModels.push(new Model(result['id'], result['label'], graph as Network))
+          })
+        });
+      });
+      console.log(innspectorModels)
+      this.modelGroups['innspector'] = innspectorModels;
+    });
+    // Get locally stored models
+    this.modelsService.getLocalModels().subscribe(data => {
+
+      data['localModels'].map((entry) => {
+        const id = Math.random().toString(36).substring(7);
+        const name = entry['modelName'];
+        const graph = entry['model'];
+        const model = new Model(id, name, graph);
+        // Get base model name from file name and add to corresponding group of model
+        const modelType = name.split('_')[0];
+        if (!this.modelGroups[modelType])
+          this.modelGroups[modelType] = [];
+        this.modelGroups[name.split('_')[0]].push(model);
+      });
+    });
+  }
+
+
+  selectAlgorithm() {
+    if (this.selectedAlgorithm != "GED" && this.selectedAlgorithm != "REGAL") {
+      this.disableMetric = true;
+      this.disableEmbeddings = true;
+    } else {
+      this.disableEmbeddings = false;
+      if (this.selectedAlgorithm == "REGAL") {
+        this.disableMetric = false;
+      }
     }
-  ];
+  }
 
 }
