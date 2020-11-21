@@ -23,4 +23,9 @@ export class ModelsService {
   getGraphForModelId(modelId) {
     return this.http.get(this.baseUrl + '/model/' + modelId + '/graph');
   }
+
+  getGraphAsCytoscape(graph) {
+    console.log(graph)
+    return this.http.post('http://localhost:5000/cytoscape', graph)
+  }
 }

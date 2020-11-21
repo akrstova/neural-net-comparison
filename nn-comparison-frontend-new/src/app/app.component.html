@@ -54,12 +54,9 @@
     </mat-checkbox>
     <br><br>
     <button mat-stroked-button color="primary" (click)="compareModels()">Compare</button>
-
   </mat-drawer>
 
   <div class="example-sidenav-content">
-    <p>
-      This is where the comparison will be displayed
-    </p>
+    <cy-graph style="width: 100%; height: 100%;" [graphData]="firstCytoscape"></cy-graph>
   </div>
 </mat-drawer-container>

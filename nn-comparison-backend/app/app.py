@@ -28,6 +28,14 @@ embeddings_g2 = None
 subst_cost_list = list()
 
 
+@app.route('/cytoscape', methods=['POST'])
+@cross_origin()
+def cytoscape():
+    graph = request.get_json()
+    cy = nx.cytoscape_data(json_graph.node_link_graph(graph))
+    print(cy)
+    return jsonpickle.dumps({'cytoscape_graph': cy})
+
 @app.route('/models', methods=['GET'])
 @cross_origin()
 def serve_models():

@@ -37,6 +37,9 @@ export class AppComponent implements OnInit {
 
   disableEmbeddings = true;
   useEmbeddings = false;
+  node_name: string;
+
+  firstCytoscape = null;
 
   constructor(private modelsService: ModelsService) {
   }
@@ -49,7 +52,6 @@ export class AppComponent implements OnInit {
     // Get models from iNNspector
     let innspectorModels = [];
     this.modelsService.getModelIds().subscribe(data => {
-      console.log('Data', data);
       data.map((entry) => {
         this.modelsService.getDetailsForModelId(entry).subscribe(result => {
           this.modelsService.getGraphForModelId(result['id']).subscribe(graph => {
@@ -58,7 +60,6 @@ export class AppComponent implements OnInit {
           })
         });
       });
-      console.log(innspectorModels)
       this.modelGroups['innspector'] = innspectorModels;
     });
     // Get locally stored models
@@ -95,6 +96,9 @@ export class AppComponent implements OnInit {
   compareModels() {
     console.log(this.firstModel, this.secondModel, this.selectedAlgorithm, this.selectedMetric, this.useEmbeddings);
     console.log(this.modelGraphs[this.firstModel])
+    this.modelsService.getGraphAsCytoscape(this.modelGraphs[this.firstModel]).subscribe(data => {
+      this.firstCytoscape = data['cytoscape_graph']['elements'];
+    })
   }
 
 }
