@@ -11,7 +11,7 @@
   <mat-drawer #drawer class="example-sidenav" mode="side" opened>
     <mat-form-field appearance="fill">
       <mat-label>Model 1</mat-label>
-      <mat-select [(ngModel)]="firstModel">
+      <mat-select [(ngModel)]="firstModelId">
         <mat-optgroup *ngFor="let group of modelGroups | keyvalue" [label]="group.key">
           <mat-option *ngFor="let model of group.value" [value]="model.id">
             {{model.name}}
@@ -22,7 +22,7 @@
     <br>
     <mat-form-field appearance="fill">
       <mat-label>Model 2</mat-label>
-      <mat-select [(ngModel)]="secondModel">
+      <mat-select [(ngModel)]="secondModelId">
         <mat-optgroup *ngFor="let group of modelGroups | keyvalue" [label]="group.key">
           <mat-option *ngFor="let model of group.value" [value]="model.id">
             {{model.name}}
@@ -42,7 +42,7 @@
     <br>
     <mat-form-field appearance="fill">
       <mat-label>Distance metric</mat-label>
-      <mat-select [(ngModel)]="selectedMetric" [disabled]="disableMetric">
+      <mat-select [(ngModel)]="selectedMetric" [(value)]="selectedMetric" [disabled]="disableMetric">
         <mat-option *ngFor="let metric of metrics" [value]="metric">
           {{metric}}
         </mat-option>
@@ -53,8 +53,8 @@
       Use node embeddings
     </mat-checkbox>
     <br><br>
-    <button mat-stroked-button color="primary" (click)="compareModels()">Compare</button>
-    <button mat-stroked-button color="grey" (click)="resetComparison()" style="color: gray">Reset</button>
+    <button mat-stroked-button color="orange" (click)="compareModels()" style="color: orange;">Compare</button>
+    <button mat-stroked-button color="grey" (click)="resetComparison()" style="color: gray; background-color: #f0f2f5;">Reset</button>
   </mat-drawer>
 
   <div class="example-sidenav-content">
@@ -64,11 +64,11 @@
           <cy-graph [graphData]="firstCyGraph"></cy-graph>
         </div>
       </div>
-      <div class="row">
-        <div class="col-12">
-          <cy-graph [graphData]="secondCyGraph"></cy-graph>
-        </div>
-      </div>
+<!--      <div class="row">-->
+<!--        <div class="col-12">-->
+<!--          <cy-graph [graphData]="secondCyGraph"></cy-graph>-->
+<!--        </div>-->
+<!--      </div>-->
     </div>
   </div>
 </mat-drawer-container>

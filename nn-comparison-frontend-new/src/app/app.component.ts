@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ModelsService} from "./service/models.service";
 import {Network} from "./model/network/network-model.model";
+import {ComparisonService} from "./service/comparison.service";
 
 class Model {
   id: string;
@@ -24,16 +25,15 @@ export class AppComponent implements OnInit {
   // Setup comparison
   modelGroups = {};
   modelGraphs = {}; // Easier for passing graphs to the comparison
-  firstModel = null;
-  secondModel = null;
+  firstModelId = null;
+  secondModelId = null;
 
   algorithms = ['GED', 'REGAL', 'Custom'];
-  selectedAlgorithm = null;
+  selectedAlgorithm = 'REGAL'; //default option
 
   metrics = ['Manhattan', 'Euclidean', 'Cosine']
-
+  selectedMetric = 'Cosine';
   disableMetric = true;
-  selectedMetric = null;
 
   disableEmbeddings = true;
   useEmbeddings = false;
@@ -42,10 +42,11 @@ export class AppComponent implements OnInit {
   firstCyGraph = null;
   secondCyGraph = null;
 
-  constructor(private modelsService: ModelsService) {
+  constructor(private modelsService: ModelsService, private comparisonService: ComparisonService) {
   }
 
   ngOnInit(): void {
+    this.selectAlgorithm();
     this.getAvailableModels();
   }
 
@@ -57,6 +58,7 @@ export class AppComponent implements OnInit {
         this.modelsService.getDetailsForModelId(entry).subscribe(result => {
           this.modelsService.getGraphForModelId(result['id']).subscribe(graph => {
             innspectorModels.push(new Model(result['id'], result['label'], graph as Network));
+            graph['modelName'] = result['label'];
             this.modelGraphs[result['id']] = graph;
           })
         });
@@ -76,6 +78,7 @@ export class AppComponent implements OnInit {
         if (!this.modelGroups[modelType])
           this.modelGroups[modelType] = [];
         this.modelGroups[name.split('_')[0]].push(model);
+        graph['modelName'] = name;
         this.modelGraphs[id] = graph;
       });
     });
@@ -94,20 +97,31 @@ export class AppComponent implements OnInit {
     }
   }
 
-  compareModels() {
-    this.modelsService.getGraphAsCytoscape(this.modelGraphs[this.firstModel]).subscribe(data => {
+  getCyGraphs() {
+    this.modelsService.getGraphAsCytoscape(this.modelGraphs[this.firstModelId]).subscribe(data => {
       this.firstCyGraph = data['cytoscape_graph']['elements'];
-      console.log('modified', this.firstCyGraph)
     });
-    this.modelsService.getGraphAsCytoscape(this.modelGraphs[this.secondModel]).subscribe(data => {
+    this.modelsService.getGraphAsCytoscape(this.modelGraphs[this.secondModelId]).subscribe(data => {
       this.secondCyGraph = data['cytoscape_graph']['elements'];
-    })
+    });
+  }
+
+  compareModels() {
+    this.getCyGraphs();
+    let nodeMatches = {}
+    const firstGraph = this.modelGraphs[this.firstModelId];
+    const secondGraph = this.modelGraphs[this.secondModelId];
+    this.comparisonService.compareGraphs(firstGraph, secondGraph, this.selectedAlgorithm, this.selectedMetric, this.useEmbeddings)
+      .subscribe(data => {
+        let result = data['data'];
+        for (let key in result) {
+          if (result.hasOwnProperty(key))
+            nodeMatches[firstGraph.nodes[parseInt(key)]['id']] = secondGraph.nodes[result[key]]['id'];
+        }
+      });
   }
 
   resetComparison() {
     window.location.reload();
   }
-
-
-
 }
