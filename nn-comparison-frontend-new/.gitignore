@@ -45,3 +45,5 @@ e2e/*
 # System Files
 .DS_Store
 Thumbs.db
+
+*.json

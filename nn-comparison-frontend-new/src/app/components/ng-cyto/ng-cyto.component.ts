@@ -96,8 +96,8 @@ export class NgCytoComponent implements OnChanges {
 
 
     cy.on('tap', 'node', function (e) {
-      var node = e.target;
-      var neighborhood = node.neighborhood().add(node);
+      const node = e.target;
+      const neighborhood = node.neighborhood().add(node);
 
       cy.elements().addClass('faded');
       neighborhood.removeClass('faded');

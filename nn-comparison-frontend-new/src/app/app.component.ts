@@ -39,7 +39,8 @@ export class AppComponent implements OnInit {
   useEmbeddings = false;
   node_name: string;
 
-  firstCytoscape = null;
+  firstCyGraph = null;
+  secondCyGraph = null;
 
   constructor(private modelsService: ModelsService) {
   }
@@ -94,11 +95,23 @@ export class AppComponent implements OnInit {
   }
 
   compareModels() {
-    console.log(this.firstModel, this.secondModel, this.selectedAlgorithm, this.selectedMetric, this.useEmbeddings);
-    console.log(this.modelGraphs[this.firstModel])
     this.modelsService.getGraphAsCytoscape(this.modelGraphs[this.firstModel]).subscribe(data => {
-      this.firstCytoscape = data['cytoscape_graph']['elements'];
+      this.firstCyGraph = this.addPropertiesToCyGraph(data['cytoscape_graph']['elements']);
+      console.log('modified', this.firstCyGraph)
+    });
+    this.modelsService.getGraphAsCytoscape(this.modelGraphs[this.secondModel]).subscribe(data => {
+      this.secondCyGraph = data['cytoscape_graph']['elements'];
     })
+  }
+
+  addPropertiesToCyGraph(cyGraph) {
+    // Add node properties
+    for (const i in cyGraph.nodes) {
+      let nodeData = cyGraph.nodes[i];
+      nodeData['weight'] = 100;
+      nodeData['shapeType'] = 'roundrectangle';
+      nodeData['colorCode'] = 'blue';
+    }
   }
 
 }

@@ -34,7 +34,21 @@ def cytoscape():
     graph = request.get_json()
     cy = nx.cytoscape_data(json_graph.node_link_graph(graph))
     print(cy)
+    nodes = cy['elements']['nodes']
+    for node in nodes:
+        node['data']['weight'] = 100
+        node['data']['colorCode'] = 'blue'
+        node['data']['shapeType'] = 'roundrectangle'
+    cy['elements']['nodes'] = nodes
+
+    edges = cy['elements']['edges']
+    for edge in edges:
+        edge['data']['colorCode'] = 'red'
+        edge['data']['strength'] = 10
+    cy['elements']['edges'] = edges
+
     return jsonpickle.dumps({'cytoscape_graph': cy})
+
 
 @app.route('/models', methods=['GET'])
 @cross_origin()
