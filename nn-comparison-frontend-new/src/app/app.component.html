@@ -8,7 +8,7 @@
   </mat-toolbar>
 </p>
 <mat-drawer-container class="example-container" autosize>
-  <mat-drawer #drawer class="example-sidenav" mode="side">
+  <mat-drawer #drawer class="example-sidenav" mode="side" opened>
     <mat-form-field appearance="fill">
       <mat-label>Model 1</mat-label>
       <mat-select [(ngModel)]="firstModel">
@@ -54,6 +54,7 @@
     </mat-checkbox>
     <br><br>
     <button mat-stroked-button color="primary" (click)="compareModels()">Compare</button>
+    <button mat-stroked-button color="grey" (click)="resetComparison()" style="color: gray">Reset</button>
   </mat-drawer>
 
   <div class="example-sidenav-content">

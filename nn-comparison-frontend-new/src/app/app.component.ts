@@ -96,7 +96,7 @@ export class AppComponent implements OnInit {
 
   compareModels() {
     this.modelsService.getGraphAsCytoscape(this.modelGraphs[this.firstModel]).subscribe(data => {
-      this.firstCyGraph = this.addPropertiesToCyGraph(data['cytoscape_graph']['elements']);
+      this.firstCyGraph = data['cytoscape_graph']['elements'];
       console.log('modified', this.firstCyGraph)
     });
     this.modelsService.getGraphAsCytoscape(this.modelGraphs[this.secondModel]).subscribe(data => {
@@ -104,14 +104,10 @@ export class AppComponent implements OnInit {
     })
   }
 
-  addPropertiesToCyGraph(cyGraph) {
-    // Add node properties
-    for (const i in cyGraph.nodes) {
-      let nodeData = cyGraph.nodes[i];
-      nodeData['weight'] = 100;
-      nodeData['shapeType'] = 'roundrectangle';
-      nodeData['colorCode'] = 'blue';
-    }
+  resetComparison() {
+    window.location.reload();
   }
+
+
 
 }

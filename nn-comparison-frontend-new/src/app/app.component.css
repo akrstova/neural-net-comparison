@@ -18,3 +18,7 @@
 mat-sidenav {
   transition: 1s;
 }
+
+button {
+  margin-right: 0.7em;
+}
