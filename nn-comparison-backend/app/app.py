@@ -37,13 +37,15 @@ def cytoscape():
     nodes = cy['elements']['nodes']
     for node in nodes:
         node['data']['weight'] = 100
-        node['data']['colorCode'] = 'blue'
+        node['data']['colorCode'] = '#fcba03'
+        node['data']['color'] = 'black'
         node['data']['shapeType'] = 'roundrectangle'
+        node['data']['label'] = node['data']['clsName']
     cy['elements']['nodes'] = nodes
 
     edges = cy['elements']['edges']
     for edge in edges:
-        edge['data']['colorCode'] = 'red'
+        edge['data']['colorCode'] = '#cfccc8'
         edge['data']['strength'] = 10
     cy['elements']['edges'] = edges
 

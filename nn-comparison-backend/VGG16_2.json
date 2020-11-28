@@ -1,0 +1,501 @@
+{
+    "directed": true,
+    "multigraph": false,
+    "graph": {},
+    "nodes": [
+        {
+            "id": "5687339888",
+            "name": "input_3",
+            "clsName": "InputLayer",
+            "inputShape": [
+                [
+                    null,
+                    128,
+                    128,
+                    3
+                ]
+            ],
+            "outputShape": [
+                [
+                    null,
+                    128,
+                    128,
+                    3
+                ]
+            ],
+            "numParameter": 0
+        },
+        {
+            "id": "5687418720",
+            "name": "block1_conv1",
+            "clsName": "Conv2D",
+            "inputShape": [
+                null,
+                128,
+                128,
+                3
+            ],
+            "outputShape": [
+                null,
+                128,
+                128,
+                64
+            ],
+            "numParameter": 1792
+        },
+        {
+            "id": "5687447960",
+            "name": "block1_conv2",
+            "clsName": "Conv2D",
+            "inputShape": [
+                null,
+                128,
+                128,
+                64
+            ],
+            "outputShape": [
+                null,
+                128,
+                128,
+                64
+            ],
+            "numParameter": 36928
+        },
+        {
+            "id": "5687450872",
+            "name": "block1_pool",
+            "clsName": "MaxPooling2D",
+            "inputShape": [
+                null,
+                128,
+                128,
+                64
+            ],
+            "outputShape": [
+                null,
+                64,
+                64,
+                64
+            ],
+            "numParameter": 0
+        },
+        {
+            "id": "5687451488",
+            "name": "block2_conv1",
+            "clsName": "Conv2D",
+            "inputShape": [
+                null,
+                64,
+                64,
+                64
+            ],
+            "outputShape": [
+                null,
+                64,
+                64,
+                128
+            ],
+            "numParameter": 73856
+        },
+        {
+            "id": "5687415640",
+            "name": "block2_conv2",
+            "clsName": "Conv2D",
+            "inputShape": [
+                null,
+                64,
+                64,
+                128
+            ],
+            "outputShape": [
+                null,
+                64,
+                64,
+                128
+            ],
+            "numParameter": 147584
+        },
+        {
+            "id": "5687474664",
+            "name": "block2_pool",
+            "clsName": "MaxPooling2D",
+            "inputShape": [
+                null,
+                64,
+                64,
+                128
+            ],
+            "outputShape": [
+                null,
+                32,
+                32,
+                128
+            ],
+            "numParameter": 0
+        },
+        {
+            "id": "5687475168",
+            "name": "block3_conv1",
+            "clsName": "Conv2D",
+            "inputShape": [
+                null,
+                32,
+                32,
+                128
+            ],
+            "outputShape": [
+                null,
+                32,
+                32,
+                256
+            ],
+            "numParameter": 295168
+        },
+        {
+            "id": "5687507656",
+            "name": "block3_conv2",
+            "clsName": "Conv2D",
+            "inputShape": [
+                null,
+                32,
+                32,
+                256
+            ],
+            "outputShape": [
+                null,
+                32,
+                32,
+                256
+            ],
+            "numParameter": 590080
+        },
+        {
+            "id": "5687507824",
+            "name": "block3_conv3",
+            "clsName": "Conv2D",
+            "inputShape": [
+                null,
+                32,
+                32,
+                256
+            ],
+            "outputShape": [
+                null,
+                32,
+                32,
+                256
+            ],
+            "numParameter": 590080
+        },
+        {
+            "id": "5687536160",
+            "name": "block3_pool",
+            "clsName": "MaxPooling2D",
+            "inputShape": [
+                null,
+                32,
+                32,
+                256
+            ],
+            "outputShape": [
+                null,
+                16,
+                16,
+                256
+            ],
+            "numParameter": 0
+        },
+        {
+            "id": "5687575104",
+            "name": "block4_conv1",
+            "clsName": "Conv2D",
+            "inputShape": [
+                null,
+                16,
+                16,
+                256
+            ],
+            "outputShape": [
+                null,
+                16,
+                16,
+                512
+            ],
+            "numParameter": 1180160
+        },
+        {
+            "id": "5687578240",
+            "name": "block4_conv2",
+            "clsName": "Conv2D",
+            "inputShape": [
+                null,
+                16,
+                16,
+                512
+            ],
+            "outputShape": [
+                null,
+                16,
+                16,
+                512
+            ],
+            "numParameter": 2359808
+        },
+        {
+            "id": "5687608712",
+            "name": "block4_conv3",
+            "clsName": "Conv2D",
+            "inputShape": [
+                null,
+                16,
+                16,
+                512
+            ],
+            "outputShape": [
+                null,
+                16,
+                16,
+                512
+            ],
+            "numParameter": 2359808
+        },
+        {
+            "id": "5687608488",
+            "name": "block4_pool",
+            "clsName": "MaxPooling2D",
+            "inputShape": [
+                null,
+                16,
+                16,
+                512
+            ],
+            "outputShape": [
+                null,
+                8,
+                8,
+                512
+            ],
+            "numParameter": 0
+        },
+        {
+            "id": "5687638224",
+            "name": "block5_conv1",
+            "clsName": "Conv2D",
+            "inputShape": [
+                null,
+                8,
+                8,
+                512
+            ],
+            "outputShape": [
+                null,
+                8,
+                8,
+                512
+            ],
+            "numParameter": 2359808
+        },
+        {
+            "id": "5687678904",
+            "name": "block5_conv2",
+            "clsName": "Conv2D",
+            "inputShape": [
+                null,
+                8,
+                8,
+                512
+            ],
+            "outputShape": [
+                null,
+                8,
+                8,
+                512
+            ],
+            "numParameter": 2359808
+        },
+        {
+            "id": "5687678456",
+            "name": "block5_conv3",
+            "clsName": "Conv2D",
+            "inputShape": [
+                null,
+                8,
+                8,
+                512
+            ],
+            "outputShape": [
+                null,
+                8,
+                8,
+                512
+            ],
+            "numParameter": 2359808
+        },
+        {
+            "id": "5687707576",
+            "name": "block5_pool",
+            "clsName": "MaxPooling2D",
+            "inputShape": [
+                null,
+                8,
+                8,
+                512
+            ],
+            "outputShape": [
+                null,
+                4,
+                4,
+                512
+            ],
+            "numParameter": 0
+        },
+        {
+            "id": "5687190360",
+            "name": "flatten_2",
+            "clsName": "Flatten",
+            "inputShape": [
+                null,
+                4,
+                4,
+                512
+            ],
+            "outputShape": [
+                null,
+                8192
+            ],
+            "numParameter": 0
+        },
+        {
+            "id": "5687193496",
+            "name": "dense_4",
+            "clsName": "Dense",
+            "inputShape": [
+                null,
+                8192
+            ],
+            "outputShape": [
+                null,
+                1024
+            ],
+            "numParameter": 8389632
+        },
+        {
+            "id": "5687808688",
+            "name": "dropout_4",
+            "clsName": "Dropout",
+            "inputShape": [
+                null,
+                1024
+            ],
+            "outputShape": [
+                null,
+                1024
+            ],
+            "numParameter": 0
+        },
+        {
+            "id": "5687809528",
+            "name": "dense_5",
+            "clsName": "Dense",
+            "inputShape": [
+                null,
+                1024
+            ],
+            "outputShape": [
+                null,
+                20
+            ],
+            "numParameter": 20500
+        }
+    ],
+    "links": [
+        {
+            "source": "5687339888",
+            "target": "5687418720"
+        },
+        {
+            "source": "5687418720",
+            "target": "5687447960"
+        },
+        {
+            "source": "5687447960",
+            "target": "5687450872"
+        },
+        {
+            "source": "5687450872",
+            "target": "5687451488"
+        },
+        {
+            "source": "5687451488",
+            "target": "5687415640"
+        },
+        {
+            "source": "5687415640",
+            "target": "5687474664"
+        },
+        {
+            "source": "5687474664",
+            "target": "5687475168"
+        },
+        {
+            "source": "5687475168",
+            "target": "5687507656"
+        },
+        {
+            "source": "5687507656",
+            "target": "5687507824"
+        },
+        {
+            "source": "5687507824",
+            "target": "5687536160"
+        },
+        {
+            "source": "5687536160",
+            "target": "5687575104"
+        },
+        {
+            "source": "5687575104",
+            "target": "5687578240"
+        },
+        {
+            "source": "5687578240",
+            "target": "5687608712"
+        },
+        {
+            "source": "5687608712",
+            "target": "5687608488"
+        },
+        {
+            "source": "5687608488",
+            "target": "5687638224"
+        },
+        {
+            "source": "5687638224",
+            "target": "5687678904"
+        },
+        {
+            "source": "5687678904",
+            "target": "5687678456"
+        },
+        {
+            "source": "5687678456",
+            "target": "5687707576"
+        },
+        {
+            "source": "5687707576",
+            "target": "5687190360"
+        },
+        {
+            "source": "5687190360",
+            "target": "5687193496"
+        },
+        {
+            "source": "5687193496",
+            "target": "5687808688"
+        },
+        {
+            "source": "5687808688",
+            "target": "5687809528"
+        }
+    ]
+}

@@ -25,7 +25,6 @@ export class ModelsService {
   }
 
   getGraphAsCytoscape(graph) {
-    console.log(graph)
     return this.http.post('http://localhost:5000/cytoscape', graph)
   }
 }

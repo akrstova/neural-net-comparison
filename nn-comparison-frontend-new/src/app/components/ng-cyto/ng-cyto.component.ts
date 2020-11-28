@@ -1,6 +1,10 @@
 import {Component, OnChanges, Renderer2, ElementRef, Input, Output, EventEmitter} from '@angular/core';
 
-declare var cytoscape: any;
+import cytoscape from 'cytoscape';
+import dagre from 'cytoscape-dagre';
+import {first} from "rxjs/operators";
+
+cytoscape.use(dagre);
 
 @Component({
   selector: 'ng2-cytoscape',
@@ -8,7 +12,7 @@ declare var cytoscape: any;
   styles: [`#cy {
     height: 100%;
     width: 100%;
-    position: relative;
+    position: absolute;
     left: 0;
     top: 0;
   }`]
@@ -17,7 +21,9 @@ declare var cytoscape: any;
 
 export class NgCytoComponent implements OnChanges {
 
-  @Input() public elements: any;
+  @Input() public firstGraph: any;
+  @Input() public secondGraph: any;
+  @Input() public nodeMatches: any;
   @Input() public style: any;
   @Input() public layout: any;
   @Input() public zoom: any;
@@ -25,8 +31,9 @@ export class NgCytoComponent implements OnChanges {
   @Output() select: EventEmitter<any> = new EventEmitter<any>();
 
   public constructor(private renderer: Renderer2, private el: ElementRef) {
+
     this.layout = this.layout || {
-      name: 'grid',
+      name: 'dagre',
       directed: true,
       padding: 0
     };
@@ -74,41 +81,66 @@ export class NgCytoComponent implements OnChanges {
       .css({
         'opacity': 0.25,
         'text-opacity': 0
-      });
+      })
+      .selector('.strong-match')
+      .css({
+        'opacity': 0.5,
+        'background-color': 'green'
+      })
+      .selector('.weak-match')
+      .css({
+        'opacity': 0.25,
+        'background-color': 'green'
+        }
+      );
   }
 
   public ngOnChanges(): any {
     this.render();
-    console.log(this.el.nativeElement);
   }
 
   public render() {
-    let cy_contianer = this.renderer.selectRootElement("#cy");
-    let localselect = this.select;
-    let cy = cytoscape({
-      container: cy_contianer,
+    let cy_container = this.renderer.selectRootElement("#cy");
+    let firstGraph = cytoscape({
+      container: cy_container,
       layout: this.layout,
       minZoom: this.zoom.min,
       maxZoom: this.zoom.max,
       style: this.style,
-      elements: this.elements,
+      elements: this.mergeGraphs(this.firstGraph, this.secondGraph)
     });
 
-
-    cy.on('tap', 'node', function (e) {
+    firstGraph.on('click', 'node',(e) => {
       const node = e.target;
-      const neighborhood = node.neighborhood().add(node);
-
-      cy.elements().addClass('faded');
-      neighborhood.removeClass('faded');
-      localselect.emit(node.data('name'));
+      const nodeId = node.data('id');
+      const matchedNodes = this.nodeMatches[nodeId];
+      Object.entries(matchedNodes).forEach(
+        ([_, value]) => {
+          const matchedNodeId = value['id'];
+          const score = value['score'];
+          if (score > 0.8)
+            firstGraph.elements().filter((elem) => elem.data('id') == matchedNodeId)[0].addClass('strong-match');
+          else
+            firstGraph.elements().filter((elem) => elem.data('id') == matchedNodeId)[0].addClass('weak-match');
+        }
+      );
     });
 
-    cy.on('tap', function (e) {
-      if (e.target === cy) {
-        cy.elements().removeClass('faded');
-      }
+    firstGraph.on('click', function (e) {
+      if(e.target.length != 1)
+        firstGraph.elements().removeClass('strong-match').removeClass('weak-match');
     });
+
+
+  }
+
+  mergeGraphs(firstGraph, secondGraph) {
+    let combined = {};
+    combined['nodes'] = firstGraph['nodes'];
+    combined['nodes'] = combined['nodes'].concat(secondGraph['nodes']);
+    combined['edges'] = firstGraph['edges'];
+    combined['edges'] = combined['edges'].concat(secondGraph['edges']);
+    return combined;
   }
 
 }

@@ -14,14 +14,13 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {ModelsService} from "./service/models.service";
 import {HttpClientModule} from "@angular/common/http";
-import {GraphComponent} from "./components/graph/graph.component";
 import {NgCytoComponent} from "./components/ng-cyto/ng-cyto.component";
+import {ComparisonService} from "./service/comparison.service";
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    GraphComponent,
     NgCytoComponent
 
   ],
@@ -40,7 +39,7 @@ import {NgCytoComponent} from "./components/ng-cyto/ng-cyto.component";
     FormsModule,
     HttpClientModule
   ],
-  providers: [ModelsService],
+  providers: [ModelsService, ComparisonService],
   bootstrap: [AppComponent]
 })
 export class AppModule {
