@@ -37,14 +37,9 @@ export class AppComponent implements OnInit {
 
   disableEmbeddings = true;
   useEmbeddings = false;
-  node_name: string;
-
   firstCyGraph = null;
   secondCyGraph = null;
-  mergedCyGraph = null;
   nodeMatches = {};
-  nodeToPropagate = null;
-
   constructor(private modelsService: ModelsService, private comparisonService: ComparisonService) {
   }
 
@@ -106,7 +101,6 @@ export class AppComponent implements OnInit {
     });
     this.modelsService.getGraphAsCytoscape(this.modelGraphs[this.secondModelId]).subscribe(data => {
       this.secondCyGraph = data['cytoscape_graph']['elements'];
-      this.mergedCyGraph = this.mergeGraphs(this.firstCyGraph, this.secondCyGraph);
     });
 
   }
@@ -115,38 +109,25 @@ export class AppComponent implements OnInit {
     this.getCyGraphs();
     const firstGraph = this.modelGraphs[this.firstModelId];
     const secondGraph = this.modelGraphs[this.secondModelId];
+    let matches = {};
     this.comparisonService.compareGraphs(firstGraph, secondGraph, this.selectedAlgorithm, this.selectedMetric, this.useEmbeddings)
       .subscribe(data => {
         let result = data['data'];
         for (let key in result) {
-          if (result.hasOwnProperty(key)){
-            console.log('Comparison', data);
+          if (result.hasOwnProperty(key)) {
+            const firstGraphNodeId = firstGraph.nodes[parseInt(key)]['id'];
+            let topSimilarNodes = result[key];
+            matches[firstGraphNodeId] = [];
+            for (let i in topSimilarNodes) {
+              matches[firstGraphNodeId].push({id: secondGraph.nodes[topSimilarNodes[i][1]]['id'], score: topSimilarNodes[i][0]})
+            }
+            this.nodeMatches = matches;
           }
         }
       });
   }
 
-  mergeGraphs(firstGraph, secondGraph) {
-    let combined = {};
-    combined['nodes'] = firstGraph['nodes'];
-    console.log('TEMP ', combined['nodes'])
-    combined['nodes'] = combined['nodes'].concat(secondGraph['nodes']);
-    combined['edges'] = firstGraph['edges'];
-    combined['edges'] = combined['edges'].concat(secondGraph['edges']);
-    return combined;
-  }
-
   resetComparison() {
     window.location.reload();
-  }
-
-  matchChange(event) {
-    console.log('HEEELLO root', event);
-    this.nodeToPropagate = event;
-  }
-
-  doNothing(event) {
-    console.log('doing nothing');
-    //TODO
   }
 }
