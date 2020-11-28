@@ -54,21 +54,14 @@
     </mat-checkbox>
     <br><br>
     <button mat-stroked-button color="orange" (click)="compareModels()" style="color: orange;">Compare</button>
-    <button mat-stroked-button color="grey" (click)="resetComparison()" style="color: gray; background-color: #f0f2f5;">Reset</button>
+    <button mat-stroked-button color="grey" (click)="resetComparison()" style="color: gray; background-color: #f0f2f5;">
+      Reset
+    </button>
   </mat-drawer>
 
   <div class="example-sidenav-content">
-    <div class="container" style="margin-top: auto">
-      <div class="row">
-        <div class="col-12">
-          <cy-graph [graphData]="firstCyGraph"></cy-graph>
-        </div>
-      </div>
-<!--      <div class="row">-->
-<!--        <div class="col-12">-->
-<!--          <cy-graph [graphData]="secondCyGraph"></cy-graph>-->
-<!--        </div>-->
-<!--      </div>-->
+    <div style="height: 90%; width: 80%;">
+      <ng2-cytoscape [graphData]="mergedCyGraph"></ng2-cytoscape>
     </div>
   </div>
 </mat-drawer-container>

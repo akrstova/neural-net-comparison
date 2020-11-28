@@ -41,6 +41,9 @@ export class AppComponent implements OnInit {
 
   firstCyGraph = null;
   secondCyGraph = null;
+  mergedCyGraph = null;
+  nodeMatches = {};
+  nodeToPropagate = null;
 
   constructor(private modelsService: ModelsService, private comparisonService: ComparisonService) {
   }
@@ -103,25 +106,47 @@ export class AppComponent implements OnInit {
     });
     this.modelsService.getGraphAsCytoscape(this.modelGraphs[this.secondModelId]).subscribe(data => {
       this.secondCyGraph = data['cytoscape_graph']['elements'];
+      this.mergedCyGraph = this.mergeGraphs(this.firstCyGraph, this.secondCyGraph);
     });
+
   }
 
   compareModels() {
     this.getCyGraphs();
-    let nodeMatches = {}
     const firstGraph = this.modelGraphs[this.firstModelId];
     const secondGraph = this.modelGraphs[this.secondModelId];
     this.comparisonService.compareGraphs(firstGraph, secondGraph, this.selectedAlgorithm, this.selectedMetric, this.useEmbeddings)
       .subscribe(data => {
         let result = data['data'];
         for (let key in result) {
-          if (result.hasOwnProperty(key))
-            nodeMatches[firstGraph.nodes[parseInt(key)]['id']] = secondGraph.nodes[result[key]]['id'];
+          if (result.hasOwnProperty(key)){
+            console.log('Comparison', data);
+          }
         }
       });
   }
 
+  mergeGraphs(firstGraph, secondGraph) {
+    let combined = {};
+    combined['nodes'] = firstGraph['nodes'];
+    console.log('TEMP ', combined['nodes'])
+    combined['nodes'] = combined['nodes'].concat(secondGraph['nodes']);
+    combined['edges'] = firstGraph['edges'];
+    combined['edges'] = combined['edges'].concat(secondGraph['edges']);
+    return combined;
+  }
+
   resetComparison() {
     window.location.reload();
+  }
+
+  matchChange(event) {
+    console.log('HEEELLO root', event);
+    this.nodeToPropagate = event;
+  }
+
+  doNothing(event) {
+    console.log('doing nothing');
+    //TODO
   }
 }

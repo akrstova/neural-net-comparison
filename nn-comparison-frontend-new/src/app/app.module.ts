@@ -14,7 +14,6 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {ModelsService} from "./service/models.service";
 import {HttpClientModule} from "@angular/common/http";
-import {GraphComponent} from "./components/graph/graph.component";
 import {NgCytoComponent} from "./components/ng-cyto/ng-cyto.component";
 import {ComparisonService} from "./service/comparison.service";
 
@@ -22,7 +21,6 @@ import {ComparisonService} from "./service/comparison.service";
 @NgModule({
   declarations: [
     AppComponent,
-    GraphComponent,
     NgCytoComponent
 
   ],

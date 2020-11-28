@@ -8,7 +8,7 @@ declare var cytoscape: any;
   styles: [`#cy {
     height: 100%;
     width: 100%;
-    position: relative;
+    position: absolute;
     left: 0;
     top: 0;
   }`]
@@ -17,14 +17,15 @@ declare var cytoscape: any;
 
 export class NgCytoComponent implements OnChanges {
 
-  @Input() public elements: any;
+  @Input() public graphData: any;
   @Input() public style: any;
   @Input() public layout: any;
   @Input() public zoom: any;
 
   @Output() select: EventEmitter<any> = new EventEmitter<any>();
 
-  public constructor(private renderer: Renderer2, private el: ElementRef) {
+  public constructor(private renderer : Renderer2, private el: ElementRef) {
+
     this.layout = this.layout || {
       name: 'grid',
       directed: true,
@@ -79,36 +80,37 @@ export class NgCytoComponent implements OnChanges {
 
   public ngOnChanges(): any {
     this.render();
-    console.log(this.el.nativeElement);
   }
 
   public render() {
-    let cy_contianer = this.renderer.selectRootElement("#cy");
+    let cy_container = this.renderer.selectRootElement("#cy");
     let localselect = this.select;
-    let cy = cytoscape({
-      container: cy_contianer,
+    let firstGraph = cytoscape({
+      container : cy_container,
       layout: this.layout,
       minZoom: this.zoom.min,
       maxZoom: this.zoom.max,
       style: this.style,
-      elements: this.elements,
+      elements: this.graphData,
     });
 
 
-    cy.on('tap', 'node', function (e) {
-      const node = e.target;
-      const neighborhood = node.neighborhood().add(node);
+    firstGraph.on('tap', 'node', function(e) {
+      var node = e.target;
+      var neighborhood = node.neighborhood().add(node);
 
-      cy.elements().addClass('faded');
+      firstGraph.elements().addClass('faded');
       neighborhood.removeClass('faded');
       localselect.emit(node.data('name'));
     });
 
-    cy.on('tap', function (e) {
-      if (e.target === cy) {
-        cy.elements().removeClass('faded');
+    firstGraph.on('tap', function(e) {
+      if (e.target === firstGraph) {
+        firstGraph.elements().removeClass('faded');
       }
     });
+
+
   }
 
 }
