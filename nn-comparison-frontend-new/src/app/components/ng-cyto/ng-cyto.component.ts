@@ -111,6 +111,7 @@ export class NgCytoComponent implements OnChanges {
     });
 
     firstGraph.on('click', 'node',(e) => {
+      firstGraph.elements().removeClass('strong-match').removeClass('weak-match');
       const node = e.target;
       const nodeId = node.data('id');
       const matchedNodes = this.nodeMatches[nodeId];
