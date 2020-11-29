@@ -64,8 +64,8 @@ export class NgCytoComponent implements OnChanges {
         })
         .selector(':selected')
         .css({
-          'border-width': 1,
-          'border-color': 'black'
+          'border-width': 3,
+          'border-color': '#fcba03'
         })
         .selector('edge')
         .css({
@@ -90,12 +90,14 @@ export class NgCytoComponent implements OnChanges {
         .selector('.strong-match')
         .css({
           'opacity': 0.5,
-          'background-color': 'green'
+          'background-color': '#fcba03',
+          'color': 'black'
         })
         .selector('.weak-match')
         .css({
             'opacity': 0.25,
-            'background-color': 'green'
+            'background-color': '#fcba03',
+          'color': 'black'
           }
         )
 
@@ -160,13 +162,24 @@ export class NgCytoComponent implements OnChanges {
   createPopper(node, placement) {
     let popper = node.popper({
       content: () => {
-        const inputShape = node.data('inputShape');
-        const outputShape = node.data('outputShape');
+        const layerType = node.data('clsName');
+        const inputShape = node.data('inputShape').filter((elem) => elem != null);
+        const outputShape = node.data('outputShape').filter((elem) => elem != null);
+        console.log('outout', outputShape)
         let div = document.createElement('div');
         div.className = 'node-tooltip';
-        div.style.cssText = 'z-index:9999;border:1px solid black;margin-right: 5px;background-color:white;';
+        div.style.cssText = 'z-index:9999;' +
+          'border:2px solid #eeeeee;' +
+          'border-radius: 5px;' +
+          'margin: 0 10px 0 10px;' +
+          'background-color: #eeeeee;' +
+          'color: #666666';
 
         div.innerHTML = '<table>\n' +
+          '                        <tr>\n' +
+          '                        <td>Layer type:</td>\n' +
+          '                        <td>' + layerType + '</td>\n' +
+          '                        </tr>\n' +
           '                        <tr>\n' +
           '                        <td>Input shape:</td>\n' +
           '                        <td>' + inputShape + '</td>\n' +
