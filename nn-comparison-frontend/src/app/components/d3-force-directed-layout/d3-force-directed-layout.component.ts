@@ -1,5 +1,6 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import * as d3 from 'd3';
+import {mergeGraphs} from "../../utils/utils";
 
 
 @Component({
@@ -20,11 +21,11 @@ export class D3ForceDirectedLayoutComponent implements OnInit, OnChanges {
   constructor() { }
 
   ngOnInit(): void {
-    this.graphData = this.mergeGraphs(this.firstGraph, this.secondGraph);
+    this.graphData = mergeGraphs(this.firstGraph, this.secondGraph);
   }
 
   ngOnChanges(): any {
-    this.graphData = this.mergeGraphs(this.firstGraph, this.secondGraph);
+    this.graphData = mergeGraphs(this.firstGraph, this.secondGraph);
     this.createGraph(this.graphData);
   }
 
@@ -63,9 +64,14 @@ export class D3ForceDirectedLayoutComponent implements OnInit, OnChanges {
         .force("link", d3.forceLink(links).id(d => d.id))
         .force("charge", d3.forceManyBody())
         .force("x", d3.forceX())
-        .force("y", d3.forceY());
+        .force("y", d3.forceY())
+        .force('collide', d3.forceCollide(function(d){
+          return d.id === "j" ? 100 : 50
+        }))
+        .force('center', d3.forceCenter(this.width / 2, this.height / 2))
 
-      const svg = d3.select('#main-svg');
+
+    const svg = d3.select('#main-svg');
 
       const link = svg.append("g")
         .attr("transform", `translate(${this.margin.left},${this.margin.top})`)
@@ -87,9 +93,6 @@ export class D3ForceDirectedLayoutComponent implements OnInit, OnChanges {
         .attr("fill", 'green')
         .call(drag(simulation));
 
-      node.append("title")
-        .text(d => d.clsName);
-
       simulation.on("tick", () => {
         link
           .attr("x1", d => d.source.x)
@@ -101,23 +104,10 @@ export class D3ForceDirectedLayoutComponent implements OnInit, OnChanges {
           .attr("cx", d => d.x)
           .attr("cy", d => d.y);
       });
-
-      // invalidation.then(() => simulation.stop());
-
-
-
       return svg.node();
-
   }
 
-  mergeGraphs(firstGraph, secondGraph) {
-    let combined = {};
-    combined['nodes'] = firstGraph['nodes'];
-    combined['nodes'] = combined['nodes'].concat(secondGraph['nodes']);
-    combined['edges'] = firstGraph['edges'];
-    combined['edges'] = combined['edges'].concat(secondGraph['edges']);
-    return combined;
-  }
+
 
 
 }

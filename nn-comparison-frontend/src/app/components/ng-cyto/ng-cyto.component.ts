@@ -3,14 +3,10 @@ import {Component, OnChanges, Renderer2, ElementRef, Input, Output, EventEmitter
 import cytoscape from 'cytoscape';
 import dagre from 'cytoscape-dagre';
 import popper from 'cytoscape-popper';
-import qtip from 'cytoscape-qtip';
-import tippy from 'tippy.js';
-import 'tippy.js/dist/tippy.css';
-
+import {mergeGraphs} from "../../utils/utils";
 
 cytoscape.use(dagre);
 cytoscape.use(popper);
-cytoscape.use(qtip);
 
 @Component({
   selector: 'ng2-cytoscape',
@@ -115,7 +111,7 @@ export class NgCytoComponent implements OnChanges {
       minZoom: this.zoom.min,
       maxZoom: this.zoom.max,
       style: this.style,
-      elements: this.mergeGraphs(this.firstGraph, this.secondGraph)
+      elements: mergeGraphs(this.firstGraph, this.secondGraph)
     });
 
     firstGraph.on('click', 'node', (e) => {
@@ -206,14 +202,5 @@ export class NgCytoComponent implements OnChanges {
     while (elements.length > 0) {
       elements[0].parentNode.removeChild(elements[0]);
     }
-  }
-
-  mergeGraphs(firstGraph, secondGraph) {
-    let combined = {};
-    combined['nodes'] = firstGraph['nodes'];
-    combined['nodes'] = combined['nodes'].concat(secondGraph['nodes']);
-    combined['edges'] = firstGraph['edges'];
-    combined['edges'] = combined['edges'].concat(secondGraph['edges']);
-    return combined;
   }
 }
