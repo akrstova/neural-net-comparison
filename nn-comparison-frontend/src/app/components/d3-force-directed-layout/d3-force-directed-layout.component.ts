@@ -59,6 +59,7 @@ export class D3ForceDirectedLayoutComponent implements OnInit, OnChanges {
 
       const links = data.edges.map(d => d.data);
       const nodes = data.nodes.map(d => d.data);
+      console.log(nodes);
 
       const simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links).id(d => d.id))
@@ -80,7 +81,7 @@ export class D3ForceDirectedLayoutComponent implements OnInit, OnChanges {
         .selectAll("line")
         .data(links)
         .join("line")
-        .attr("stroke-width", 4);
+        .attr("stroke-width", 2);
 
       const node = svg.append("g")
         .attr("transform", `translate(${this.margin.left},${this.margin.top})`)
@@ -90,8 +91,10 @@ export class D3ForceDirectedLayoutComponent implements OnInit, OnChanges {
         .data(nodes)
         .join("circle")
         .attr("r", 15)
-        .attr("fill", 'green')
+        .attr("fill", '#9e9b9b')
         .call(drag(simulation));
+
+      node.join("text").attr("text", "hi")
 
       simulation.on("tick", () => {
         link

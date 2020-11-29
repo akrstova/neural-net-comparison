@@ -53,7 +53,7 @@
       Use node embeddings
     </mat-checkbox>
     <br><br>
-    <button mat-stroked-button color="orange" (click)="compareModels()" style="color: orange;">Compare</button>
+    <button mat-stroked-button color="#fcba03" (click)="compareModels()" style="color: #e6a900;">Compare</button>
     <button mat-stroked-button color="grey" (click)="resetComparison()" style="color: gray; background-color: #f0f2f5;">
       Reset
     </button>
@@ -62,7 +62,7 @@
   </mat-drawer>
 
   <div class="example-sidenav-content">
-    <div style="height: 90%; width: 80%;" #container>
+    <div style="height: 90%; width: 80%;">
       <ng2-cytoscape *ngIf="!forceDirected" [firstGraph]="firstCyGraph" [secondGraph]="secondCyGraph" [nodeMatches]="nodeMatches"></ng2-cytoscape>
       <d3-force-directed-layout *ngIf="forceDirected" [firstGraph]="firstCyGraph" [secondGraph]="secondCyGraph" [nodeMatches]="nodeMatches"></d3-force-directed-layout>
     </div>
