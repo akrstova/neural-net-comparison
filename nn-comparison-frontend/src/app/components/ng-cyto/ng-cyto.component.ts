@@ -165,7 +165,6 @@ export class NgCytoComponent implements OnChanges {
         const layerType = node.data('clsName');
         const inputShape = node.data('inputShape').filter((elem) => elem != null);
         const outputShape = node.data('outputShape').filter((elem) => elem != null);
-        console.log('outout', outputShape)
         let div = document.createElement('div');
         div.className = 'node-tooltip';
         div.style.cssText = 'z-index:9999;' +
@@ -199,7 +198,6 @@ export class NgCytoComponent implements OnChanges {
         'placement': placement
       } // my popper options here
     });
-    console.log('Popper', popper);
     return popper;
   }
 
@@ -218,47 +216,4 @@ export class NgCytoComponent implements OnChanges {
     combined['edges'] = combined['edges'].concat(secondGraph['edges']);
     return combined;
   }
-
-  makeTippy(node, text) {
-    var ref = node.popperRef();
-
-    // unfortunately, a dummy element must be passed
-    // as tippy only accepts a dom element as the target
-    // https://github.com/atomiks/tippyjs/issues/661
-    var dummyDomEle = document.createElement('div');
-
-    // @ts-ignore
-    var tip = tippy(dummyDomEle, {
-      onCreate: function (instance) { // mandatory
-        // patch the tippy's popper reference so positioning works
-        // https://atomiks.github.io/tippyjs/misc/#custom-position
-        // @ts-ignore
-        instance.popperInstance.reference = ref;
-      },
-      lazy: false, // mandatory
-      trigger: 'manual', // mandatory
-
-      // dom element inside the tippy:
-      content: function () { // function can be better for performance
-        var div = document.createElement('div');
-
-        div.innerHTML = text;
-
-        return div;
-      },
-
-      // your own preferences:
-      arrow: true,
-      placement: 'bottom',
-      hideOnClick: false,
-      multiple: true,
-      sticky: true,
-
-      // if interactive:
-      interactive: true,
-      appendTo: document.body // or append dummyDomEle to document.body
-    });
-
-    return tip;
-  };
 }

@@ -16,12 +16,15 @@ import {ModelsService} from "./service/models.service";
 import {HttpClientModule} from "@angular/common/http";
 import {NgCytoComponent} from "./components/ng-cyto/ng-cyto.component";
 import {ComparisonService} from "./service/comparison.service";
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import { D3ForceDirectedLayoutComponent } from './components/d3-force-directed-layout/d3-force-directed-layout.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    NgCytoComponent
+    NgCytoComponent,
+    D3ForceDirectedLayoutComponent
 
   ],
   imports: [
@@ -36,6 +39,7 @@ import {ComparisonService} from "./service/comparison.service";
     MatSelectModule,
     ReactiveFormsModule,
     MatCheckboxModule,
+    MatSlideToggleModule,
     FormsModule,
     HttpClientModule
   ],
