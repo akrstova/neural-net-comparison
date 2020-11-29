@@ -60,8 +60,9 @@ export class NgCytoComponent implements OnChanges {
         })
         .selector(':selected')
         .css({
-          'border-width': 3,
-          'border-color': '#fcba03'
+          'border-width': 2,
+          'border-color': '#949494',
+          'border-style': 'dashed'
         })
         .selector('edge')
         .css({
@@ -82,6 +83,15 @@ export class NgCytoComponent implements OnChanges {
         .css({
           'opacity': 0.25,
           'text-opacity': 0
+        })
+        .selector('.best-match')
+        .css({
+          'opacity': 0.5,
+          'background-color': '#fcba03',
+          'color': 'black',
+          'border-style': 'solid',
+          'border-width': 2,
+          'border-color': '#fcba03'
         })
         .selector('.strong-match')
         .css({
@@ -115,20 +125,26 @@ export class NgCytoComponent implements OnChanges {
     });
 
     firstGraph.on('click', 'node', (e) => {
-      firstGraph.elements().removeClass('strong-match').removeClass('weak-match');
+      firstGraph.elements().removeClass('best-match').removeClass('strong-match').removeClass('weak-match');
       this.destroyAllPoppers();
       const node = e.target;
       const nodeId = node.data('id');
       const matchedNodes = this.nodeMatches[nodeId];
+      const maxScoreIndex = Object.entries(matchedNodes).reduce((a, b) => a[1]['score'] > b[1]['score'] ? a : b)[0];
+      const maxScoreNodeId = matchedNodes[maxScoreIndex]['id'];
       Object.entries(matchedNodes).forEach(
         ([_, value]) => {
           const score = value['score'];
           const matchedNodeId = value['id'];
           const nodeToHighlight = firstGraph.elements().filter((elem) => elem.data('id') == matchedNodeId)[0];
-          if (score > 0.8) {
-            nodeToHighlight.addClass('strong-match');
+          if (matchedNodeId == maxScoreNodeId) {
+            nodeToHighlight.addClass('best-match')
           } else {
-            nodeToHighlight.addClass('weak-match');
+            if (score > 0.8) {
+              nodeToHighlight.addClass('strong-match');
+            } else {
+              nodeToHighlight.addClass('weak-match');
+            }
           }
           this.createPopper(nodeToHighlight, 'right')
         }
@@ -137,7 +153,7 @@ export class NgCytoComponent implements OnChanges {
 
     firstGraph.on('click', (e) => {
       if (e.target.length != 1) {
-        firstGraph.elements().removeClass('strong-match').removeClass('weak-match');
+        firstGraph.elements().removeClass('best-match').removeClass('strong-match').removeClass('weak-match');
         this.destroyAllPoppers();
       }
     });
