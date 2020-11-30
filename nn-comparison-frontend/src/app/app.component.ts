@@ -1,7 +1,18 @@
-import {Component, OnInit} from '@angular/core';
+import {
+  Component,
+  ComponentFactoryResolver,
+  ComponentRef,
+  OnInit,
+  Type,
+  ViewChild,
+  ViewContainerRef
+} from '@angular/core';
 import {ModelsService} from "./service/models.service";
 import {Network} from "./model/network/network-model.model";
 import {ComparisonService} from "./service/comparison.service";
+import {MatSliderChange} from "@angular/material/slider";
+import {NgCytoComponent} from "./components/ng-cyto/ng-cyto.component";
+import {D3ForceDirectedLayoutComponent} from "./components/d3-force-directed-layout/d3-force-directed-layout.component";
 
 class Model {
   id: string;
@@ -22,6 +33,7 @@ class Model {
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+
   // Setup comparison
   modelGroups = {};
   modelGraphs = {}; // Easier for passing graphs to the comparison
@@ -40,9 +52,12 @@ export class AppComponent implements OnInit {
   firstCyGraph = null;
   secondCyGraph = null;
   nodeMatches = {};
-  constructor(private modelsService: ModelsService, private comparisonService: ComparisonService) {
-  }
 
+  forceDirected: boolean = false;
+
+  constructor(private componentFactoryResolver: ComponentFactoryResolver,
+              private modelsService: ModelsService, private comparisonService: ComparisonService) {
+  }
   ngOnInit(): void {
     this.selectAlgorithm();
     this.getAvailableModels();
@@ -119,7 +134,10 @@ export class AppComponent implements OnInit {
             let topSimilarNodes = result[key];
             matches[firstGraphNodeId] = [];
             for (let i in topSimilarNodes) {
-              matches[firstGraphNodeId].push({id: secondGraph.nodes[topSimilarNodes[i][1]]['id'], score: topSimilarNodes[i][0]})
+              matches[firstGraphNodeId].push({
+                id: secondGraph.nodes[topSimilarNodes[i][1]]['id'],
+                score: topSimilarNodes[i][0]
+              })
             }
             this.nodeMatches = matches;
           }
@@ -129,5 +147,9 @@ export class AppComponent implements OnInit {
 
   resetComparison() {
     window.location.reload();
+  }
+
+  layoutChanged(event: any) {
+    this.forceDirected = event.checked;
   }
 }

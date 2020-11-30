@@ -22,3 +22,11 @@ mat-sidenav {
 button {
   margin-right: 0.7em;
 }
+
+/deep/ .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar {
+  background-color: #e6a900;
+}
+
+/deep/ .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb {
+  background-color: #c99400;
+}

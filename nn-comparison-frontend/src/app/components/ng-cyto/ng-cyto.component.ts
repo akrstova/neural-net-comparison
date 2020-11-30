@@ -3,14 +3,10 @@ import {Component, OnChanges, Renderer2, ElementRef, Input, Output, EventEmitter
 import cytoscape from 'cytoscape';
 import dagre from 'cytoscape-dagre';
 import popper from 'cytoscape-popper';
-import qtip from 'cytoscape-qtip';
-import tippy from 'tippy.js';
-import 'tippy.js/dist/tippy.css';
-
+import {mergeGraphs} from "../../utils/utils";
 
 cytoscape.use(dagre);
 cytoscape.use(popper);
-cytoscape.use(qtip);
 
 @Component({
   selector: 'ng2-cytoscape',
@@ -64,8 +60,9 @@ export class NgCytoComponent implements OnChanges {
         })
         .selector(':selected')
         .css({
-          'border-width': 3,
-          'border-color': '#fcba03'
+          'border-width': 2,
+          'border-color': '#949494',
+          'border-style': 'dashed'
         })
         .selector('edge')
         .css({
@@ -86,6 +83,15 @@ export class NgCytoComponent implements OnChanges {
         .css({
           'opacity': 0.25,
           'text-opacity': 0
+        })
+        .selector('.best-match')
+        .css({
+          'opacity': 0.5,
+          'background-color': '#fcba03',
+          'color': 'black',
+          'border-style': 'solid',
+          'border-width': 2,
+          'border-color': '#fcba03'
         })
         .selector('.strong-match')
         .css({
@@ -115,24 +121,30 @@ export class NgCytoComponent implements OnChanges {
       minZoom: this.zoom.min,
       maxZoom: this.zoom.max,
       style: this.style,
-      elements: this.mergeGraphs(this.firstGraph, this.secondGraph)
+      elements: mergeGraphs(this.firstGraph, this.secondGraph)
     });
 
     firstGraph.on('click', 'node', (e) => {
-      firstGraph.elements().removeClass('strong-match').removeClass('weak-match');
+      firstGraph.elements().removeClass('best-match').removeClass('strong-match').removeClass('weak-match');
       this.destroyAllPoppers();
       const node = e.target;
       const nodeId = node.data('id');
       const matchedNodes = this.nodeMatches[nodeId];
+      const maxScoreIndex = Object.entries(matchedNodes).reduce((a, b) => a[1]['score'] > b[1]['score'] ? a : b)[0];
+      const maxScoreNodeId = matchedNodes[maxScoreIndex]['id'];
       Object.entries(matchedNodes).forEach(
         ([_, value]) => {
           const score = value['score'];
           const matchedNodeId = value['id'];
           const nodeToHighlight = firstGraph.elements().filter((elem) => elem.data('id') == matchedNodeId)[0];
-          if (score > 0.8) {
-            nodeToHighlight.addClass('strong-match');
+          if (matchedNodeId == maxScoreNodeId) {
+            nodeToHighlight.addClass('best-match')
           } else {
-            nodeToHighlight.addClass('weak-match');
+            if (score > 0.8) {
+              nodeToHighlight.addClass('strong-match');
+            } else {
+              nodeToHighlight.addClass('weak-match');
+            }
           }
           this.createPopper(nodeToHighlight, 'right')
         }
@@ -141,7 +153,7 @@ export class NgCytoComponent implements OnChanges {
 
     firstGraph.on('click', (e) => {
       if (e.target.length != 1) {
-        firstGraph.elements().removeClass('strong-match').removeClass('weak-match');
+        firstGraph.elements().removeClass('best-match').removeClass('strong-match').removeClass('weak-match');
         this.destroyAllPoppers();
       }
     });
@@ -165,7 +177,6 @@ export class NgCytoComponent implements OnChanges {
         const layerType = node.data('clsName');
         const inputShape = node.data('inputShape').filter((elem) => elem != null);
         const outputShape = node.data('outputShape').filter((elem) => elem != null);
-        console.log('outout', outputShape)
         let div = document.createElement('div');
         div.className = 'node-tooltip';
         div.style.cssText = 'z-index:9999;' +
@@ -199,7 +210,6 @@ export class NgCytoComponent implements OnChanges {
         'placement': placement
       } // my popper options here
     });
-    console.log('Popper', popper);
     return popper;
   }
 
@@ -209,56 +219,4 @@ export class NgCytoComponent implements OnChanges {
       elements[0].parentNode.removeChild(elements[0]);
     }
   }
-
-  mergeGraphs(firstGraph, secondGraph) {
-    let combined = {};
-    combined['nodes'] = firstGraph['nodes'];
-    combined['nodes'] = combined['nodes'].concat(secondGraph['nodes']);
-    combined['edges'] = firstGraph['edges'];
-    combined['edges'] = combined['edges'].concat(secondGraph['edges']);
-    return combined;
-  }
-
-  makeTippy(node, text) {
-    var ref = node.popperRef();
-
-    // unfortunately, a dummy element must be passed
-    // as tippy only accepts a dom element as the target
-    // https://github.com/atomiks/tippyjs/issues/661
-    var dummyDomEle = document.createElement('div');
-
-    // @ts-ignore
-    var tip = tippy(dummyDomEle, {
-      onCreate: function (instance) { // mandatory
-        // patch the tippy's popper reference so positioning works
-        // https://atomiks.github.io/tippyjs/misc/#custom-position
-        // @ts-ignore
-        instance.popperInstance.reference = ref;
-      },
-      lazy: false, // mandatory
-      trigger: 'manual', // mandatory
-
-      // dom element inside the tippy:
-      content: function () { // function can be better for performance
-        var div = document.createElement('div');
-
-        div.innerHTML = text;
-
-        return div;
-      },
-
-      // your own preferences:
-      arrow: true,
-      placement: 'bottom',
-      hideOnClick: false,
-      multiple: true,
-      sticky: true,
-
-      // if interactive:
-      interactive: true,
-      appendTo: document.body // or append dummyDomEle to document.body
-    });
-
-    return tip;
-  };
 }
