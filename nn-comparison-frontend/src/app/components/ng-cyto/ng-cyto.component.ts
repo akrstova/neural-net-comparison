@@ -3,6 +3,7 @@ import {Component, OnChanges, Renderer2, ElementRef, Input, Output, EventEmitter
 import cytoscape from 'cytoscape';
 import dagre from 'cytoscape-dagre';
 import popper from 'cytoscape-popper';
+import * as d3 from 'd3';
 import {mergeGraphs} from "../../utils/utils";
 
 cytoscape.use(dagre);
@@ -103,7 +104,7 @@ export class NgCytoComponent implements OnChanges {
         .css({
             'opacity': 0.25,
             'background-color': '#fcba03',
-          'color': 'black'
+            'color': 'black'
           }
         )
 
@@ -123,6 +124,7 @@ export class NgCytoComponent implements OnChanges {
       style: this.style,
       elements: mergeGraphs(this.firstGraph, this.secondGraph)
     });
+    this.colorNodesSequentialScale(firstGraph.elements());
 
     firstGraph.on('click', 'node', (e) => {
       firstGraph.elements().removeClass('best-match').removeClass('strong-match').removeClass('weak-match');
@@ -169,6 +171,21 @@ export class NgCytoComponent implements OnChanges {
       }
     )
 
+  }
+
+  colorNodesSequentialScale(elements) {
+    const firstGraphNodeIds = this.firstGraph.nodes.map((node) => node['data']['id']);
+    const clr = d3.scaleLinear()
+      .range(["#b6d5ea", "#0e569d"])
+      .domain([0, this.firstGraph.nodes.length]);
+
+    const colourArray = d3.range(this.firstGraph.nodes.length).map((d) => {
+      return clr(d)
+    });
+    const firstGraphElements = elements.filter((elem) => firstGraphNodeIds.includes(elem.data('id')));
+    for (let i = 0; i < firstGraphElements.length; i++) {
+      firstGraphElements[i].style('background-color', colourArray[i]);
+    }
   }
 
   createPopper(node, placement) {
