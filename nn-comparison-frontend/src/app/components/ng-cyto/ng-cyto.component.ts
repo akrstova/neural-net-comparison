@@ -111,7 +111,8 @@ export class NgCytoComponent implements OnChanges {
   }
 
   public ngOnChanges(): any {
-    this.render();
+    if (this.nodeMatches)
+      this.render();
   }
 
   public render() {
@@ -175,16 +176,31 @@ export class NgCytoComponent implements OnChanges {
 
   colorNodesSequentialScale(elements) {
     const firstGraphNodeIds = this.firstGraph.nodes.map((node) => node['data']['id']);
+    const secondGraphNodeIds = this.secondGraph.nodes.map((node) => node['data']['id']);
+    const firstGraphElements = elements.filter((elem) => firstGraphNodeIds.includes(elem.data('id')));
+    const secondGraphElements = elements.filter((elem) => secondGraphNodeIds.includes(elem.data('id')));
+    let assignedColors = {};
     const clr = d3.scaleLinear()
       .range(["#b6d5ea", "#0e569d"])
       .domain([0, this.firstGraph.nodes.length]);
 
-    const colourArray = d3.range(this.firstGraph.nodes.length).map((d) => {
+    const colorArray = d3.range(this.firstGraph.nodes.length).map((d) => {
       return clr(d)
     });
-    const firstGraphElements = elements.filter((elem) => firstGraphNodeIds.includes(elem.data('id')));
+
     for (let i = 0; i < firstGraphElements.length; i++) {
-      firstGraphElements[i].style('background-color', colourArray[i]);
+      firstGraphElements[i].style('background-color', colorArray[i]);
+      assignedColors[firstGraphNodeIds[i]] = colorArray[i];
+    }
+    if (this.nodeMatches) {
+      console.log(this.nodeMatches);
+      console.log('Colors', assignedColors)
+      console.log('Second graph id', secondGraphNodeIds)
+      for (let i = 0; i < firstGraphElements.length; i++) {
+        const topMatchId = this.nodeMatches[firstGraphElements[i].data('id')][0]['id'];
+        console.log('G1 ' + firstGraphElements[i].data('id') + " G2 " + topMatchId);
+        secondGraphElements.filter((elem) => elem.data('id') == topMatchId)[0].style('background-color', assignedColors[firstGraphNodeIds[i]]);
+      }
     }
   }
 
