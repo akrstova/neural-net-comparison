@@ -1,22 +1,21 @@
+import itertools
 import json
 import os
+import pickle
 from os import listdir
 from os.path import join, isfile
 from random import randint
-import numpy as np
-import itertools
-import networkx as nx
-import pickle
+
+import igraph
 import jsonpickle
+import networkx as nx
+import numpy as np
+import requests
+from flask import Flask, request
+from flask_cors import CORS, cross_origin
+from matplotlib import pyplot as plt
 from networkx.readwrite import json_graph
 from scipy import spatial
-from matplotlib import pyplot as plt
-import seaborn as sb
-import igraph
-
-from flask import Flask, request, jsonify
-from flask_cors import CORS, cross_origin
-import requests
 
 from app.model.NodeEmbedding import NodeEmbedding
 
@@ -237,11 +236,11 @@ def node_subst_embeddings(n1, n2):
     return cost
 
 
-def node_del(n1):
-    return 4
+def node_del():
+    return 4  # TODO model this as a function
 
 
-def node_ins(n1):
+def node_ins():
     return 5
 
 
@@ -341,13 +340,24 @@ def generate_regal_files(g1, g2, id1, id2):
     }
     true_alignments_file = open(id1 + '+' + id2 + '_edges-mapping-permutation.txt', 'wb')
     pickle.dump(true_alignments, true_alignments_file, protocol=2)
-    attributes_g1 = nx.get_node_attributes(g1, 'clsName')
-    attributes_g2 = nx.get_node_attributes(g2, 'clsName')
-    combined_attributes = np.array(list(attributes_g1.values()) + list(attributes_g2.values()))
-    combined_attributes_mat = combined_attributes.reshape(len(combined_attributes), 1)
-    attributes_file = open(id1 + '+' + id2 + 'attributes.npy', 'wb')
-    np.save(attributes_file, combined_attributes_mat)
-    return matrix_file.name, attributes_file.name, true_alignments_file.name
+
+    # Attribute matrix should be NxA, where N is number of nodes and A is number of attributes
+    # attribute_names = {"clsName", "inputShape", "outputShape"}
+    attribute_names = {"clsName", "outputShape"}
+    attributes_values = []
+    for attribute in attribute_names:
+        attributes_values.append(list(nx.get_node_attributes(g1, attribute).values())
+                                 + list(nx.get_node_attributes(g2, attribute).values()))
+
+    # Add node positions (indexes) as attributes
+    attributes_values.append([idx for idx, x in enumerate(g1.nodes)] + [idx for idx, x in enumerate(g2.nodes)])
+    combined_attributes = np.empty([len(attributes_values[0]), 1])
+    for attr_list in attributes_values:
+        combined_attributes = np.hstack((combined_attributes, np.array(attr_list).reshape(-1, 1)))
+
+    attribute_file = id1 + '+' + id2 + 'attributes.npy'
+    np.save(id1 + '+' + id2 + 'attributes.npy', combined_attributes[:, 1:])
+    return matrix_file.name, attribute_file, true_alignments_file.name
 
 
 if __name__ == '__main__':

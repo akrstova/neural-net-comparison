@@ -3,6 +3,7 @@ import {Component, OnChanges, Renderer2, ElementRef, Input, Output, EventEmitter
 import cytoscape from 'cytoscape';
 import dagre from 'cytoscape-dagre';
 import popper from 'cytoscape-popper';
+import * as d3 from 'd3';
 import {mergeGraphs} from "../../utils/utils";
 
 cytoscape.use(dagre);
@@ -103,14 +104,15 @@ export class NgCytoComponent implements OnChanges {
         .css({
             'opacity': 0.25,
             'background-color': '#fcba03',
-          'color': 'black'
+            'color': 'black'
           }
         )
 
   }
 
   public ngOnChanges(): any {
-    this.render();
+    if (this.nodeMatches)
+      this.render();
   }
 
   public render() {
@@ -123,6 +125,7 @@ export class NgCytoComponent implements OnChanges {
       style: this.style,
       elements: mergeGraphs(this.firstGraph, this.secondGraph)
     });
+    this.colorNodesSequentialScale(firstGraph.elements());
 
     firstGraph.on('click', 'node', (e) => {
       firstGraph.elements().removeClass('best-match').removeClass('strong-match').removeClass('weak-match');
@@ -169,6 +172,36 @@ export class NgCytoComponent implements OnChanges {
       }
     )
 
+  }
+
+  colorNodesSequentialScale(elements) {
+    const firstGraphNodeIds = this.firstGraph.nodes.map((node) => node['data']['id']);
+    const secondGraphNodeIds = this.secondGraph.nodes.map((node) => node['data']['id']);
+    const firstGraphElements = elements.filter((elem) => firstGraphNodeIds.includes(elem.data('id')));
+    const secondGraphElements = elements.filter((elem) => secondGraphNodeIds.includes(elem.data('id')));
+    let assignedColors = {};
+    const sequentialScale = d3.scaleSequential()
+      .domain([0, this.firstGraph.nodes.length])
+      .interpolator(d3.interpolateViridis)
+
+    const colorArray = d3.range(this.firstGraph.nodes.length).map((d) => {
+      return sequentialScale(d)
+    });
+
+    for (let i = 0; i < firstGraphElements.length; i++) {
+      firstGraphElements[i].style('background-color', colorArray[i]);
+      assignedColors[firstGraphNodeIds[i]] = colorArray[i];
+    }
+    if (this.nodeMatches) {
+      console.log(this.nodeMatches);
+      console.log('Colors', assignedColors)
+      console.log('Second graph id', secondGraphNodeIds)
+      for (let i = 0; i < firstGraphElements.length; i++) {
+        const topMatchId = this.nodeMatches[firstGraphElements[i].data('id')][0]['id'];
+        console.log('G1 ' + firstGraphElements[i].data('id') + " G2 " + topMatchId);
+        secondGraphElements.filter((elem) => elem.data('id') == topMatchId)[0].style('background-color', assignedColors[firstGraphNodeIds[i]]);
+      }
+    }
   }
 
   createPopper(node, placement) {
