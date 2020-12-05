@@ -180,12 +180,12 @@ export class NgCytoComponent implements OnChanges {
     const firstGraphElements = elements.filter((elem) => firstGraphNodeIds.includes(elem.data('id')));
     const secondGraphElements = elements.filter((elem) => secondGraphNodeIds.includes(elem.data('id')));
     let assignedColors = {};
-    const clr = d3.scaleLinear()
-      .range(["#b6d5ea", "#0e569d"])
-      .domain([0, this.firstGraph.nodes.length]);
+    const sequentialScale = d3.scaleSequential()
+      .domain([0, this.firstGraph.nodes.length])
+      .interpolator(d3.interpolateViridis)
 
     const colorArray = d3.range(this.firstGraph.nodes.length).map((d) => {
-      return clr(d)
+      return sequentialScale(d)
     });
 
     for (let i = 0; i < firstGraphElements.length; i++) {
