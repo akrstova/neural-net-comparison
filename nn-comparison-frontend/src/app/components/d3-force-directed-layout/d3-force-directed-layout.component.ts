@@ -85,8 +85,18 @@ export class D3ForceDirectedLayoutComponent implements OnInit, OnChanges {
       // }))
       .force('center', d3.forceCenter(this.width / 2, this.height / 2))
 
+    let zoomed = (e)=>{
+      const {x,y,k} = e.transform
+      let t = d3.zoomIdentity
+      t =  t.translate(x,y).scale(k).translate(50,50)
+      svg.attr("transform", t)
+    }
+    let zoom = d3.zoom()
+      .scaleExtent([1, 8])
+      .on("zoom", zoomed);
 
-    const svg = d3.select('#main-svg');
+
+    const svg = d3.select('#main-svg').call(zoom);
 
     const link = svg.append("g")
       .attr("transform", `translate(${this.margin.left},${this.margin.top})`)
@@ -116,6 +126,8 @@ export class D3ForceDirectedLayoutComponent implements OnInit, OnChanges {
       .append("text")
       .text((d) => d.clsName)
       .call(drag(simulation));
+
+
 
 
     simulation.on("tick", () => {
