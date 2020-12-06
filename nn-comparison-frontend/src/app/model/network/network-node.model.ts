@@ -5,8 +5,4 @@ export class NetworkNode {
   config?: any;
   inputShape?: string[];
   numParameter?: number;
-  added?: boolean;
-  removed?: boolean;
-  match_id?: string;
-  position?: number;
 }

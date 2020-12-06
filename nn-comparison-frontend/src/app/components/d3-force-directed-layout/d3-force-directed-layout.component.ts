@@ -67,82 +67,87 @@ export class D3ForceDirectedLayoutComponent implements OnInit, OnChanges {
     const xScale = d3.scaleLinear().domain([0, 6]).range([0, 600]);
     const yScale = d3.scaleLinear().domain([1, 2]).range([0, 8]);
 
-    function attractionForce(alpha) {
-      for (let i = 0, n = nodes.length, node, k = alpha * 0.1; i < n; ++i) {
+
+    const attractionForce = () => {
+      for (let i = 0, n = nodes.length, node; i < n; ++i) {
         node = nodes[i];
-        node.vx += node.x * k;
-        node.vy += node.y * k;
+        const nodeId = node['id'];
+        if (this.nodeMatches[nodeId]) {
+          node.vx += node.x * this.nodeMatches[nodeId][0]['score'];
+          node.vy += node.y * this.nodeMatches[nodeId][0]['score'];
+        }
+
       }
     }
 
     const simulation = d3.forceSimulation(nodes)
-      .force("link", d3.forceLink(links).id(d => d.id).distance(50))
-      .force("charge", d3.forceManyBody().strength(-10))
-      .force("x", d3.forceX().x((d) => {
+      .force('link', d3.forceLink(links).id(d => d.id).distance(50))
+      .force('charge', d3.forceManyBody().strength(-10))
+      .force('x', d3.forceX().x((d) => {
         if (d.index < this.firstGraph.nodes.length) {
           return xScale(d.index);
         } else {
           return xScale(d.index - this.firstGraph.nodes.length);
         }
       }))
-      .force("y", d3.forceY().y((d) => yScale(d.graphNum)))
-      .force('attract', attractionForce(1))
+      .force('y', d3.forceY().y((d) => yScale(d.graphNum)))
+      .force('attract', attractionForce())
       .force('center', d3.forceCenter(this.width / 2, this.height / 2))
 
     function zoomed({transform}) {
-      svg.attr("transform", transform);
+      svg.attr('transform', transform);
     }
 
     const zoom = d3.zoom()
       .scaleExtent([1, 40])
-      .on("zoom", zoomed);
+      .on('zoom', zoomed);
 
     const svg = d3.select('#main-svg').call(zoom);
 
-    const link = svg.append("g")
-      .attr("transform", `translate(${this.margin.left},${this.margin.top})`)
-      .attr("stroke", "#999")
-      .attr("stroke-opacity", 0.6)
-      .selectAll("line")
+    const link = svg.append('g')
+      .attr('transform', `translate(${this.margin.left},${this.margin.top})`)
+      .attr('stroke', '#999')
+      .attr('stroke-opacity', 0.6)
+      .selectAll('line')
       .data(links)
-      .join("line")
-      .attr("stroke-width", 2);
+      .join('line')
+      .attr('stroke-width', 2);
 
-    const node = svg.append("g")
-      .attr("transform", `translate(${this.margin.left},${this.margin.top})`)
-      .attr("stroke", "#fff")
-      .attr("stroke-width", 1.5)
-      .selectAll("circle")
+    const node = svg.append('g')
+      .attr('transform', `translate(${this.margin.left},${this.margin.top})`)
+      .attr('stroke', '#fff')
+      .attr('stroke-width', 1.5)
+      .selectAll('circle')
       .data(nodes)
-      .join("circle")
-      .attr("r", 15)
-      .attr("fill", '#9e9b9b')
+      .join('circle')
+      .attr('r', 15)
+      .attr('fill', '#9e9b9b')
       .call(drag(simulation));
 
-    const text = svg.append("g")
-      .attr("transform", `translate(${this.margin.left},${this.margin.top})`)
-      .selectAll("text")
+    const text = svg.append('g')
+      .attr('transform', `translate(${this.margin.left},${this.margin.top})`)
+      .selectAll('text')
       .data(nodes)
       .enter()
-      .append("text")
+      .append('text')
       .text((d) => d.clsName)
       .call(drag(simulation));
 
 
-    simulation.on("tick", () => {
+    simulation.on('tick', () => {
       link
-        .attr("x1", d => d.source.x)
-        .attr("y1", d => d.source.y)
-        .attr("x2", d => d.target.x)
-        .attr("y2", d => d.target.y);
+        .attr('x1', d => d.source.x)
+        .attr('y1', d => d.source.y)
+        .attr('x2', d => d.target.x)
+        .attr('y2', d => d.target.y);
 
       node
-        .attr("cx", d => d.x)
-        .attr("cy", d => d.y);
+        .attr('cx', d => d.x)
+        .attr('cy', d => d.y);
 
       text
-        .attr("dx", d => d.x)
-        .attr("dy", d => d.y)
+        .attr('dx', d => d.x)
+        .attr('dy', d => d.y)
     });
     return svg.node();
   }
