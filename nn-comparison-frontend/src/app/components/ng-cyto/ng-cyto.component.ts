@@ -5,9 +5,12 @@ import dagre from 'cytoscape-dagre';
 import popper from 'cytoscape-popper';
 import * as d3 from 'd3';
 import {mergeGraphs} from "../../utils/utils";
+import tinycolor from 'tinycolor2';
+import {getMatIconNoHttpProviderError} from "@angular/material/icon";
 
 cytoscape.use(dagre);
 cytoscape.use(popper);
+
 
 @Component({
   selector: 'ng2-cytoscape',
@@ -56,8 +59,12 @@ export class NgCytoComponent implements OnChanges {
           'text-outline-width': 1,
           'text-outline-color': 'data(colorCode)',
           'background-color': 'data(colorCode)',
-          'color': '#fff',
+          'color': '#000',
           'font-size': 10
+        })
+        .selector('basic')
+        .css({
+          'color': '#000'
         })
         .selector(':selected')
         .css({
@@ -83,28 +90,14 @@ export class NgCytoComponent implements OnChanges {
         .selector('.faded')
         .css({
           'opacity': 0.25,
-          'text-opacity': 0
+          'text-opacity': 0.5
         })
         .selector('.best-match')
         .css({
-          'opacity': 0.5,
-          'background-color': '#fcba03',
-          'color': 'black',
-          'border-style': 'solid',
-          'border-width': 2,
-          'border-color': '#fcba03'
-        })
-        .selector('.strong-match')
-        .css({
-          'opacity': 0.5,
-          'background-color': '#fcba03',
-          'color': 'black'
-        })
-        .selector('.weak-match')
-        .css({
-            'opacity': 0.25,
-            'background-color': '#fcba03',
-            'color': 'black'
+            'opacity': 0.5,
+            'border-style': 'solid',
+            'border-width': 2,
+            'border-color': '#fcba03'
           }
         )
 
@@ -125,16 +118,32 @@ export class NgCytoComponent implements OnChanges {
       style: this.style,
       elements: mergeGraphs(this.firstGraph, this.secondGraph)
     });
-    this.colorNodesSequentialScale(firstGraph.elements());
+    this.colorNodesDiverging(firstGraph.elements());
 
     firstGraph.on('click', 'node', (e) => {
-      firstGraph.elements().removeClass('best-match').removeClass('strong-match').removeClass('weak-match');
+      firstGraph.elements().removeClass('best-match').removeClass('faded');
       this.destroyAllPoppers();
       const node = e.target;
       const nodeId = node.data('id');
+      // Fade all nodes except the one that was clicked
+      firstGraph.elements().filter((elem) => elem.data('id') != nodeId).map((elem) => elem.addClass('faded'));
+
       const matchedNodes = this.nodeMatches[nodeId];
       const maxScoreIndex = Object.entries(matchedNodes).reduce((a, b) => a[1]['score'] > b[1]['score'] ? a : b)[0];
       const maxScoreNodeId = matchedNodes[maxScoreIndex]['id'];
+      const selectedNodeColor = node.style('background-color');
+      const brightenedColor = tinycolor(selectedNodeColor).brighten(50).toString();
+
+      let scores = []
+      Object.entries(matchedNodes).forEach(
+        ([_, value]) => {
+          scores.push(value['score'])
+        }
+      );
+      const sequentialColorScale = d3.scaleLinear()
+        .range([brightenedColor, selectedNodeColor])
+        .domain(d3.extent(scores));
+
       Object.entries(matchedNodes).forEach(
         ([_, value]) => {
           const score = value['score'];
@@ -142,13 +151,9 @@ export class NgCytoComponent implements OnChanges {
           const nodeToHighlight = firstGraph.elements().filter((elem) => elem.data('id') == matchedNodeId)[0];
           if (matchedNodeId == maxScoreNodeId) {
             nodeToHighlight.addClass('best-match')
-          } else {
-            if (score > 0.8) {
-              nodeToHighlight.addClass('strong-match');
-            } else {
-              nodeToHighlight.addClass('weak-match');
-            }
           }
+          nodeToHighlight.style('background-color', sequentialColorScale(score));
+          nodeToHighlight.addClass('basic')
           this.createPopper(nodeToHighlight, 'right')
         }
       );
@@ -156,11 +161,11 @@ export class NgCytoComponent implements OnChanges {
 
     firstGraph.on('click', (e) => {
       if (e.target.length != 1) {
-        firstGraph.elements().removeClass('best-match').removeClass('strong-match').removeClass('weak-match');
+        firstGraph.elements().removeClass('best-match').removeClass('faded');
+        this.colorNodesDiverging(firstGraph.elements());
         this.destroyAllPoppers();
       }
     });
-
 
     firstGraph.on('mouseover', 'node', (e) => {
       let node = e.target;
@@ -174,7 +179,7 @@ export class NgCytoComponent implements OnChanges {
 
   }
 
-  colorNodesSequentialScale(elements) {
+  colorNodesDiverging(elements) {
     const firstGraphNodeIds = this.firstGraph.nodes.map((node) => node['data']['id']);
     const secondGraphNodeIds = this.secondGraph.nodes.map((node) => node['data']['id']);
     const firstGraphElements = elements.filter((elem) => firstGraphNodeIds.includes(elem.data('id')));
@@ -193,12 +198,8 @@ export class NgCytoComponent implements OnChanges {
       assignedColors[firstGraphNodeIds[i]] = colorArray[i];
     }
     if (this.nodeMatches) {
-      console.log(this.nodeMatches);
-      console.log('Colors', assignedColors)
-      console.log('Second graph id', secondGraphNodeIds)
       for (let i = 0; i < firstGraphElements.length; i++) {
         const topMatchId = this.nodeMatches[firstGraphElements[i].data('id')][0]['id'];
-        console.log('G1 ' + firstGraphElements[i].data('id') + " G2 " + topMatchId);
         secondGraphElements.filter((elem) => elem.data('id') == topMatchId)[0].style('background-color', assignedColors[firstGraphNodeIds[i]]);
       }
     }
@@ -251,5 +252,9 @@ export class NgCytoComponent implements OnChanges {
     while (elements.length > 0) {
       elements[0].parentNode.removeChild(elements[0]);
     }
+
+
   }
+
+
 }
