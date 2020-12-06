@@ -62,10 +62,6 @@ export class NgCytoComponent implements OnChanges {
           'color': '#000',
           'font-size': 10
         })
-        .selector('basic')
-        .css({
-          'color': '#000'
-        })
         .selector(':selected')
         .css({
           'border-width': 2,
@@ -153,7 +149,6 @@ export class NgCytoComponent implements OnChanges {
             nodeToHighlight.addClass('best-match')
           }
           nodeToHighlight.style('background-color', sequentialColorScale(score));
-          nodeToHighlight.addClass('basic')
           this.createPopper(nodeToHighlight, 'right')
         }
       );

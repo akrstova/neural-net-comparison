@@ -59,16 +59,30 @@ export class D3ForceDirectedLayoutComponent implements OnInit, OnChanges {
     }
 
     const links = data.edges.map(d => d.data);
-    const nodes = data.nodes.map(d => d.data);
+    let nodes = data.nodes.map(d => d.data);
+
+    // Assign graph membership to every node
+    nodes.map((elem, idx) => idx < this.firstGraph.nodes.length ? elem['graphNum'] = 1 : elem['graphNum'] = 2);
+
+    const xScale = d3.scaleLinear().domain([0, 6]).range([0, 600]);
+    const yScale = d3.scaleLinear().domain([1, 2]).range([0, 8]);
 
     const simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links).id(d => d.id))
-      .force("charge", d3.forceManyBody())
-      .force("x", d3.forceX())
-      .force("y", d3.forceY())
-      .force('collide', d3.forceCollide(function (d) {
-        return d.id === "j" ? 100 : 50
+      .force("charge", d3.forceManyBody().strength(-10))
+      .force("x", d3.forceX().x((d) => {
+        if (d.index < this.firstGraph.nodes.length) {
+          return xScale(d.index);
+        } else {
+          return xScale(d.index - this.firstGraph.nodes.length);
+        }
       }))
+      .force("y", d3.forceY().y((d) => yScale(d.graphNum)))
+      // .force('collide', d3.forceCollide((d) =>{
+      //   if (Object.values(firstGraphNodes).indexOf(d) > -1) {
+      //     return 50;
+      //   } else { return 100; }
+      // }))
       .force('center', d3.forceCenter(this.width / 2, this.height / 2))
 
 
