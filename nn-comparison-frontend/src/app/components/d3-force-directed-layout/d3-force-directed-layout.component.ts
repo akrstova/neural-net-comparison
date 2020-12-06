@@ -67,8 +67,16 @@ export class D3ForceDirectedLayoutComponent implements OnInit, OnChanges {
     const xScale = d3.scaleLinear().domain([0, 6]).range([0, 600]);
     const yScale = d3.scaleLinear().domain([1, 2]).range([0, 8]);
 
+    function attractionForce(alpha) {
+      for (let i = 0, n = nodes.length, node, k = alpha * 0.1; i < n; ++i) {
+        node = nodes[i];
+        node.vx += node.x * k;
+        node.vy += node.y * k;
+      }
+    }
+
     const simulation = d3.forceSimulation(nodes)
-      .force("link", d3.forceLink(links).id(d => d.id))
+      .force("link", d3.forceLink(links).id(d => d.id).distance(50))
       .force("charge", d3.forceManyBody().strength(-10))
       .force("x", d3.forceX().x((d) => {
         if (d.index < this.firstGraph.nodes.length) {
@@ -78,23 +86,16 @@ export class D3ForceDirectedLayoutComponent implements OnInit, OnChanges {
         }
       }))
       .force("y", d3.forceY().y((d) => yScale(d.graphNum)))
-      // .force('collide', d3.forceCollide((d) =>{
-      //   if (Object.values(firstGraphNodes).indexOf(d) > -1) {
-      //     return 50;
-      //   } else { return 100; }
-      // }))
+      .force('attract', attractionForce(1))
       .force('center', d3.forceCenter(this.width / 2, this.height / 2))
 
-    let zoomed = (e)=>{
-      const {x,y,k} = e.transform
-      let t = d3.zoomIdentity
-      t =  t.translate(x,y).scale(k).translate(50,50)
-      svg.attr("transform", t)
+    function zoomed({transform}) {
+      svg.attr("transform", transform);
     }
-    let zoom = d3.zoom()
-      .scaleExtent([1, 8])
-      .on("zoom", zoomed);
 
+    const zoom = d3.zoom()
+      .scaleExtent([1, 40])
+      .on("zoom", zoomed);
 
     const svg = d3.select('#main-svg').call(zoom);
 
@@ -126,8 +127,6 @@ export class D3ForceDirectedLayoutComponent implements OnInit, OnChanges {
       .append("text")
       .text((d) => d.clsName)
       .call(drag(simulation));
-
-
 
 
     simulation.on("tick", () => {
