@@ -13,7 +13,6 @@ import numpy as np
 import requests
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
-from matplotlib import pyplot as plt
 from networkx.readwrite import json_graph
 from scipy import spatial
 
@@ -119,14 +118,11 @@ def compare_models_networkx():
     embeddings_g1 = embeddings_arr[:len(first_graph_x.nodes)]
     global embeddings_g2
     embeddings_g2 = embeddings_arr[len(first_graph_x.nodes):]
-    g1_mapped = compare_networkx(first_graph_x, second_graph_x, embeddings=True)
-    unmatched_nodes_g2 = list(set(second_graph_x.nodes) - set(g1_mapped.values()))
-    if len(unmatched_nodes_g2) > 0:
-        print('Unmatched ', unmatched_nodes_g2)
-        for unmatched in unmatched_nodes_g2:
-            index = second_graph_x.nodes[unmatched]['index']
-            first_graph['nodes'].insert(index, create_empty_node())
-    return jsonpickle.dumps({'g1': first_graph['nodes'], 'g2': second_graph['nodes']})
+    g1_mapped = compare_networkx(first_graph_x, second_graph_x, embeddings=False)
+    result = {}
+    for (k, v) in g1_mapped.items():
+        result[get_node_by_id(first_graph_x, k)['index']] = ([[1, get_node_by_id(second_graph_x, v)['index']]])
+    return jsonpickle.dumps({'data': result})
 
 
 @app.route('/simple', methods=['POST'])
@@ -181,22 +177,12 @@ def create_empty_node():
 
 def compare_networkx(g1, g2, embeddings=False):
     if not embeddings:
-        paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes, node_del_cost=node_del,
-                                            node_ins_cost=node_ins,
-                                            node_subst_cost=node_subst)
+        paths, cost = nx.optimal_edit_paths(g1, g2)
 
     else:
-        paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes, node_del_cost=node_del,
-                                            node_ins_cost=node_ins,
+        paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes,
                                             node_subst_cost=node_subst_embeddings)
     # Visualize subst cost
-    global subst_cost_list
-    subst_cost_list = np.array(subst_cost_list)
-    subst_cost_list = np.reshape(subst_cost_list, (len(g1.nodes), len(g2.nodes)))
-    for n in range(len(g1.nodes)):
-        plt.plot(subst_cost_list[n])
-        plt.ylabel('Cost for matching node {}'.format(n))
-        plt.show()
     g1_mapped = {}
     for tup in paths[0][0]:
         if tup[0] is not None and tup[1] is not None:
@@ -236,12 +222,12 @@ def node_subst_embeddings(n1, n2):
     return cost
 
 
-def node_del():
-    return 4  # TODO model this as a function
-
-
-def node_ins():
-    return 5
+# def node_del():
+#     return 4  # TODO model this as a function
+#
+#
+# def node_ins():
+#     return 5
 
 
 def compute_similarity_node_embeddings(e1, e2):
@@ -343,21 +329,31 @@ def generate_regal_files(g1, g2, id1, id2):
 
     # Attribute matrix should be NxA, where N is number of nodes and A is number of attributes
     # attribute_names = {"clsName", "inputShape", "outputShape"}
-    attribute_names = {"clsName", "outputShape"}
-    attributes_values = []
+    attribute_names = {"clsName", "inputShape", "outputShape", "numParameter", "name"}
+    attributes_values = {}
     for attribute in attribute_names:
-        attributes_values.append(list(nx.get_node_attributes(g1, attribute).values())
-                                 + list(nx.get_node_attributes(g2, attribute).values()))
+        attributes_values[attribute] = normalize_attr_values(
+            list(nx.get_node_attributes(g1, attribute).values())) + normalize_attr_values(
+            list(nx.get_node_attributes(g2, attribute).values()))
 
     # Add node positions (indexes) as attributes
-    attributes_values.append([idx for idx, x in enumerate(g1.nodes)] + [idx for idx, x in enumerate(g2.nodes)])
-    combined_attributes = np.empty([len(attributes_values[0]), 1])
-    for attr_list in attributes_values:
-        combined_attributes = np.hstack((combined_attributes, np.array(attr_list).reshape(-1, 1)))
+    attributes_values['index'] = [idx for idx, x in enumerate(g1.nodes)] + [idx for idx, x in enumerate(g2.nodes)]
+    combined_attributes = np.empty([len(attributes_values[list(attributes_values.keys())[0]]), 1])
+    for k, v in attributes_values.items():
+        combined_attributes = np.hstack((combined_attributes, np.array(v).reshape(-1, 1)))
 
     attribute_file = id1 + '+' + id2 + 'attributes.npy'
-    np.save(id1 + '+' + id2 + 'attributes.npy', combined_attributes[:, 1:])
+    combined_attributes_named = np.vstack((np.array(list(attributes_values.keys())), combined_attributes[:, 1:]))
+    np.save(id1 + '+' + id2 + 'attributes.npy', combined_attributes_named)
     return matrix_file.name, attribute_file, true_alignments_file.name
+
+
+def normalize_attr_values(values):
+    all_numeric = all(isinstance(item, int) or isinstance(item, float) for item in values)
+    if all_numeric:
+        values = np.array(values)
+        return list((values - values.min()) / (values.max() - values.min()))
+    return values
 
 
 if __name__ == '__main__':

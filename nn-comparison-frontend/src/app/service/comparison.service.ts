@@ -15,7 +15,6 @@ export class ComparisonService {
 
   compareGraphs(firstGraph, secondGraph, algorithm, metric, useEmbeddings) {
     const graphsJson = {'firstGraph': firstGraph, 'secondGraph': secondGraph, 'simMeasure': metric};
-    console.log('graphs', firstGraph)
     this.httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',

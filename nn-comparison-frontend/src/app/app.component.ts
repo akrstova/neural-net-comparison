@@ -13,6 +13,7 @@ import {ComparisonService} from "./service/comparison.service";
 import {MatSliderChange} from "@angular/material/slider";
 import {NgCytoComponent} from "./components/ng-cyto/ng-cyto.component";
 import {D3ForceDirectedLayoutComponent} from "./components/d3-force-directed-layout/d3-force-directed-layout.component";
+import {first} from "rxjs/operators";
 
 class Model {
   id: string;
@@ -58,6 +59,7 @@ export class AppComponent implements OnInit {
   constructor(private componentFactoryResolver: ComponentFactoryResolver,
               private modelsService: ModelsService, private comparisonService: ComparisonService) {
   }
+
   ngOnInit(): void {
     this.selectAlgorithm();
     this.getAvailableModels();
@@ -122,8 +124,10 @@ export class AppComponent implements OnInit {
 
   compareModels() {
     this.getCyGraphs();
-    const firstGraph = this.modelGraphs[this.firstModelId];
-    const secondGraph = this.modelGraphs[this.secondModelId];
+    let firstGraph = this.modelGraphs[this.firstModelId];
+    let secondGraph = this.modelGraphs[this.secondModelId];
+    firstGraph.nodes = this.flattenKeys(firstGraph.nodes);
+    secondGraph.nodes = this.flattenKeys(secondGraph.nodes);
     let matches = {};
     this.comparisonService.compareGraphs(firstGraph, secondGraph, this.selectedAlgorithm, this.selectedMetric, this.useEmbeddings)
       .subscribe(data => {
@@ -143,6 +147,25 @@ export class AppComponent implements OnInit {
           }
         }
       });
+  }
+
+  flattenKeys(data) {
+    let nodes = [];
+    for (let i in data) {
+      let newData = {}
+      let node = data[i];
+      Object.keys(node).forEach(key => {
+        if (typeof node[key] === 'object' && node[key] !== null && !Array.isArray(node[key])) {
+          Object.keys(node[key]).forEach(k => {
+            newData[k] = node[key][k];
+          })
+        } else {
+          newData[key] = node[key]
+        }
+      });
+      nodes.push(newData)
+    }
+    return nodes;
   }
 
   resetComparison() {
