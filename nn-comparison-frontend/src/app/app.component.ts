@@ -131,7 +131,7 @@ export class AppComponent implements OnInit {
     let matches = {};
     this.comparisonService.compareGraphs(firstGraph, secondGraph, this.selectedAlgorithm, this.selectedMetric, this.useEmbeddings)
       .subscribe(data => {
-        let result = data['data'];
+        let result = data['matches_g1_g2'];
         for (let key in result) {
           if (result.hasOwnProperty(key)) {
             const firstGraphNodeId = firstGraph.nodes[parseInt(key)]['id'];

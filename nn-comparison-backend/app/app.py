@@ -122,7 +122,7 @@ def compare_models_networkx():
     result = {}
     for (k, v) in g1_mapped.items():
         result[get_node_by_id(first_graph_x, k)['index']] = ([[1, get_node_by_id(second_graph_x, v)['index']]])
-    return jsonpickle.dumps({'data': result})
+    return jsonpickle.dumps({'matches_g1_g2': result})
 
 
 @app.route('/simple', methods=['POST'])
@@ -160,7 +160,8 @@ def compare_models_regal():
         'sim_measure': sim_measure
     }
     matched_nodes = requests.post('http://localhost:8000/regal', json=to_send)
-    return jsonpickle.dumps({'data': json.loads(matched_nodes.content)})
+    return jsonpickle.dumps({'matches_g1_g2': json.loads(matched_nodes.content)['matches_g1_g2'],
+                             'matches_g2_g1': json.loads(matched_nodes.content)['matches_g2_g1']})
 
 
 def create_empty_node():

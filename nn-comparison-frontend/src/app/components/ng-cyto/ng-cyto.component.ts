@@ -120,6 +120,7 @@ export class NgCytoComponent implements OnChanges {
       firstGraph.elements().removeClass('best-match').removeClass('faded');
       this.destroyAllPoppers();
       const node = e.target;
+      this.createPopper(node, 'left')
       const nodeId = node.data('id');
       // Fade all nodes except the one that was clicked
       firstGraph.elements().filter((elem) => elem.data('id') != nodeId).map((elem) => elem.addClass('faded'));
@@ -168,7 +169,8 @@ export class NgCytoComponent implements OnChanges {
     });
 
     firstGraph.on('mouseout', (e) => {
-        // this.destroyAllPoppers();
+      // TODO if the user has clicked on a node, check if all poppers should be destroyed?
+        this.destroyAllPoppers();
       }
     )
 
