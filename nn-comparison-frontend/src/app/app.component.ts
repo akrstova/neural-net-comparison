@@ -52,7 +52,8 @@ export class AppComponent implements OnInit {
   useEmbeddings = false;
   firstCyGraph = null;
   secondCyGraph = null;
-  nodeMatches = {};
+  nodeMatches = {};  // Matches G1 --> G2
+  nodeMatchesReverse = {}; // Matches G2 --> G1
 
   forceDirected: boolean = false;
 
@@ -128,25 +129,48 @@ export class AppComponent implements OnInit {
     let secondGraph = this.modelGraphs[this.secondModelId];
     firstGraph.nodes = this.flattenKeys(firstGraph.nodes);
     secondGraph.nodes = this.flattenKeys(secondGraph.nodes);
-    let matches = {};
     this.comparisonService.compareGraphs(firstGraph, secondGraph, this.selectedAlgorithm, this.selectedMetric, this.useEmbeddings)
       .subscribe(data => {
-        let result = data['matches_g1_g2'];
-        for (let key in result) {
-          if (result.hasOwnProperty(key)) {
-            const firstGraphNodeId = firstGraph.nodes[parseInt(key)]['id'];
-            let topSimilarNodes = result[key];
-            matches[firstGraphNodeId] = [];
-            for (let i in topSimilarNodes) {
-              matches[firstGraphNodeId].push({
-                id: secondGraph.nodes[topSimilarNodes[i][1]]['id'],
-                score: topSimilarNodes[i][0]
-              })
-            }
-            this.nodeMatches = matches;
-          }
-        }
+        this.nodeMatches = this.parseNodeMatches(data['matches_g1_g2'], firstGraph, secondGraph);
+        this.nodeMatchesReverse = this.parseNodeMatchesReverse(data['matches_g2_g1'], firstGraph, secondGraph);
       });
+  }
+
+  // TODO merge two functions in one with 'direction' argument
+  parseNodeMatches(data, firstGraph, secondGraph) {
+    let matches = {};
+    for (let key in data) {
+      if (data.hasOwnProperty(key)) {
+        const firstGraphNodeId = firstGraph.nodes[parseInt(key)]['id'];
+        let topSimilarNodes = data[key];
+        matches[firstGraphNodeId] = [];
+        for (let i in topSimilarNodes) {
+          matches[firstGraphNodeId].push({
+            id: secondGraph.nodes[topSimilarNodes[i][1]]['id'],
+            score: topSimilarNodes[i][0]
+          })
+        }
+      }
+    }
+    return matches;
+  }
+
+  parseNodeMatchesReverse(data, firstGraph, secondGraph) {
+    let matches = {};
+    for (let key in data) {
+      if (data.hasOwnProperty(key)) {
+        const secondGraphId = secondGraph.nodes[parseInt(key)]['id'];
+        let topSimilarNodes = data[key];
+        matches[secondGraphId] = [];
+        for (let i in topSimilarNodes) {
+          matches[secondGraphId].push({
+            id: firstGraph.nodes[topSimilarNodes[i][1]]['id'],
+            score: topSimilarNodes[i][0]
+          })
+        }
+      }
+    }
+    return matches;
   }
 
   flattenKeys(data) {
