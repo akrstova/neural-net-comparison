@@ -22,6 +22,7 @@ export class D3ForceDirectedLayoutComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+    console.log(this.firstGraph, this.secondGraph)
     this.graphData = mergeGraphs(this.firstGraph, this.secondGraph);
   }
 
@@ -30,6 +31,7 @@ export class D3ForceDirectedLayoutComponent implements OnInit, OnChanges {
     this.createGraph(this.graphData);
   }
 
+  // TODO make g group around graph and not SVG
 
   createGraph(data) {
 
@@ -98,11 +100,12 @@ export class D3ForceDirectedLayoutComponent implements OnInit, OnChanges {
       svg.attr('transform', transform);
     }
 
-    const zoom = d3.zoom()
+        const zoom = d3.zoom()
       .scaleExtent([1, 40])
       .on('zoom', zoomed);
 
-    const svg = d3.select('#main-svg').call(zoom);
+    const svg = d3.select('#main-svg').attr('viewBox', [0, 0, this.width, this.height]).call(zoom).append('svg:g');
+
 
     const link = svg.append('g')
       .attr('transform', `translate(${this.margin.left},${this.margin.top})`)
