@@ -63,7 +63,7 @@
 
   <div class="example-sidenav-content">
     <div style="height: 90%; width: 80%;">
-      <ng2-cytoscape *ngIf="!forceDirected" [firstGraph]="firstCyGraph" [secondGraph]="secondCyGraph" [nodeMatches]="nodeMatches"></ng2-cytoscape>
+      <ng2-cytoscape *ngIf="!forceDirected" [firstGraph]="firstCyGraph" [secondGraph]="secondCyGraph" [nodeMatches]="nodeMatches" [reverseNodeMatches]="reverseNodeMatches"></ng2-cytoscape>
       <d3-force-directed-layout *ngIf="forceDirected" [firstGraph]="firstCyGraph" [secondGraph]="secondCyGraph" [nodeMatches]="nodeMatches"></d3-force-directed-layout>
     </div>
   </div>

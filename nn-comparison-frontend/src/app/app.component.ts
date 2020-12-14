@@ -53,7 +53,7 @@ export class AppComponent implements OnInit {
   firstCyGraph = null;
   secondCyGraph = null;
   nodeMatches = {};  // Matches G1 --> G2
-  nodeMatchesReverse = {}; // Matches G2 --> G1
+  reverseNodeMatches = {}; // Matches G2 --> G1
 
   forceDirected: boolean = false;
 
@@ -132,7 +132,7 @@ export class AppComponent implements OnInit {
     this.comparisonService.compareGraphs(firstGraph, secondGraph, this.selectedAlgorithm, this.selectedMetric, this.useEmbeddings)
       .subscribe(data => {
         this.nodeMatches = this.parseNodeMatches(data['matches_g1_g2'], firstGraph, secondGraph);
-        this.nodeMatchesReverse = this.parseNodeMatchesReverse(data['matches_g2_g1'], firstGraph, secondGraph);
+        this.reverseNodeMatches = this.parseNodeMatchesReverse(data['matches_g2_g1'], firstGraph, secondGraph);
       });
   }
 

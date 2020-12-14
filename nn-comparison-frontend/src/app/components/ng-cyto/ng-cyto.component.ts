@@ -29,6 +29,7 @@ export class NgCytoComponent implements OnChanges {
   @Input() public firstGraph: any;
   @Input() public secondGraph: any;
   @Input() public nodeMatches: any;
+  @Input() public reverseNodeMatches: any;
   @Input() public style: any;
   @Input() public layout: any;
   @Input() public zoom: any;
@@ -106,7 +107,7 @@ export class NgCytoComponent implements OnChanges {
 
   public render() {
     let cy_container = this.renderer.selectRootElement("#cy");
-    let firstGraph = cytoscape({
+    let graph = cytoscape({
       container: cy_container,
       layout: this.layout,
       minZoom: this.zoom.min,
@@ -114,18 +115,18 @@ export class NgCytoComponent implements OnChanges {
       style: this.style,
       elements: mergeGraphs(this.firstGraph, this.secondGraph)
     });
-    this.colorNodesDiverging(firstGraph.elements());
+    this.colorNodesDiverging(graph.elements());
 
-    firstGraph.on('click', 'node', (e) => {
-      firstGraph.elements().removeClass('best-match').removeClass('faded');
+    graph.on('click', 'node', (e) => {
+      graph.elements().removeClass('best-match').removeClass('faded');
       this.destroyAllPoppers();
       const node = e.target;
       this.createPopper(node, 'left')
       const nodeId = node.data('id');
       // Fade all nodes except the one that was clicked
-      firstGraph.elements().filter((elem) => elem.data('id') != nodeId).map((elem) => elem.addClass('faded'));
+      graph.elements().filter((elem) => elem.data('id') != nodeId).map((elem) => elem.addClass('faded'));
 
-      const matchedNodes = this.nodeMatches[nodeId];
+      const matchedNodes = this.nodeMatches[nodeId] ? this.nodeMatches[nodeId] : this.reverseNodeMatches[nodeId];
       const maxScoreIndex = Object.entries(matchedNodes).reduce((a, b) => a[1]['score'] > b[1]['score'] ? a : b)[0];
       const maxScoreNodeId = matchedNodes[maxScoreIndex]['id'];
       const selectedNodeColor = node.style('background-color');
@@ -145,7 +146,7 @@ export class NgCytoComponent implements OnChanges {
         ([_, value]) => {
           const score = value['score'];
           const matchedNodeId = value['id'];
-          const nodeToHighlight = firstGraph.elements().filter((elem) => elem.data('id') == matchedNodeId)[0];
+          const nodeToHighlight = graph.elements().filter((elem) => elem.data('id') == matchedNodeId)[0];
           if (matchedNodeId == maxScoreNodeId) {
             nodeToHighlight.addClass('best-match')
           }
@@ -155,20 +156,20 @@ export class NgCytoComponent implements OnChanges {
       );
     });
 
-    firstGraph.on('click', (e) => {
+    graph.on('click', (e) => {
       if (e.target.length != 1) {
-        firstGraph.elements().removeClass('best-match').removeClass('faded');
-        this.colorNodesDiverging(firstGraph.elements());
+        graph.elements().removeClass('best-match').removeClass('faded');
+        this.colorNodesDiverging(graph.elements());
         this.destroyAllPoppers();
       }
     });
 
-    firstGraph.on('mouseover', 'node', (e) => {
+    graph.on('mouseover', 'node', (e) => {
       let node = e.target;
       this.createPopper(node, 'left');
     });
 
-    firstGraph.on('mouseout', (e) => {
+    graph.on('mouseout', (e) => {
       // TODO if the user has clicked on a node, check if all poppers should be destroyed?
         this.destroyAllPoppers();
       }
