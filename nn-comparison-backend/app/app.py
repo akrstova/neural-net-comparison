@@ -330,7 +330,7 @@ def generate_regal_files(g1, g2, id1, id2):
 
     # Attribute matrix should be NxA, where N is number of nodes and A is number of attributes
     # attribute_names = {"clsName", "inputShape", "outputShape"}
-    attribute_names = {"clsName", "inputShape", "outputShape", "numParameter", "name"}
+    attribute_names = {"clsName", "inputShape", "outputShape", "numParameter", "name", "index"}
     attributes_values = {}
     for attribute in attribute_names:
         attributes_values[attribute] = normalize_attr_values(
@@ -338,7 +338,7 @@ def generate_regal_files(g1, g2, id1, id2):
             list(nx.get_node_attributes(g2, attribute).values()))
 
     # Add node positions (indexes) as attributes
-    attributes_values['index'] = [idx for idx, x in enumerate(g1.nodes)] + [idx for idx, x in enumerate(g2.nodes)]
+    attributes_values['index'] = [idx/len(g1.nodes) for idx, x in enumerate(g1.nodes)] + [idx/len(g2.nodes) for idx, x in enumerate(g2.nodes)]
     combined_attributes = np.empty([len(attributes_values[list(attributes_values.keys())[0]]), 1])
     for k, v in attributes_values.items():
         combined_attributes = np.hstack((combined_attributes, np.array(v).reshape(-1, 1)))
