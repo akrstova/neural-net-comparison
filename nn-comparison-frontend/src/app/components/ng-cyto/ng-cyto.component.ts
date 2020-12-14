@@ -121,7 +121,8 @@ export class NgCytoComponent implements OnChanges {
       graph.elements().removeClass('best-match').removeClass('faded');
       this.destroyAllPoppers();
       const node = e.target;
-      this.createPopper(node, 'left')
+      const placement = this.isNodeInFirstGraph(node) ? 'left' : 'right';
+      this.createPopper(node, placement)
       const nodeId = node.data('id');
       // Fade all nodes except the one that was clicked
       graph.elements().filter((elem) => elem.data('id') != nodeId).map((elem) => elem.addClass('faded'));
@@ -151,7 +152,8 @@ export class NgCytoComponent implements OnChanges {
             nodeToHighlight.addClass('best-match')
           }
           nodeToHighlight.style('background-color', sequentialColorScale(score));
-          this.createPopper(nodeToHighlight, 'right')
+          const placement = this.isNodeInFirstGraph(nodeToHighlight) ? 'left' : 'right';
+          this.createPopper(nodeToHighlight, placement)
         }
       );
     });
@@ -166,12 +168,13 @@ export class NgCytoComponent implements OnChanges {
 
     graph.on('mouseover', 'node', (e) => {
       let node = e.target;
-      this.createPopper(node, 'left');
+      const placement = this.isNodeInFirstGraph(node) ? 'left' : 'right';
+      this.createPopper(node, placement);
     });
 
     graph.on('mouseout', (e) => {
       // TODO if the user has clicked on a node, check if all poppers should be destroyed?
-        this.destroyAllPoppers();
+      //   this.destroyAllPoppers();
       }
     )
 
@@ -201,6 +204,10 @@ export class NgCytoComponent implements OnChanges {
         secondGraphElements.filter((elem) => elem.data('id') == topMatchId)[0].style('background-color', assignedColors[firstGraphNodeIds[i]]);
       }
     }
+  }
+
+  isNodeInFirstGraph(node) {
+    return this.firstGraph.nodes.filter((elem) => elem['data'] === node.data()).length > 0;
   }
 
   createPopper(node, placement) {
