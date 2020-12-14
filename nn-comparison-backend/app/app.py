@@ -178,7 +178,7 @@ def create_empty_node():
 
 def compare_networkx(g1, g2, embeddings=False):
     if not embeddings:
-        paths, cost = nx.optimal_edit_paths(g1, g2)
+        paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes, node_subst_cost=node_subst, node_del_cost=node_del, node_ins_cost=node_ins)
 
     else:
         paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes,
@@ -223,12 +223,12 @@ def node_subst_embeddings(n1, n2):
     return cost
 
 
-# def node_del():
-#     return 4  # TODO model this as a function
-#
-#
-# def node_ins():
-#     return 5
+def node_del(n1):
+    return 4  # TODO model this as a function
+
+
+def node_ins(n2):
+    return 5
 
 
 def compute_similarity_node_embeddings(e1, e2):
