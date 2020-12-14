@@ -201,9 +201,28 @@ export class NgCytoComponent implements OnChanges {
     if (this.nodeMatches) {
       for (let i = 0; i < firstGraphElements.length; i++) {
         const topMatchId = this.nodeMatches[firstGraphElements[i].data('id')][0]['id'];
-        secondGraphElements.filter((elem) => elem.data('id') == topMatchId)[0].style('background-color', assignedColors[firstGraphNodeIds[i]]);
+        let node = secondGraphElements.filter((elem) => elem.data('id') == topMatchId)[0];
+        let currentColor = node.style('background-color');
+        let newColor = this.hexToRgb(assignedColors[firstGraphNodeIds[i]])
+        if (currentColor !== newColor && currentColor !== 'rgb(186,184,184)') {   // rgb(186,184,184) is default grey
+          node.style('background-color', currentColor);
+          node.style('background-fill', 'linear-gradient');
+          node.style('background-gradient-stop-colors', currentColor + ' ' + newColor);
+          node.style('background-gradient-direction', 'to-right');
+        } else {
+          node.style('background-color', newColor);
+        }
       }
     }
+  }
+
+  hexToRgb(hex) {
+    hex = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
+      ,(m, r, g, b) => '#' + r + r + g + g + b + b)
+      .substring(1).match(/.{2}/g)
+      .map(x => parseInt(x, 16))
+
+    return "rgb(" + hex[0] + "," + hex[1] + "," + hex[2] + ")";
   }
 
   isNodeInFirstGraph(node) {
