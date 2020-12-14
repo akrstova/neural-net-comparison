@@ -201,6 +201,8 @@ export class NgCytoComponent implements OnChanges {
     if (this.nodeMatches) {
       for (let i = 0; i < firstGraphElements.length; i++) {
         const topMatchId = this.nodeMatches[firstGraphElements[i].data('id')][0]['id'];
+        const score = this.nodeMatches[firstGraphElements[i].data('id')][0]['score'];
+        console.log('score', score);
         let node = secondGraphElements.filter((elem) => elem.data('id') == topMatchId)[0];
         let currentColor = node.style('background-color');
         let newColor = this.hexToRgb(assignedColors[firstGraphNodeIds[i]])
@@ -212,6 +214,7 @@ export class NgCytoComponent implements OnChanges {
         } else {
           node.style('background-color', newColor);
         }
+      node.style('opacity', 1 - score);
       }
     }
   }
