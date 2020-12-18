@@ -2,6 +2,7 @@ import itertools
 import json
 import os
 import pickle
+from functools import reduce
 from os import listdir
 from os.path import join, isfile
 from random import randint
@@ -352,10 +353,21 @@ def generate_regal_files(g1, g2, id1, id2):
 def normalize_attr_values(values):
     all_numeric = all(isinstance(item, int) or isinstance(item, float) for item in values)
     if all_numeric:
-        values = np.array(values)
-        return list((values - values.min()) / (values.max() - values.min()))
-    return values
+        return normalize_list_elems(values)
+    elif all(isinstance(s, str) for s in values):
+        return values
+    elif isinstance(values, list):
+        new_values = []
+        for v in values:
+            v = [1 if x is None else x for x in v]
+            v = reduce(lambda x, y: x*y, v)
+            new_values.append(v)
+        return normalize_list_elems(new_values)
 
+
+def normalize_list_elems(arr):
+    arr = np.array(arr)
+    return list((arr - arr.min()) / (arr.max() - arr.min()))
 
 if __name__ == '__main__':
     app.run(port=5000, host='0.0.0.0')
