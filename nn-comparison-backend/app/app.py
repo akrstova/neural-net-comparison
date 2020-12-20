@@ -1,13 +1,10 @@
-import itertools
 import json
 import os
 import pickle
 from functools import reduce
 from os import listdir
 from os.path import join, isfile
-from random import randint
 
-import igraph
 import jsonpickle
 import networkx as nx
 import numpy as np
@@ -16,8 +13,6 @@ from flask import Flask, request
 from flask_cors import CORS, cross_origin
 from networkx.readwrite import json_graph
 from scipy import spatial
-
-from app.model.NodeEmbedding import NodeEmbedding
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -63,35 +58,6 @@ def serve_models():
     return jsonpickle.dumps({'localModels': models})
 
 
-@app.route('/igraph', methods=['POST'])
-@cross_origin()
-def compare_models_igraph():
-    graphs = request.get_json()
-    first_graph = graphs['firstGraph']
-    second_graph = graphs['secondGraph']
-    first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
-    second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
-    num_nodes_first = len(first_graph_x.nodes)
-    num_nodes_second = len(second_graph_x.nodes)
-    diff = abs(num_nodes_first - num_nodes_second)
-    if num_nodes_first > num_nodes_second:
-        for i in range(diff):
-            new_node = randint(1000, 9999)
-            second_graph_x.add_node(new_node)
-            second_graph_x.add_edge(list(second_graph_x.nodes.keys())[-2],
-                                    new_node)
-    elif num_nodes_first < num_nodes_second:
-        for i in range(diff):
-            new_node = randint(1000, 9999)
-            first_graph_x.add_node(new_node)
-            first_graph_x.add_edge(list(first_graph_x.nodes.keys())[-2],
-                                   new_node)
-    first_igraph = igraph.Graph.from_networkx(first_graph_x)
-    second_igraph = igraph.Graph.from_networkx(second_graph_x)
-    result = first_igraph.isomorphic_bliss(second_igraph, return_mapping_12=True, return_mapping_21=True)
-    print(result)
-
-
 @app.route('/networkx', methods=['POST'])
 @cross_origin()
 def compare_models_networkx():
@@ -126,20 +92,6 @@ def compare_models_networkx():
     return jsonpickle.dumps({'matches_g1_g2': result})
 
 
-@app.route('/simple', methods=['POST'])
-@cross_origin()
-def compare_models():
-    graphs = request.get_json()
-    first_graph = graphs['firstGraph']
-    second_graph = graphs['secondGraph']
-    first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
-    second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
-    g1_embedded = assign_positions_to_nodes(create_graph_embedding(first_graph_x))
-    g2_embedded = assign_positions_to_nodes(create_graph_embedding(second_graph_x))
-    g1_embedded = comparison(g1_embedded, g2_embedded)
-    return jsonpickle.dumps({'g1': g1_embedded, 'g2': g2_embedded})
-
-
 @app.route('/regal', methods=['POST'])
 @cross_origin()
 def compare_models_regal():
@@ -165,21 +117,10 @@ def compare_models_regal():
                              'matches_g2_g1': json.loads(matched_nodes.content)['matches_g2_g1']})
 
 
-def create_empty_node():
-    return {
-        'clsName': '',
-        'config': {},
-        'id': 'empty',
-        'inputShape': [],
-        'name': '',
-        'numParameter': 0,
-        'outputShape': []
-    }
-
-
 def compare_networkx(g1, g2, embeddings=False):
     if not embeddings:
-        paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes, node_subst_cost=node_subst, node_del_cost=node_del, node_ins_cost=node_ins)
+        paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes, node_subst_cost=node_subst,
+                                            node_del_cost=node_del, node_ins_cost=node_ins)
 
     else:
         paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes,
@@ -236,61 +177,6 @@ def compute_similarity_node_embeddings(e1, e2):
     return spatial.distance.cosine(e1.tolist(), e2.tolist())
 
 
-def simple_comparison(g1_embedded, g2_embedded):
-    for node in g1_embedded:
-        all_pairs = list(itertools.product([node], g2_embedded))
-        min = 1000
-        match = None
-        for pair in all_pairs:
-            sim = compute_similarity_nodes(pair[0], pair[1])
-            if sim < min:
-                min = sim
-                match = pair[1]
-        print("Node {} corresponds with node {}".format(node.name, match.name))
-
-
-def comparison(g1, g2):
-    last_matched_pos = -1
-    for i in range(len(g1)):
-        cur_node = g1[i]
-        for j in range(last_matched_pos + 1, len(g2)):
-            if cur_node.name == g2[j].name:
-                last_matched_pos = j
-                print("Node {} {} at pos {} from G1 corresponds to node {} {} from G2 at pos".format(cur_node.name,
-                                                                                                     cur_node.id,
-                                                                                                     cur_node.position,
-                                                                                                     g2[j].name,
-                                                                                                     g2[j].id,
-                                                                                                     g2[j].position))
-                cur_node.match_id = g2[j].id
-                break
-    return g1
-
-
-def create_graph_embedding(graph):
-    embeddings = []
-    for id in graph.nodes:
-        node = graph.nodes[id]
-        in_degree = graph.in_degree(id)
-        out_degree = graph.out_degree(id)
-        if node['clsName'] != '':
-            embeddings.append(NodeEmbedding(id=id, name=node['clsName'], in_degree=in_degree, out_degree=out_degree,
-                                            clsName=node['clsName'], inputShape=node['inputShape'],
-                                            numParameter=node['numParameter']))
-    return embeddings
-
-
-def compute_similarity_nodes(node1, node2):
-    return int(node1['clsName'] != node2['clsName']) + abs(node1['in_degree'] - node2['in_degree']) + abs(
-        node1['out_degree'] - node2['out_degree'])
-
-
-def assign_positions_to_nodes(graph):
-    for i in range(len(graph)):
-        graph[i].position = i
-    return graph
-
-
 def get_node_by_id(graph, target_id):
     for id in graph.nodes:
         if id == target_id:
@@ -339,7 +225,9 @@ def generate_regal_files(g1, g2, id1, id2):
             list(nx.get_node_attributes(g2, attribute).values()))
 
     # Add node positions (indexes) as attributes
-    attributes_values['index'] = [idx/len(g1.nodes) for idx, x in enumerate(g1.nodes)] + [idx/len(g2.nodes) for idx, x in enumerate(g2.nodes)]
+    attributes_values['index'] = [idx / len(g1.nodes) for idx, x in enumerate(g1.nodes)] + [idx / len(g2.nodes) for
+                                                                                            idx, x in
+                                                                                            enumerate(g2.nodes)]
     combined_attributes = np.empty([len(attributes_values[list(attributes_values.keys())[0]]), 1])
     for k, v in attributes_values.items():
         combined_attributes = np.hstack((combined_attributes, np.array(v).reshape(-1, 1)))
@@ -360,7 +248,7 @@ def normalize_attr_values(values):
         new_values = []
         for v in values:
             v = [1 if x is None else x for x in v]
-            v = reduce(lambda x, y: x*y, v)
+            v = reduce(lambda x, y: x * y, v)
             new_values.append(v)
         return normalize_list_elems(new_values)
 
@@ -368,6 +256,7 @@ def normalize_attr_values(values):
 def normalize_list_elems(arr):
     arr = np.array(arr)
     return list((arr - arr.min()) / (arr.max() - arr.min()))
+
 
 if __name__ == '__main__':
     app.run(port=5000, host='0.0.0.0')
