@@ -1,3 +1,4 @@
+import itertools
 import json
 import os
 import pickle
@@ -255,7 +256,7 @@ def generate_regal_files(g1, g2, id1, id2):
     attributes_values = {}
     for attribute in attribute_names:
         attributes_values[attribute] = normalize_attr_values(
-            list(nx.get_node_attributes(g1, attribute).values())) + normalize_attr_values(
+            list(nx.get_node_attributes(g1, attribute).values()) +
             list(nx.get_node_attributes(g2, attribute).values()))
 
     # Add node positions (indexes) as attributes
@@ -278,12 +279,20 @@ def normalize_attr_values(values):
         return normalize_list_elems(values)
     elif all(isinstance(s, str) for s in values):
         return values
-    elif isinstance(values, list):
+    elif isinstance(values, list) and isinstance(values[0][1], int):
         new_values = []
         for v in values:
-            v = [1 if x is None else x for x in v]
-            v = reduce(lambda x, y: x * y, v)
-            new_values.append(v)
+            try:
+                if any(isinstance(x, list) for x in v):
+                    v = [item for sublist in v for item in sublist]
+                v = [1 if x is None else x for x in v]
+                # v = reduce(lambda x, y: x * y, v)
+                result = 1
+                for x in v:
+                    result = result * x
+                new_values.append(result)
+            except Exception as e:
+                print('Problem ', v, values, e)
         return normalize_list_elems(new_values)
 
 
