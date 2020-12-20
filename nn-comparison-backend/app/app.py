@@ -9,6 +9,7 @@ import jsonpickle
 import networkx as nx
 import numpy as np
 import requests
+from Levenshtein import distance as levenshtein_distance
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
 from networkx.readwrite import json_graph
@@ -27,7 +28,6 @@ subst_cost_list = list()
 def cytoscape():
     graph = request.get_json()
     cy = nx.cytoscape_data(json_graph.node_link_graph(graph))
-    print(cy)
     nodes = cy['elements']['nodes']
     for node in nodes:
         node['data']['weight'] = 100
@@ -88,7 +88,8 @@ def compare_models_networkx():
     g1_mapped = compare_networkx(first_graph_x, second_graph_x, embeddings=False)
     result = {}
     for (k, v) in g1_mapped.items():
-        result[get_node_by_id(first_graph_x, k)['index']] = ([[1, get_node_by_id(second_graph_x, v)['index']]])
+        result[get_node_by_id(first_graph_x, k)['index_original']] = ([[1, get_node_by_id(second_graph_x, v)['index_original']]])
+    reverse_result = result
     return jsonpickle.dumps({'matches_g1_g2': result})
 
 
@@ -118,6 +119,28 @@ def compare_models_regal():
 
 
 def compare_networkx(g1, g2, embeddings=False):
+    global attribute_names
+    attribute_names = {"clsName", "inputShape", "outputShape", "numParameter", "name", "index"}
+    attr_map_g1 = {}
+    attr_map_g2 = {}
+    for attribute in attribute_names:
+        normalized_attr = normalize_attr_values(list(nx.get_node_attributes(g1, attribute).values()))
+        for i in range(len(normalized_attr)):
+            node_idx = list(g1.nodes())[i]
+            if node_idx not in attr_map_g1:
+                attr_map_g1[node_idx] = {}
+            attr_map_g1[node_idx][attribute] = normalized_attr[i]
+
+        normalized_attr = normalize_attr_values(list(nx.get_node_attributes(g2, attribute).values()))
+        for i in range(len(normalized_attr)):
+            node_idx = list(g2.nodes())[i]
+            if node_idx not in attr_map_g2:
+                attr_map_g2[node_idx] = {}
+            attr_map_g2[node_idx][attribute] = normalized_attr[i]
+
+    nx.set_node_attributes(g1, attr_map_g1)
+    nx.set_node_attributes(g2, attr_map_g2)
+
     if not embeddings:
         paths, cost = nx.optimal_edit_paths(g1, g2, node_match=equal_nodes, node_subst_cost=node_subst,
                                             node_del_cost=node_del, node_ins_cost=node_ins)
@@ -142,6 +165,7 @@ def add_degree_info_to_nodes(graph):
         graph.nodes[id]['in_degree'] = in_degree
         graph.nodes[id]['out_degree'] = out_degree
         graph.nodes[id]['index'] = i
+        graph.nodes[id]['index_original'] = i
         i += 1
     return graph
 
@@ -151,11 +175,22 @@ def equal_nodes(n1, n2):
            n2['out_degree']
 
 
+def compute_similarity_nodes(node1, node2):
+    global attribute_names
+    dist = 0
+    for attr in attribute_names:
+        if isinstance(node1[attr], str) and isinstance(node2[attr], str):
+            dist += levenshtein_distance(node1[attr], node2[attr]) / float(max(len(node1[attr]), len(node2[attr])))
+        elif (isinstance(node1[attr], int) and isinstance(node2[attr], int)) or (
+                isinstance(node1[attr], float) and isinstance(node2[attr], float)):
+            dist += abs(node1[attr] - node2[attr])
+        else:
+            dist += int(np.all(node1[attr] != node2[attr]))
+    return dist
+
+
 def node_subst(n1, n2):
-    cost = compute_similarity_nodes(n1, n2)
-    global subst_cost_list
-    subst_cost_list.append(cost)
-    return cost
+    return compute_similarity_nodes(n1, n2)
 
 
 def node_subst_embeddings(n1, n2):
@@ -199,7 +234,6 @@ def generate_regal_files(g1, g2, id1, id2):
             A1_stack = np.pad(A1_stack, ((0, abs(shape_diff[0])), (0, abs(shape_diff[1]))), mode='constant')
 
     combined_adj_mat = np.vstack((A1_stack, A2_stack))
-    print(combined_adj_mat)
     combined_g = nx.from_numpy_matrix(combined_adj_mat)
     matrix_file = open(id1 + '+' + id2 + '_combined_edges.txt', 'wb')
     nx.write_edgelist(combined_g, matrix_file)

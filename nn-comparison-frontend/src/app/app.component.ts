@@ -132,7 +132,10 @@ export class AppComponent implements OnInit {
     this.comparisonService.compareGraphs(firstGraph, secondGraph, this.selectedAlgorithm, this.selectedMetric, this.useEmbeddings)
       .subscribe(data => {
         this.nodeMatches = this.parseNodeMatches(data['matches_g1_g2'], firstGraph, secondGraph);
-        this.reverseNodeMatches = this.parseNodeMatchesReverse(data['matches_g2_g1'], firstGraph, secondGraph);
+        if (data['matches_g2_g1'] != null)
+          this.reverseNodeMatches = this.parseNodeMatchesReverse(data['matches_g2_g1'], firstGraph, secondGraph);
+        else
+          this.reverseNodeMatches = this.nodeMatches;
       });
   }
 
@@ -157,6 +160,7 @@ export class AppComponent implements OnInit {
 
   parseNodeMatchesReverse(data, firstGraph, secondGraph) {
     let matches = {};
+    console.log('hello', data);
     for (let key in data) {
       if (data.hasOwnProperty(key)) {
         const secondGraphId = secondGraph.nodes[parseInt(key)]['id'];
