@@ -53,7 +53,7 @@
       Use node embeddings
     </mat-checkbox>
     <br><br>
-    <h4>Compare attributes:</h4>
+    <h4 style="margin: 0">Compare attributes:</h4>
     <mat-list>
       <mat-list-item *ngFor="let item of attributes">
         <mat-checkbox
@@ -61,7 +61,7 @@
           [disabled]="item.disabled"
           [labelPosition]="item.labelPosition"
           (change)="attributeListChange()"
-        >{{ item.name }}</mat-checkbox> <br>
+        >{{ item.name }}</mat-checkbox>
       </mat-list-item>
     </mat-list>
     <br>

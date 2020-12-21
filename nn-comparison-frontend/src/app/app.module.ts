@@ -18,6 +18,7 @@ import {NgCytoComponent} from "./components/ng-cyto/ng-cyto.component";
 import {ComparisonService} from "./service/comparison.service";
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import { D3ForceDirectedLayoutComponent } from './components/d3-force-directed-layout/d3-force-directed-layout.component';
+import {MatListModule} from "@angular/material/list";
 
 
 @NgModule({
@@ -37,6 +38,7 @@ import { D3ForceDirectedLayoutComponent } from './components/d3-force-directed-l
     MatButtonModule,
     MatSidenavModule,
     MatSelectModule,
+    MatListModule,
     ReactiveFormsModule,
     MatCheckboxModule,
     MatSlideToggleModule,
