@@ -29,12 +29,15 @@ def cytoscape():
     graph = request.get_json()
     cy = nx.cytoscape_data(json_graph.node_link_graph(graph))
     nodes = cy['elements']['nodes']
+    i = 0
     for node in nodes:
+        node['data']['index'] = i
         node['data']['weight'] = 100
         node['data']['colorCode'] = '#bab8b8'
         node['data']['color'] = 'black'
         node['data']['shapeType'] = 'roundrectangle'
         node['data']['label'] = node['data']['clsName']
+        i += 1
     cy['elements']['nodes'] = nodes
 
     edges = cy['elements']['edges']
@@ -116,7 +119,7 @@ def compare_models_regal():
         'sim_measure': sim_measure
     }
     matched_nodes = requests.post('http://localhost:8000/regal', json=to_send)
-    return jsonpickle.dumps({'matches_g1_g2': json.loads(matched_nodes.content)['matches_g1_g2'],
+    return json.dumps({'matches_g1_g2': json.loads(matched_nodes.content)['matches_g1_g2'],
                              'matches_g2_g1': json.loads(matched_nodes.content)['matches_g2_g1'],
                              'distance_matrix': distance_matrix_all_attr})
 
@@ -312,6 +315,26 @@ def normalize_list_elems(arr):
 
 
 def compute_attr_distance_matrix(g1, g2, attribute_names):
+    attr_map_g1 = {}
+    attr_map_g2 = {}
+    for attribute in attribute_names:
+        normalized_attr = normalize_attr_values(list(nx.get_node_attributes(g1, attribute).values()))
+        for i in range(len(normalized_attr)):
+            node_idx = list(g1.nodes())[i]
+            if node_idx not in attr_map_g1:
+                attr_map_g1[node_idx] = {}
+            attr_map_g1[node_idx][attribute] = normalized_attr[i]
+
+        normalized_attr = normalize_attr_values(list(nx.get_node_attributes(g2, attribute).values()))
+        for i in range(len(normalized_attr)):
+            node_idx = list(g2.nodes())[i]
+            if node_idx not in attr_map_g2:
+                attr_map_g2[node_idx] = {}
+            attr_map_g2[node_idx][attribute] = normalized_attr[i]
+
+    nx.set_node_attributes(g1, attr_map_g1)
+    nx.set_node_attributes(g2, attr_map_g2)
+
     nodes1 = np.array(list(g1.nodes()))
     nodes2 = np.array(list(g2.nodes()))
     mat = [[{} for i in range(len(nodes2))] for j in range(len(nodes1))]
