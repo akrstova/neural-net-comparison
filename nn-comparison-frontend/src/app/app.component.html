@@ -53,6 +53,18 @@
       Use node embeddings
     </mat-checkbox>
     <br><br>
+    <h4>Compare attributes:</h4>
+    <mat-list>
+      <mat-list-item *ngFor="let item of attributes">
+        <mat-checkbox
+          [(ngModel)]="item.checked"
+          [disabled]="item.disabled"
+          [labelPosition]="item.labelPosition"
+          (change)="attributeListChange()"
+        >{{ item.name }}</mat-checkbox> <br>
+      </mat-list-item>
+    </mat-list>
+    <br>
     <button mat-stroked-button color="#fcba03" (click)="compareModels()" style="color: #e6a900;">Compare</button>
     <button mat-stroked-button color="grey" (click)="resetComparison()" style="color: gray; background-color: #f0f2f5;">
       Reset

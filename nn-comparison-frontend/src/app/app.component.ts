@@ -47,9 +47,38 @@ export class AppComponent implements OnInit {
   metrics = ['Manhattan', 'Euclidean', 'Cosine']
   selectedMetric = 'Cosine';
   disableMetric = true;
-
   disableEmbeddings = true;
   useEmbeddings = false;
+
+  attributes = [
+    {
+      name: "name",
+      disabled: false,
+      checked: true,
+      labelPosition: "after"
+    }, {
+      name: "clsName",
+      disabled: false,
+      checked: true,
+      labelPosition: "after"
+    }, {
+      name: "inputShape",
+      disabled: false,
+      checked: true,
+      labelPosition: "after"
+    }, {
+      name: "outputShape",
+      disabled: false,
+      checked: true,
+      labelPosition: "after"
+    }, {
+      name: "numParameters",
+      disabled: false,
+      checked: true,
+      labelPosition: "after"
+    }
+  ]
+
   firstCyGraph = null;
   secondCyGraph = null;
   nodeMatches = {};  // Matches G1 --> G2
@@ -202,5 +231,9 @@ export class AppComponent implements OnInit {
 
   layoutChanged(event: any) {
     this.forceDirected = event.checked;
+  }
+
+  attributeListChange() {
+
   }
 }
