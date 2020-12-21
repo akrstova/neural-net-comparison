@@ -1,4 +1,3 @@
-import itertools
 import json
 import os
 import pickle
@@ -89,8 +88,8 @@ def compare_models_networkx():
     g1_mapped = compare_networkx(first_graph_x, second_graph_x, embeddings=False)
     result = {}
     for (k, v) in g1_mapped.items():
-        result[get_node_by_id(first_graph_x, k)['index_original']] = ([[1, get_node_by_id(second_graph_x, v)['index_original']]])
-    reverse_result = result
+        result[get_node_by_id(first_graph_x, k)['index_original']] = (
+            [[1, get_node_by_id(second_graph_x, v)['index_original']]])
     return jsonpickle.dumps({'matches_g1_g2': result})
 
 
@@ -106,6 +105,8 @@ def compare_models_regal():
     matrix_file, attributes_file, true_alignments_file = generate_regal_files(first_graph_x, second_graph_x,
                                                                               first_graph['modelName'],
                                                                               second_graph['modelName'])
+    global attribute_names
+    distance_matrix_all_attr = compute_attr_distance_matrix(first_graph_x, second_graph_x, attribute_names)
     to_send = {
         'matrix': os.path.abspath(matrix_file),
         'attributes': os.path.abspath(attributes_file),
@@ -116,7 +117,8 @@ def compare_models_regal():
     }
     matched_nodes = requests.post('http://localhost:8000/regal', json=to_send)
     return jsonpickle.dumps({'matches_g1_g2': json.loads(matched_nodes.content)['matches_g1_g2'],
-                             'matches_g2_g1': json.loads(matched_nodes.content)['matches_g2_g1']})
+                             'matches_g2_g1': json.loads(matched_nodes.content)['matches_g2_g1'],
+                             'distance_matrix': distance_matrix_all_attr})
 
 
 def compare_networkx(g1, g2, embeddings=False):
@@ -190,6 +192,16 @@ def compute_similarity_nodes(node1, node2):
     return dist
 
 
+def compute_distance_nodes_per_attr(node1, node2, attr):
+    if isinstance(node1[attr], str) and isinstance(node2[attr], str):
+        return levenshtein_distance(node1[attr], node2[attr]) / float(max(len(node1[attr]), len(node2[attr])))
+    elif (isinstance(node1[attr], int) and isinstance(node2[attr], int)) or (
+            isinstance(node1[attr], float) and isinstance(node2[attr], float)):
+        return abs(node1[attr] - node2[attr])
+    else:
+        return int(np.all(node1[attr] != node2[attr]))
+
+
 def node_subst(n1, n2):
     return compute_similarity_nodes(n1, n2)
 
@@ -220,6 +232,8 @@ def get_node_by_id(graph, target_id):
 
 
 def generate_regal_files(g1, g2, id1, id2):
+    global attribute_names
+    attribute_names = {"clsName", "inputShape", "outputShape", "numParameter", "name", "index"}
     A1 = nx.to_numpy_matrix(g1)
     A2 = nx.to_numpy_matrix(g2)
     zero_A1 = np.zeros(A1.shape)
@@ -252,7 +266,6 @@ def generate_regal_files(g1, g2, id1, id2):
 
     # Attribute matrix should be NxA, where N is number of nodes and A is number of attributes
     # attribute_names = {"clsName", "inputShape", "outputShape"}
-    attribute_names = {"clsName", "inputShape", "outputShape", "numParameter", "name", "index"}
     attributes_values = {}
     for attribute in attribute_names:
         attributes_values[attribute] = normalize_attr_values(
@@ -286,19 +299,29 @@ def normalize_attr_values(values):
                 if any(isinstance(x, list) for x in v):
                     v = [item for sublist in v for item in sublist]
                 v = [1 if x is None else x for x in v]
-                # v = reduce(lambda x, y: x * y, v)
-                result = 1
-                for x in v:
-                    result = result * x
+                result = reduce(lambda x, y: x * y, v)
                 new_values.append(result)
             except Exception as e:
-                print('Problem ', v, values, e)
+                print('Exception thrown: ', v, values, e)
         return normalize_list_elems(new_values)
 
 
 def normalize_list_elems(arr):
     arr = np.array(arr)
     return list((arr - arr.min()) / (arr.max() - arr.min()))
+
+
+def compute_attr_distance_matrix(g1, g2, attribute_names):
+    nodes1 = np.array(list(g1.nodes()))
+    nodes2 = np.array(list(g2.nodes()))
+    mat = [[{} for i in range(len(nodes2))] for j in range(len(nodes1))]
+    for i in range(len(nodes1)):
+        for j in range(len(nodes2)):
+            for attr in attribute_names:
+                node1 = g1.nodes[nodes1[i]]
+                node2 = g2.nodes[nodes2[j]]
+                mat[i][j][attr] = compute_distance_nodes_per_attr(node1, node2, attr)
+    return mat
 
 
 if __name__ == '__main__':

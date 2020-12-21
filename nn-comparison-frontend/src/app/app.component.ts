@@ -189,7 +189,6 @@ export class AppComponent implements OnInit {
 
   parseNodeMatchesReverse(data, firstGraph, secondGraph) {
     let matches = {};
-    console.log('hello', data);
     for (let key in data) {
       if (data.hasOwnProperty(key)) {
         const secondGraphId = secondGraph.nodes[parseInt(key)]['id'];
