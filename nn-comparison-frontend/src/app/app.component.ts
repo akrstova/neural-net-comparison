@@ -83,8 +83,14 @@ export class AppComponent implements OnInit {
   secondCyGraph = null;
   nodeMatches = {};  // Matches G1 --> G2
   reverseNodeMatches = {}; // Matches G2 --> G1
+  attributeDistanceMatrix = null;
 
   forceDirected: boolean = false;
+
+  tableColumnDefs: any = null;
+  tableRowData: any = null;
+  private gridApi = null;
+  private gridColumnApi = null;
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver,
               private modelsService: ModelsService, private comparisonService: ComparisonService) {
@@ -93,6 +99,12 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.selectAlgorithm();
     this.getAvailableModels();
+    // Per default all attributes (columns) will be selected
+    this.tableColumnDefs = [];
+    this.attributes.map((item) => {
+      this.tableColumnDefs.push({field: item.name, sortable: true, filter: true});
+    });
+    this.tableRowData = [];
   }
 
   getAvailableModels() {
@@ -160,6 +172,8 @@ export class AppComponent implements OnInit {
     secondGraph.nodes = this.flattenKeys(secondGraph.nodes);
     this.comparisonService.compareGraphs(firstGraph, secondGraph, this.selectedAlgorithm, this.selectedMetric, this.useEmbeddings)
       .subscribe(data => {
+        this.attributeDistanceMatrix = data['distance_matrix'];
+        console.log('mat', this.attributeDistanceMatrix)
         this.nodeMatches = this.parseNodeMatches(data['matches_g1_g2'], firstGraph, secondGraph);
         if (data['matches_g2_g1'] != null)
           this.reverseNodeMatches = this.parseNodeMatchesReverse(data['matches_g2_g1'], firstGraph, secondGraph);
@@ -224,15 +238,38 @@ export class AppComponent implements OnInit {
     return nodes;
   }
 
+  attributeListChange(item) {
+    const attributeName = item.name;
+    const checked = item.checked;
+    console.log('checked', checked);
+    if (checked) {
+      this.addColumnDef(attributeName);
+    } else {
+      this.removeColumnDef(attributeName);
+    }
+  }
+
+  addColumnDef(columnName) {
+    const found = this.tableColumnDefs.some(el => el.field == columnName);
+    if (!found) this.tableColumnDefs.push({field: columnName, sortable: true, filter: true});
+    this.gridApi.setColumnDefs(this.tableColumnDefs)
+  }
+
+  removeColumnDef(columnName) {
+    this.tableColumnDefs = this.tableColumnDefs.filter(el => el.field !== columnName);
+    this.gridApi.setColumnDefs(this.tableColumnDefs);
+  }
+
+  onGridReady(params) {
+    this.gridApi = params.api;
+    this.gridColumnApi = params.columnApi;
+  }
+
   resetComparison() {
     window.location.reload();
   }
 
   layoutChanged(event: any) {
     this.forceDirected = event.checked;
-  }
-
-  attributeListChange() {
-
   }
 }

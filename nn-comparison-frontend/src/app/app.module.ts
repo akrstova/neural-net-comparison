@@ -17,8 +17,12 @@ import {HttpClientModule} from "@angular/common/http";
 import {NgCytoComponent} from "./components/ng-cyto/ng-cyto.component";
 import {ComparisonService} from "./service/comparison.service";
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-import { D3ForceDirectedLayoutComponent } from './components/d3-force-directed-layout/d3-force-directed-layout.component';
+import {D3ForceDirectedLayoutComponent} from './components/d3-force-directed-layout/d3-force-directed-layout.component';
 import {MatListModule} from "@angular/material/list";
+import {MatTableModule} from "@angular/material/table";
+import { AgGridModule } from 'ag-grid-angular';
+import {MatPaginatorModule} from "@angular/material/paginator";
+
 
 
 @NgModule({
@@ -39,11 +43,14 @@ import {MatListModule} from "@angular/material/list";
     MatSidenavModule,
     MatSelectModule,
     MatListModule,
+    MatTableModule,
     ReactiveFormsModule,
     MatCheckboxModule,
     MatSlideToggleModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    AgGridModule.withComponents([]),
+    MatPaginatorModule
   ],
   providers: [ModelsService, ComparisonService],
   bootstrap: [AppComponent]
