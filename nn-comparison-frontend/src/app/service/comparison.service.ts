@@ -13,7 +13,7 @@ export class ComparisonService {
   constructor(private http: HttpClient) {
   }
 
-  compareGraphs(firstGraph, secondGraph, algorithm, metric, useEmbeddings) {
+  compareGraphs(firstGraph, secondGraph, algorithm, metric) {
     const graphsJson = {'firstGraph': firstGraph, 'secondGraph': secondGraph, 'simMeasure': metric};
     this.httpOptions = {
       headers: new HttpHeaders({

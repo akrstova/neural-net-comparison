@@ -36,7 +36,6 @@ export class AppComponent implements OnInit {
   selectedMetric = 'Cosine';
   disableMetric = true;
   disableEmbeddings = true;
-  useEmbeddings = false;
 
   attributes = [
     {
@@ -138,7 +137,7 @@ export class AppComponent implements OnInit {
     let secondGraph = this.modelGraphs[this.secondModelId];
     firstGraph.nodes = this.flattenKeys(firstGraph.nodes);
     secondGraph.nodes = this.flattenKeys(secondGraph.nodes);
-    this.comparisonService.compareGraphs(firstGraph, secondGraph, this.selectedAlgorithm, this.selectedMetric, this.useEmbeddings)
+    this.comparisonService.compareGraphs(firstGraph, secondGraph, this.selectedAlgorithm, this.selectedMetric)
       .subscribe(data => {
         this.attributeDistanceMatrix = data['distance_matrix'];
         console.log('mat', this.attributeDistanceMatrix)

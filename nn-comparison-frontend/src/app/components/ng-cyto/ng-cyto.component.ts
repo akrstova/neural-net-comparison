@@ -38,6 +38,7 @@ export class NgCytoComponent implements OnInit, OnChanges {
   tableColumnDefs: any = null;
   tableRowData: any = null;
   showAttributeMatrix = false;
+  // TODO check if these are needed
   private gridApi = null;
   private gridColumnApi = null;
 
