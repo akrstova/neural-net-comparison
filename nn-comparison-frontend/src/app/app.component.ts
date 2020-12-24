@@ -78,13 +78,16 @@ export class AppComponent implements OnInit {
       labelPosition: "after"
     }
   ]
+  attributesToPass = null;
 
   firstCyGraph = null;
   secondCyGraph = null;
   nodeMatches = {};  // Matches G1 --> G2
   reverseNodeMatches = {}; // Matches G2 --> G1
+  attributeDistanceMatrix = null;
 
   forceDirected: boolean = false;
+
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver,
               private modelsService: ModelsService, private comparisonService: ComparisonService) {
@@ -93,6 +96,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.selectAlgorithm();
     this.getAvailableModels();
+    this.attributesToPass = this.attributes;
   }
 
   getAvailableModels() {
@@ -160,6 +164,8 @@ export class AppComponent implements OnInit {
     secondGraph.nodes = this.flattenKeys(secondGraph.nodes);
     this.comparisonService.compareGraphs(firstGraph, secondGraph, this.selectedAlgorithm, this.selectedMetric, this.useEmbeddings)
       .subscribe(data => {
+        this.attributeDistanceMatrix = data['distance_matrix'];
+        console.log('mat', this.attributeDistanceMatrix)
         this.nodeMatches = this.parseNodeMatches(data['matches_g1_g2'], firstGraph, secondGraph);
         if (data['matches_g2_g1'] != null)
           this.reverseNodeMatches = this.parseNodeMatchesReverse(data['matches_g2_g1'], firstGraph, secondGraph);
@@ -224,15 +230,20 @@ export class AppComponent implements OnInit {
     return nodes;
   }
 
+  attributeListChange(item) {
+    const checked = item.checked;
+    if (checked) {
+      this.attributesToPass = [...this.attributesToPass, item]
+    } else {
+      this.attributesToPass = this.attributesToPass.filter(el => el.name != item.name);
+    }
+  }
+
   resetComparison() {
     window.location.reload();
   }
 
   layoutChanged(event: any) {
     this.forceDirected = event.checked;
-  }
-
-  attributeListChange() {
-
   }
 }

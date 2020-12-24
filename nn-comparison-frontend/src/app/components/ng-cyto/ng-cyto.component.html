@@ -1,1 +1,13 @@
 <div id="cy"></div>
+<div id="attr-matrix" *ngIf="showAttributeMatrix"
+     style="width: 500px; position: absolute; bottom: 0; right: 0;">
+  <div class="close" (click)="showAttributeMatrix = false">x</div>
+  <ag-grid-angular
+    style="width: 100%;"
+    class="ag-theme-alpine"
+    domLayout="autoHeight"
+    [rowData]="tableRowData"
+    [columnDefs]="tableColumnDefs"
+    (gridReady)="onGridReady($event)">
+  </ag-grid-angular>
+</div>

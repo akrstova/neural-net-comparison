@@ -60,7 +60,7 @@
           [(ngModel)]="item.checked"
           [disabled]="item.disabled"
           [labelPosition]="item.labelPosition"
-          (change)="attributeListChange()"
+          (change)="attributeListChange(item)"
         >{{ item.name }}</mat-checkbox>
       </mat-list-item>
     </mat-list>
@@ -70,13 +70,20 @@
       Reset
     </button>
     <br>
-    <mat-slide-toggle [ngModel]="forceDirected" (change)="layoutChanged($event)">Force directed layout</mat-slide-toggle>
+    <mat-slide-toggle [ngModel]="forceDirected" (change)="layoutChanged($event)">Force directed layout
+    </mat-slide-toggle>
+    <br>
   </mat-drawer>
 
   <div class="example-sidenav-content">
     <div style="height: 90%; width: 80%;">
-      <ng2-cytoscape *ngIf="!forceDirected" [firstGraph]="firstCyGraph" [secondGraph]="secondCyGraph" [nodeMatches]="nodeMatches" [reverseNodeMatches]="reverseNodeMatches"></ng2-cytoscape>
-      <d3-force-directed-layout *ngIf="forceDirected" [firstGraph]="firstCyGraph" [secondGraph]="secondCyGraph" [nodeMatches]="nodeMatches"></d3-force-directed-layout>
+      <ng2-cytoscape *ngIf="!forceDirected" [firstGraph]="firstCyGraph" [secondGraph]="secondCyGraph"
+                     [nodeMatches]="nodeMatches" [reverseNodeMatches]="reverseNodeMatches"
+                     [distanceMatrix]="attributeDistanceMatrix" [attributes]="attributesToPass"></ng2-cytoscape>
+      <d3-force-directed-layout *ngIf="forceDirected" [firstGraph]="firstCyGraph" [secondGraph]="secondCyGraph"
+                                [nodeMatches]="nodeMatches"></d3-force-directed-layout>
     </div>
   </div>
 </mat-drawer-container>
+
+
