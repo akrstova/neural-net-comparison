@@ -22,6 +22,7 @@ import {MatListModule} from "@angular/material/list";
 import {MatTableModule} from "@angular/material/table";
 import { AgGridModule } from 'ag-grid-angular';
 import {MatPaginatorModule} from "@angular/material/paginator";
+import {MatSliderModule} from "@angular/material/slider";
 
 
 
@@ -50,7 +51,8 @@ import {MatPaginatorModule} from "@angular/material/paginator";
     FormsModule,
     HttpClientModule,
     AgGridModule.withComponents([]),
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatSliderModule
   ],
   providers: [ModelsService, ComparisonService],
   bootstrap: [AppComponent]

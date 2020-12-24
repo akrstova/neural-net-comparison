@@ -56,12 +56,19 @@
     <h4 style="margin: 0">Compare attributes:</h4>
     <mat-list>
       <mat-list-item *ngFor="let item of attributes">
-        <mat-checkbox
-          [(ngModel)]="item.checked"
-          [disabled]="item.disabled"
-          [labelPosition]="item.labelPosition"
-          (change)="attributeListChange(item)"
-        >{{ item.name }}</mat-checkbox>
+        <div style="display:flex;justify-content:center;align-items:center;">
+          <span style="width: 50%;">{{item.name}}</span>
+          <mat-slider
+            thumbLabel
+            style="width: 50%"
+            tickInterval="0.1"
+            step="0.1"
+            min="0"
+            max="1"
+            [value]="item.weight"
+            (change)="attributeSliderChanged(item, $event)"
+          ></mat-slider>
+        </div>
       </mat-list-item>
     </mat-list>
     <br>

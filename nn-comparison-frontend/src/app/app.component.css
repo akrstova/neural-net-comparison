@@ -23,6 +23,16 @@ button {
   margin-right: 0.7em;
 }
 
+mat-list-item span {
+  position: absolute;
+  left: 0;
+  font-size: small;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
 /deep/ .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar {
   background-color: #e6a900;
 }
@@ -33,9 +43,39 @@ button {
 
 /deep/ .mat-checkbox-checked.mat-accent .mat-checkbox-ripple .mat-ripple-element {
   opacity: 0.03 !important;
-  background-color: #e6a900!important;
+  background-color: #e6a900 !important;
 }
 
-/deep/ .mat-checkbox-checked.mat-accent .mat-checkbox-background,.mat-checkbox-indeterminate.mat-accent .mat-checkbox-background {
+/deep/ .mat-checkbox-checked.mat-accent .mat-checkbox-background, .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background {
   background-color: #e6a900;
 }
+
+/deep/ mat-slider {
+  right: 0 !important;
+  position: absolute !important;
+}
+
+/deep/ .mat-slider-thumb-label {
+  transform: rotate(45deg) !important;
+  border-radius: 50% 50% 0 !important;
+  width: 20px !important;
+  height: 20px !important;
+  background-color: #e6a900 !important;
+  top: -30px !important;
+
+}
+
+/deep/ .mat-slider-thumb {
+  transform: scale(0) !important;
+  background-color: #e6a900 !important;
+
+}
+
+/deep/ .mat-slider-thumb-label-text {
+  opacity: 1 !important;
+}
+
+/deep/ .mat-slider-ticks {
+  background-color: #e6a900 !important;
+}
+

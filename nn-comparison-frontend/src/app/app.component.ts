@@ -1,19 +1,7 @@
-import {
-  Component,
-  ComponentFactoryResolver,
-  ComponentRef,
-  OnInit,
-  Type,
-  ViewChild,
-  ViewContainerRef
-} from '@angular/core';
+import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
 import {ModelsService} from "./service/models.service";
 import {Network} from "./model/network/network-model.model";
 import {ComparisonService} from "./service/comparison.service";
-import {MatSliderChange} from "@angular/material/slider";
-import {NgCytoComponent} from "./components/ng-cyto/ng-cyto.component";
-import {D3ForceDirectedLayoutComponent} from "./components/d3-force-directed-layout/d3-force-directed-layout.component";
-import {first} from "rxjs/operators";
 
 class Model {
   id: string;
@@ -53,29 +41,19 @@ export class AppComponent implements OnInit {
   attributes = [
     {
       name: "name",
-      disabled: false,
-      checked: true,
-      labelPosition: "after"
+      weight: 1
     }, {
       name: "clsName",
-      disabled: false,
-      checked: true,
-      labelPosition: "after"
+      weight: 1
     }, {
       name: "inputShape",
-      disabled: false,
-      checked: true,
-      labelPosition: "after"
+      weight: 1
     }, {
       name: "outputShape",
-      disabled: false,
-      checked: true,
-      labelPosition: "after"
+      weight: 1
     }, {
       name: "numParameters",
-      disabled: false,
-      checked: true,
-      labelPosition: "after"
+      weight: 1
     }
   ]
   attributesToPass = null;
@@ -230,13 +208,10 @@ export class AppComponent implements OnInit {
     return nodes;
   }
 
-  attributeListChange(item) {
-    const checked = item.checked;
-    if (checked) {
-      this.attributesToPass = [...this.attributesToPass, item]
-    } else {
-      this.attributesToPass = this.attributesToPass.filter(el => el.name != item.name);
-    }
+  attributeSliderChanged(item, event) {
+    const modifiedIndex = this.attributesToPass.findIndex(el => el.name == item.name);
+    this.attributesToPass[modifiedIndex].weight = event.value;
+    this.attributesToPass = this.attributesToPass
   }
 
   resetComparison() {

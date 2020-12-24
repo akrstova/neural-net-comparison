@@ -113,9 +113,6 @@ export class NgCytoComponent implements OnInit, OnChanges {
 
 
   public ngOnChanges(): any {
-    if (this.attributes) {
-      this.setTableColumns()
-    }
     if (this.nodeMatches)
       this.render();
   }
