@@ -211,7 +211,6 @@ export class AppComponent implements OnInit {
   attributeSliderChanged(item, event) {
     const modifiedIndex = this.attributesToPass.findIndex(el => el.name == item.name);
     this.attributesToPass[modifiedIndex].weight = event.value;
-    this.attributesToPass = this.attributesToPass
   }
 
   resetComparison() {

@@ -19,6 +19,10 @@ mat-sidenav {
   transition: 1s;
 }
 
+mat-drawer {
+  width: 15%;
+}
+
 button {
   margin-right: 0.7em;
 }
@@ -51,7 +55,7 @@ mat-form-field {
 }
 
 /deep/ mat-slider {
-  right: 0 !important;
+  right: 10px !important;
   position: absolute !important;
 }
 
@@ -75,7 +79,8 @@ mat-form-field {
   opacity: 1 !important;
 }
 
-/deep/ .mat-slider-ticks {
+/deep/ .mat-slider-track-fill {
   background-color: #e6a900 !important;
+
 }
 
