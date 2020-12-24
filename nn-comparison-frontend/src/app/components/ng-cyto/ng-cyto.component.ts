@@ -309,7 +309,7 @@ export class NgCytoComponent implements OnInit, OnChanges {
     distances.map((elem, index) => {
       let obj = {};
       this.attributes.map((attr) => {
-        obj[attr.name] = elem[attr.name];
+        obj[attr.name] = !isNaN(elem[attr.name]) ? parseFloat(elem[attr.name]).toFixed(2) : elem[attr.name];
       });
       obj['Node'] = index;
       this.tableRowData.push(obj);
@@ -324,7 +324,7 @@ export class NgCytoComponent implements OnInit, OnChanges {
     // Column for node number which shouldn't be removed
     const found = this.tableColumnDefs.some(el => el.field == 'Node');
     if (!found)
-      this.tableColumnDefs.push({field: 'Node', sortable: true, filter: true, pinned: 'left', width: 80});
+      this.tableColumnDefs.push({field: 'Node', sortable: true, filter: true, pinned: 'left', width: 120});
   }
 
   onGridReady(params) {
