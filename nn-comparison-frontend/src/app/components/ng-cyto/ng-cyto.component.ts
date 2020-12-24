@@ -1,4 +1,4 @@
-import {Component, OnChanges, Renderer2, ElementRef, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, Renderer2} from '@angular/core';
 
 import cytoscape from 'cytoscape';
 import dagre from 'cytoscape-dagre';
@@ -6,7 +6,6 @@ import popper from 'cytoscape-popper';
 import * as d3 from 'd3';
 import {mergeGraphs} from "../../utils/utils";
 import tinycolor from 'tinycolor2';
-import {getMatIconNoHttpProviderError} from "@angular/material/icon";
 
 cytoscape.use(dagre);
 cytoscape.use(popper);
@@ -14,7 +13,7 @@ cytoscape.use(popper);
 
 @Component({
   selector: 'ng2-cytoscape',
-  template: '<div id="cy"></div>',
+  templateUrl: './ng-cyto.component.html',
   styles: [`#cy {
     height: 100%;
     width: 100%;
@@ -24,19 +23,26 @@ cytoscape.use(popper);
   }
   `]
 })
-export class NgCytoComponent implements OnChanges {
+export class NgCytoComponent implements OnInit, OnChanges {
 
   @Input() public firstGraph: any;
   @Input() public secondGraph: any;
   @Input() public nodeMatches: any;
   @Input() public reverseNodeMatches: any;
+  @Input() public distanceMatrix: any;
   @Input() public style: any;
   @Input() public layout: any;
   @Input() public zoom: any;
 
-  @Output() select: EventEmitter<any> = new EventEmitter<any>();
+  @Input() public attributes: any;
+  tableColumnDefs: any = null;
+  tableRowData: any = null;
+  showAttributeMatrix = false;
+  private gridApi = null;
+  private gridColumnApi = null;
 
-  public constructor(private renderer: Renderer2, private el: ElementRef) {
+
+  public constructor(private renderer: Renderer2) {
 
     this.layout = this.layout || {
       name: 'dagre',
@@ -100,6 +106,19 @@ export class NgCytoComponent implements OnChanges {
 
   }
 
+  public ngOnInit() {
+    this.tableColumnDefs = [];
+    this.attributes.map((item) => {
+      this.tableColumnDefs.push({field: item.name, sortable: true, filter: true});
+      // Column for node number which shouldn't be removed
+      const found = this.tableColumnDefs.some(el => el.field == 'Node');
+      if (!found)
+        this.tableColumnDefs.push({field: 'Node', sortable: true, filter: true, pinned: 'left', width: 80});
+    });
+    this.tableRowData = [];
+  }
+
+
   public ngOnChanges(): any {
     if (this.nodeMatches)
       this.render();
@@ -118,9 +137,14 @@ export class NgCytoComponent implements OnChanges {
     this.colorNodesDiverging(graph.elements());
 
     graph.on('click', 'node', (e) => {
+      this.showAttributeMatrix = true;
+
       graph.elements().removeClass('best-match').removeClass('faded');
       this.destroyAllPoppers();
       const node = e.target;
+
+      this.renderAttributeDistanceMatrix(node);
+
       const placement = this.isNodeInFirstGraph(node) ? 'left' : 'right';
       this.createPopper(node, placement)
       const nodeId = node.data('id');
@@ -173,8 +197,8 @@ export class NgCytoComponent implements OnChanges {
     });
 
     graph.on('mouseout', (e) => {
-      // TODO if the user has clicked on a node, check if all poppers should be destroyed?
-      //   this.destroyAllPoppers();
+        // TODO if the user has clicked on a node, check if all poppers should be destroyed?
+        //   this.destroyAllPoppers();
       }
     )
 
@@ -202,7 +226,6 @@ export class NgCytoComponent implements OnChanges {
       for (let i = 0; i < firstGraphElements.length; i++) {
         const topMatchId = this.nodeMatches[firstGraphElements[i].data('id')][0]['id'];
         let score = this.nodeMatches[firstGraphElements[i].data('id')][0]['score'];
-        console.log('score', score);
         let node = secondGraphElements.filter((elem) => elem.data('id') == topMatchId)[0];
         let currentColor = node.style('background-color');
         let newColor = this.hexToRgb(assignedColors[firstGraphNodeIds[i]])
@@ -214,17 +237,17 @@ export class NgCytoComponent implements OnChanges {
         } else {
           node.style('background-color', newColor);
         }
-      if (score < 0.5) {
-        score = 1 - score;
-      }
-      node.style('opacity', score);
+        if (score < 0.5) {
+          score = 1 - score;
+        }
+        node.style('opacity', score);
       }
     }
   }
 
   hexToRgb(hex) {
     hex = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
-      ,(m, r, g, b) => '#' + r + r + g + g + b + b)
+      , (m, r, g, b) => '#' + r + r + g + g + b + b)
       .substring(1).match(/.{2}/g)
       .map(x => parseInt(x, 16))
 
@@ -236,7 +259,7 @@ export class NgCytoComponent implements OnChanges {
   }
 
   createPopper(node, placement) {
-    let popper = node.popper({
+    return node.popper({
       content: () => {
         const layerType = node.data('clsName');
         const inputShape = node.data('inputShape').filter((elem) => elem != null);
@@ -272,9 +295,8 @@ export class NgCytoComponent implements OnChanges {
       },
       popper: {
         'placement': placement
-      } // my popper options here
+      }
     });
-    return popper;
   }
 
   destroyAllPoppers() {
@@ -282,9 +304,48 @@ export class NgCytoComponent implements OnChanges {
     while (elements.length > 0) {
       elements[0].parentNode.removeChild(elements[0]);
     }
+  }
 
-
+  renderAttributeDistanceMatrix(clickedNode) {
+    const clickedNodeIdx = clickedNode.data('index');
+    let distances = this.distanceMatrix[clickedNodeIdx];
+    this.tableRowData = [];
+    distances.map((elem, index) => {
+      let obj = {};
+      this.attributes.map((attr) => {
+        obj[attr.name] = elem[attr.name];
+      });
+      obj['Node'] = index;
+      this.tableRowData.push(obj);
+    })
   }
 
 
+  attributeListChange(item) {
+    const attributeName = item.name;
+    const checked = item.checked;
+    if (checked) {
+      this.addColumnDef(attributeName);
+    } else {
+      this.removeColumnDef(attributeName);
+    }
+  }
+
+  addColumnDef(columnName) {
+    const found = this.tableColumnDefs.some(el => el.field == columnName);
+    if (!found) this.tableColumnDefs.push({field: columnName, sortable: true, filter: true});
+    this.gridApi.setColumnDefs(this.tableColumnDefs)
+  }
+
+  removeColumnDef(columnName) {
+    this.tableColumnDefs = this.tableColumnDefs.filter(el => el.field !== columnName);
+    this.gridApi.setColumnDefs(this.tableColumnDefs);
+  }
+
+  onGridReady(params) {
+    this.gridApi = params.api;
+    this.gridColumnApi = params.columnApi;
+  }
+
 }
+
