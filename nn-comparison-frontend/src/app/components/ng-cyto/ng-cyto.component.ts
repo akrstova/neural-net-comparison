@@ -107,19 +107,15 @@ export class NgCytoComponent implements OnInit, OnChanges {
   }
 
   public ngOnInit() {
-    this.tableColumnDefs = [];
-    this.attributes.map((item) => {
-      this.tableColumnDefs.push({field: item.name, sortable: true, filter: true});
-      // Column for node number which shouldn't be removed
-      const found = this.tableColumnDefs.some(el => el.field == 'Node');
-      if (!found)
-        this.tableColumnDefs.push({field: 'Node', sortable: true, filter: true, pinned: 'left', width: 80});
-    });
+    this.setTableColumns();
     this.tableRowData = [];
   }
 
 
   public ngOnChanges(): any {
+    if (this.attributes) {
+      this.setTableColumns()
+    }
     if (this.nodeMatches)
       this.render();
   }
@@ -320,26 +316,15 @@ export class NgCytoComponent implements OnInit, OnChanges {
     })
   }
 
-
-  attributeListChange(item) {
-    const attributeName = item.name;
-    const checked = item.checked;
-    if (checked) {
-      this.addColumnDef(attributeName);
-    } else {
-      this.removeColumnDef(attributeName);
-    }
-  }
-
-  addColumnDef(columnName) {
-    const found = this.tableColumnDefs.some(el => el.field == columnName);
-    if (!found) this.tableColumnDefs.push({field: columnName, sortable: true, filter: true});
-    this.gridApi.setColumnDefs(this.tableColumnDefs)
-  }
-
-  removeColumnDef(columnName) {
-    this.tableColumnDefs = this.tableColumnDefs.filter(el => el.field !== columnName);
-    this.gridApi.setColumnDefs(this.tableColumnDefs);
+  setTableColumns() {
+    this.tableColumnDefs = [];
+    this.attributes.map((item) => {
+      this.tableColumnDefs.push({field: item.name, sortable: true, filter: true});
+    });
+    // Column for node number which shouldn't be removed
+    const found = this.tableColumnDefs.some(el => el.field == 'Node');
+    if (!found)
+      this.tableColumnDefs.push({field: 'Node', sortable: true, filter: true, pinned: 'left', width: 80});
   }
 
   onGridReady(params) {

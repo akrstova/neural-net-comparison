@@ -78,6 +78,7 @@ export class AppComponent implements OnInit {
       labelPosition: "after"
     }
   ]
+  attributesToPass = null;
 
   firstCyGraph = null;
   secondCyGraph = null;
@@ -95,6 +96,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.selectAlgorithm();
     this.getAvailableModels();
+    this.attributesToPass = this.attributes;
   }
 
   getAvailableModels() {
@@ -226,6 +228,15 @@ export class AppComponent implements OnInit {
       nodes.push(newData)
     }
     return nodes;
+  }
+
+  attributeListChange(item) {
+    const checked = item.checked;
+    if (checked) {
+      this.attributesToPass = [...this.attributesToPass, item]
+    } else {
+      this.attributesToPass = this.attributesToPass.filter(el => el.name != item.name);
+    }
   }
 
   resetComparison() {
