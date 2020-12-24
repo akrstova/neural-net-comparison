@@ -56,7 +56,6 @@ export class AppComponent implements OnInit {
       weight: 1
     }
   ]
-  attributesToPass = null;
 
   firstCyGraph = null;
   secondCyGraph = null;
@@ -74,7 +73,6 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.selectAlgorithm();
     this.getAvailableModels();
-    this.attributesToPass = this.attributes;
   }
 
   getAvailableModels() {
@@ -209,8 +207,8 @@ export class AppComponent implements OnInit {
   }
 
   attributeSliderChanged(item, event) {
-    const modifiedIndex = this.attributesToPass.findIndex(el => el.name == item.name);
-    this.attributesToPass[modifiedIndex].weight = event.value;
+    const modifiedIndex = this.attributes.findIndex(el => el.name == item.name);
+    this.attributes[modifiedIndex].weight = event.value;
   }
 
   resetComparison() {
