@@ -41,8 +41,7 @@ export class AppComponent implements OnInit {
     {
       name: "index",
       weight: 1
-    },
-    {
+    }, {
       name: "name",
       weight: 1
     }, {

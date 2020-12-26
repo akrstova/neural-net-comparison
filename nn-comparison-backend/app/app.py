@@ -188,13 +188,7 @@ def compute_similarity_nodes(node1, node2):
     global attribute_names
     dist = 0
     for attr in attribute_names:
-        if isinstance(node1[attr], str) and isinstance(node2[attr], str):
-            dist += levenshtein_distance(node1[attr], node2[attr]) / float(max(len(node1[attr]), len(node2[attr])))
-        elif (isinstance(node1[attr], int) and isinstance(node2[attr], int)) or (
-                isinstance(node1[attr], float) and isinstance(node2[attr], float)):
-            dist += abs(node1[attr] - node2[attr])
-        else:
-            dist += int(np.all(node1[attr] != node2[attr]))
+        dist += compute_distance_nodes_per_attr(node1, node2, attr)
     return dist
 
 
