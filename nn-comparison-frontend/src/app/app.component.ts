@@ -39,6 +39,10 @@ export class AppComponent implements OnInit {
 
   attributes = [
     {
+      name: "index",
+      weight: 1
+    },
+    {
       name: "name",
       weight: 1
     }, {
@@ -51,7 +55,7 @@ export class AppComponent implements OnInit {
       name: "outputShape",
       weight: 1
     }, {
-      name: "numParameters",
+      name: "numParameter",
       weight: 1
     }
   ]
@@ -137,10 +141,9 @@ export class AppComponent implements OnInit {
     let secondGraph = this.modelGraphs[this.secondModelId];
     firstGraph.nodes = this.flattenKeys(firstGraph.nodes);
     secondGraph.nodes = this.flattenKeys(secondGraph.nodes);
-    this.comparisonService.compareGraphs(firstGraph, secondGraph, this.selectedAlgorithm, this.selectedMetric)
+    this.comparisonService.compareGraphs(firstGraph, secondGraph, this.selectedAlgorithm, this.selectedMetric, this.attributes)
       .subscribe(data => {
         this.attributeDistanceMatrix = data['distance_matrix'];
-        console.log('mat', this.attributeDistanceMatrix)
         this.nodeMatches = this.parseNodeMatches(data['matches_g1_g2'], firstGraph, secondGraph);
         if (data['matches_g2_g1'] != null)
           this.reverseNodeMatches = this.parseNodeMatchesReverse(data['matches_g2_g1'], firstGraph, secondGraph);

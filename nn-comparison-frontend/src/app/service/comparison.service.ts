@@ -13,8 +13,8 @@ export class ComparisonService {
   constructor(private http: HttpClient) {
   }
 
-  compareGraphs(firstGraph, secondGraph, algorithm, metric) {
-    const graphsJson = {'firstGraph': firstGraph, 'secondGraph': secondGraph, 'simMeasure': metric};
+  compareGraphs(firstGraph, secondGraph, algorithm, metric, attributeWeights) {
+    const graphsJson = {'firstGraph': firstGraph, 'secondGraph': secondGraph, 'simMeasure': metric, 'attributeWeights': attributeWeights};
     this.httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',

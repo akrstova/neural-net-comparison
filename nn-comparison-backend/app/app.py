@@ -69,6 +69,7 @@ def compare_models_networkx():
     graphs = request.get_json()
     first_graph = graphs['firstGraph']
     second_graph = graphs['secondGraph']
+    attr_weights = graphs['attributeWeights']
     first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
     matrix_file, attributes_file, true_alignments_file = generate_regal_files(first_graph_x, second_graph_x,
@@ -103,13 +104,15 @@ def compare_models_regal():
     first_graph = data['firstGraph']
     second_graph = data['secondGraph']
     sim_measure = data['simMeasure']
+    attr_weights = data['attributeWeights']
     first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
     matrix_file, attributes_file, true_alignments_file = generate_regal_files(first_graph_x, second_graph_x,
                                                                               first_graph['modelName'],
                                                                               second_graph['modelName'])
     global attribute_names
-    distance_matrix_all_attr = compute_attr_distance_matrix(first_graph_x, second_graph_x, attribute_names)
+    attr_weights = [{x['name']: x['weight']} for x in attr_weights]
+    distance_matrix_all_attr = compute_attr_distance_matrix(first_graph_x, second_graph_x, attr_weights)
     to_send = {
         'matrix': os.path.abspath(matrix_file),
         'attributes': os.path.abspath(attributes_file),
@@ -120,8 +123,8 @@ def compare_models_regal():
     }
     matched_nodes = requests.post('http://localhost:8000/regal', json=to_send)
     return json.dumps({'matches_g1_g2': json.loads(matched_nodes.content)['matches_g1_g2'],
-                             'matches_g2_g1': json.loads(matched_nodes.content)['matches_g2_g1'],
-                             'distance_matrix': distance_matrix_all_attr})
+                       'matches_g2_g1': json.loads(matched_nodes.content)['matches_g2_g1'],
+                       'distance_matrix': distance_matrix_all_attr})
 
 
 def compare_networkx(g1, g2, embeddings=False):
@@ -314,7 +317,8 @@ def normalize_list_elems(arr):
     return list((arr - arr.min()) / (arr.max() - arr.min()))
 
 
-def compute_attr_distance_matrix(g1, g2, attribute_names):
+def compute_attr_distance_matrix(g1, g2, attr_weights):
+    attribute_names = set([k for item in attr_weights for k in item.keys()])
     attr_map_g1 = {}
     attr_map_g2 = {}
     for attribute in attribute_names:
