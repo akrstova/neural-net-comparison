@@ -69,7 +69,9 @@ def compare_models_networkx():
     graphs = request.get_json()
     first_graph = graphs['firstGraph']
     second_graph = graphs['secondGraph']
+    global attr_weights
     attr_weights = graphs['attributeWeights']
+    attr_weights = {x['name']: x['weight'] for x in attr_weights}
     first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
     matrix_file, attributes_file, true_alignments_file = generate_regal_files(first_graph_x, second_graph_x,
@@ -105,17 +107,18 @@ def compare_models_regal():
     second_graph = data['secondGraph']
     sim_measure = data['simMeasure']
     attr_weights = data['attributeWeights']
+    attr_weights = {x['name']: x['weight'] for x in attr_weights}
     first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
     matrix_file, attributes_file, true_alignments_file = generate_regal_files(first_graph_x, second_graph_x,
                                                                               first_graph['modelName'],
                                                                               second_graph['modelName'])
     global attribute_names
-    attr_weights = [{x['name']: x['weight']} for x in attr_weights]
     distance_matrix_all_attr = compute_attr_distance_matrix(first_graph_x, second_graph_x, attr_weights)
     to_send = {
         'matrix': os.path.abspath(matrix_file),
         'attributes': os.path.abspath(attributes_file),
+        'attribute_weights': attr_weights,
         'alignments': os.path.abspath(true_alignments_file),
         'g1_nodes': len(first_graph_x.nodes),
         'g2_nodes': len(second_graph_x.nodes),
@@ -186,20 +189,21 @@ def equal_nodes(n1, n2):
 
 def compute_similarity_nodes(node1, node2):
     global attribute_names
+    global attr_weights
     dist = 0
     for attr in attribute_names:
-        dist += compute_distance_nodes_per_attr(node1, node2, attr)
+        dist += compute_distance_nodes_per_attr(node1, node2, attr, attr_weights)
     return dist
 
 
-def compute_distance_nodes_per_attr(node1, node2, attr):
+def compute_distance_nodes_per_attr(node1, node2, attr, attr_weights=None):
     if isinstance(node1[attr], str) and isinstance(node2[attr], str):
-        return levenshtein_distance(node1[attr], node2[attr]) / float(max(len(node1[attr]), len(node2[attr])))
+        return attr_weights[attr] * levenshtein_distance(node1[attr], node2[attr]) / float(max(len(node1[attr]), len(node2[attr])))
     elif (isinstance(node1[attr], int) and isinstance(node2[attr], int)) or (
             isinstance(node1[attr], float) and isinstance(node2[attr], float)):
-        return abs(node1[attr] - node2[attr])
+        return attr_weights[attr] * abs(node1[attr] - node2[attr])
     else:
-        return int(np.all(node1[attr] != node2[attr]))
+        return attr_weights[attr] * int(np.all(node1[attr] != node2[attr]))
 
 
 def node_subst(n1, n2):
@@ -312,7 +316,7 @@ def normalize_list_elems(arr):
 
 
 def compute_attr_distance_matrix(g1, g2, attr_weights):
-    attribute_names = set([k for item in attr_weights for k in item.keys()])
+    attribute_names = set(attr_weights.keys())
     attr_map_g1 = {}
     attr_map_g2 = {}
     for attribute in attribute_names:
@@ -341,7 +345,7 @@ def compute_attr_distance_matrix(g1, g2, attr_weights):
             for attr in attribute_names:
                 node1 = g1.nodes[nodes1[i]]
                 node2 = g2.nodes[nodes2[j]]
-                mat[i][j][attr] = compute_distance_nodes_per_attr(node1, node2, attr)
+                mat[i][j][attr] = compute_distance_nodes_per_attr(node1, node2, attr, attr_weights)
     return mat
 
 
