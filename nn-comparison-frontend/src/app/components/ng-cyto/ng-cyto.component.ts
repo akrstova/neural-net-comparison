@@ -27,7 +27,7 @@ export class NgCytoComponent implements OnInit, OnChanges {
 
   @Input() public firstGraph: any;
   @Input() public secondGraph: any;
-  @Input() public nodeMatches: any;
+  @Input() public nodeMatches: any = null;
   @Input() public reverseNodeMatches: any;
   @Input() public distanceMatrix: any;
   @Input() public style: any;
@@ -114,7 +114,9 @@ export class NgCytoComponent implements OnInit, OnChanges {
 
 
   public ngOnChanges(): any {
-    if (this.nodeMatches)
+    this.setTableColumns();
+    // Do not render if node matches are empty
+    if (Object.keys(this.nodeMatches).length !== 0 && this.nodeMatches.constructor === Object)
       this.render();
   }
 
@@ -307,7 +309,8 @@ export class NgCytoComponent implements OnInit, OnChanges {
     distances.map((elem, index) => {
       let obj = {};
       this.attributes.map((attr) => {
-        obj[attr.name] = !isNaN(elem[attr.name]) ? parseFloat(elem[attr.name]).toFixed(2) : elem[attr.name];
+        if (attr.weight !== 0)
+          obj[attr.name] = !isNaN(elem[attr.name]) ? parseFloat(elem[attr.name]).toFixed(2) : elem[attr.name];
       });
       obj['Node'] = index;
       this.tableRowData.push(obj);
@@ -317,7 +320,8 @@ export class NgCytoComponent implements OnInit, OnChanges {
   setTableColumns() {
     this.tableColumnDefs = [];
     this.attributes.map((item) => {
-      this.tableColumnDefs.push({field: item.name, sortable: true, filter: true});
+      if (item.weight !== 0)
+        this.tableColumnDefs.push({field: item.name, sortable: true, filter: true});
     });
     // Column for node number which shouldn't be removed
     const found = this.tableColumnDefs.some(el => el.field == 'Node');
