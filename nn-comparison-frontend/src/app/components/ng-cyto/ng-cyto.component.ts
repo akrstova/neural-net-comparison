@@ -134,6 +134,8 @@ export class NgCytoComponent implements OnInit, OnChanges {
 
     graph.on('click', 'node', (e) => {
       this.showAttributeMatrix = true;
+      // Move entire graph to the left to make room for attribute matrix
+      graph.pan()['x'] = graph.pan()['x'] - 250;
 
       graph.elements().removeClass('best-match').removeClass('faded');
       this.destroyAllPoppers();
