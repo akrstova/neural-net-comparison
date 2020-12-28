@@ -288,9 +288,11 @@ export class NgCytoComponent implements OnInit, OnChanges {
   createPopper(node, placement) {
     return node.popper({
       content: () => {
+        const index = node.data('index');
         const layerType = node.data('clsName');
         const inputShape = node.data('inputShape').filter((elem) => elem != null);
         const outputShape = node.data('outputShape').filter((elem) => elem != null);
+        const numParameter = node.data('numParameter');
         let div = document.createElement('div');
         div.className = 'node-tooltip';
         div.style.cssText = 'z-index:9999;' +
@@ -298,9 +300,13 @@ export class NgCytoComponent implements OnInit, OnChanges {
           'border-radius: 5px;' +
           'margin: 0 10px 0 10px;' +
           'background-color: #eeeeee;' +
+          'font-size: 0.9em;' +
           'color: #666666';
 
         div.innerHTML = '<table>\n' +
+          '                        <tr>\n' +
+          '                        <td>Index:</td>\n' +
+          '                        <td>' + index + '</td>\n' +
           '                        <tr>\n' +
           '                        <td>Layer type:</td>\n' +
           '                        <td>' + layerType + '</td>\n' +
@@ -312,6 +318,9 @@ export class NgCytoComponent implements OnInit, OnChanges {
           '                        <tr>\n' +
           '                        <td>Output shape:</td>\n' +
           '                        <td>' + outputShape + '</td>\n' +
+          '                        </tr>\n' +
+          '                        <td>Num parameters:</td>\n' +
+          '                        <td>' + numParameter + '</td>\n' +
           '                        </tr>\n' +
           '                        <tr>\n' +
           '                        </table>';

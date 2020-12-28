@@ -96,7 +96,9 @@ def compare_models_networkx():
     for (k, v) in g1_mapped.items():
         result[get_node_by_id(first_graph_x, k)['index_original']] = (
             [[1, get_node_by_id(second_graph_x, v)['index_original']]])
-    return jsonpickle.dumps({'matches_g1_g2': result})
+    distance_matrix_all_attr = compute_attr_distance_matrix(first_graph_x, second_graph_x, attr_weights)
+
+    return json.dumps({'matches_g1_g2': result, 'distance_matrix': distance_matrix_all_attr})
 
 
 @app.route('/regal', methods=['POST'])

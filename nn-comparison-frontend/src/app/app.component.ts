@@ -29,7 +29,7 @@ export class AppComponent implements OnInit {
   firstModelId = null;
   secondModelId = null;
 
-  algorithms = ['GED', 'REGAL', 'Custom'];
+  algorithms = ['GED', 'REGAL'];
   selectedAlgorithm = 'REGAL'; //default option
 
   metrics = ['Manhattan', 'Euclidean', 'Cosine']
