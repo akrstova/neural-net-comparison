@@ -3,12 +3,14 @@ import {Component, Input, OnChanges, OnInit, Renderer2} from '@angular/core';
 import cytoscape from 'cytoscape';
 import dagre from 'cytoscape-dagre';
 import popper from 'cytoscape-popper';
+import panzoom from 'cytoscape-panzoom';
 import * as d3 from 'd3';
 import {mergeGraphs} from "../../utils/utils";
 import tinycolor from 'tinycolor2';
 
 cytoscape.use(dagre);
 cytoscape.use(popper);
+cytoscape.use(panzoom);
 
 
 @Component({
@@ -38,6 +40,7 @@ export class NgCytoComponent implements OnInit, OnChanges {
   tableColumnDefs: any = null;
   tableRowData: any = null;
   showAttributeMatrix = false;
+  panzoomDefaults: any;
   // TODO check if these are needed
   private gridApi = null;
   private gridColumnApi = null;
@@ -103,8 +106,33 @@ export class NgCytoComponent implements OnInit, OnChanges {
             'border-width': 2,
             'border-color': '#fcba03'
           }
-        )
+        );
 
+    this.panzoomDefaults = {
+      zoomFactor: 0.05, // zoom factor per zoom tick
+      zoomDelay: 45, // how many ms between zoom ticks
+      minZoom: 0.1, // min zoom level
+      maxZoom: 10, // max zoom level
+      fitPadding: 50, // padding when fitting
+      panSpeed: 10, // how many ms in between pan ticks
+      panDistance: 10, // max pan distance per tick
+      panDragAreaSize: 75, // the length of the pan drag box in which the vector for panning is calculated (bigger = finer control of pan speed and direction)
+      panMinPercentSpeed: 0.25, // the slowest speed we can pan by (as a percent of panSpeed)
+      panInactiveArea: 8, // radius of inactive area in pan drag box
+      panIndicatorMinOpacity: 0.5, // min opacity of pan indicator (the draggable nib); scales from this to 1.0
+      zoomOnly: false, // a minimal version of the ui only with zooming (useful on systems with bad mousewheel resolution)
+      fitSelector: undefined, // selector of elements to fit
+      animateOnFit: function () { // whether to animate on fit
+        return false;
+      },
+      fitAnimationDuration: 1000, // duration of animation on fit
+
+      // icon class names
+      sliderHandleIcon: 'fa fa-minus',
+      zoomInIcon: 'fa fa-plus',
+      zoomOutIcon: 'fa fa-minus',
+      resetIcon: 'fa fa-expand'
+    };
   }
 
   public ngOnInit() {
@@ -130,6 +158,7 @@ export class NgCytoComponent implements OnInit, OnChanges {
       style: this.style,
       elements: mergeGraphs(this.firstGraph, this.secondGraph)
     });
+    graph.panzoom(this.panzoomDefaults);
     this.colorNodesDiverging(graph.elements());
 
     graph.on('click', 'node', (e) => {
