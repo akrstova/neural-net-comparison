@@ -80,6 +80,12 @@
 
   <div class="example-sidenav-content">
     <div style="height: 90%; width: 80%;">
+      <div class="progress-loader" [hidden]="!loading">
+        <div class="loading-spinner">
+          <div class="spinner-border text-warning"></div>
+          <span class="loading-message">Please wait...</span>
+        </div>
+      </div>
       <ng2-cytoscape *ngIf="!forceDirected" [firstGraph]="firstCyGraph" [secondGraph]="secondCyGraph"
                      [nodeMatches]="nodeMatches" [reverseNodeMatches]="reverseNodeMatches"
                      [distanceMatrix]="attributeDistanceMatrix" [attributes]="attributes"></ng2-cytoscape>

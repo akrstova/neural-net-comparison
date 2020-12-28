@@ -66,10 +66,14 @@ export class AppComponent implements OnInit {
   attributeDistanceMatrix = null;
 
   forceDirected: boolean = false;
+  loading: boolean = false;
 
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver,
               private modelsService: ModelsService, private comparisonService: ComparisonService) {
+    this.comparisonService.isLoading.subscribe((v) => {
+      this.loading = v;
+    });
   }
 
   ngOnInit(): void {

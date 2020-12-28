@@ -1,5 +1,6 @@
 import {Injectable} from "@angular/core";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {BehaviorSubject} from "rxjs";
 
 @Injectable()
 export class ComparisonService {
@@ -9,6 +10,7 @@ export class ComparisonService {
     'REGAL': this.baseUrl + '/regal',
     'GED': this.baseUrl + '/networkx'
   }
+  public isLoading = new BehaviorSubject(false);
 
   constructor(private http: HttpClient) {
   }
