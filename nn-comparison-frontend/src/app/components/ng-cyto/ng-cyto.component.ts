@@ -288,7 +288,6 @@ export class NgCytoComponent implements OnInit, OnChanges {
   createPopper(node, placement) {
     return node.popper({
       content: () => {
-        const index = node.data('index');
         const layerType = node.data('clsName');
         const inputShape = node.data('inputShape').filter((elem) => elem != null);
         const outputShape = node.data('outputShape').filter((elem) => elem != null);
@@ -304,9 +303,6 @@ export class NgCytoComponent implements OnInit, OnChanges {
           'color: #666666';
 
         div.innerHTML = '<table>\n' +
-          '                        <tr>\n' +
-          '                        <td>Index:</td>\n' +
-          '                        <td>' + index + '</td>\n' +
           '                        <tr>\n' +
           '                        <td>Layer type:</td>\n' +
           '                        <td>' + layerType + '</td>\n' +
@@ -372,6 +368,11 @@ export class NgCytoComponent implements OnInit, OnChanges {
   onGridReady(params) {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
+  }
+
+  closeAttributeMatrix() {
+    this.showAttributeMatrix = false;
+
   }
 
 }
