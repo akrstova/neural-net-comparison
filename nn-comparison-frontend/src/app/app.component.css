@@ -37,21 +37,26 @@ mat-form-field {
   width: 100%;
 }
 
+mat-toolbar {
+  background: #f66e05;
+  color: white;
+}
+
 /deep/ .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar {
-  background-color: #e6a900;
+  background-color: #f66e05;
 }
 
 /deep/ .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb {
-  background-color: #c99400;
+  background-color: #f66e05;
 }
 
 /deep/ .mat-checkbox-checked.mat-accent .mat-checkbox-ripple .mat-ripple-element {
   opacity: 0.03 !important;
-  background-color: #e6a900 !important;
+  background-color: #f66e05 !important;
 }
 
 /deep/ .mat-checkbox-checked.mat-accent .mat-checkbox-background, .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background {
-  background-color: #e6a900;
+  background-color: #f66e05;
 }
 
 /deep/ mat-slider {
@@ -64,14 +69,14 @@ mat-form-field {
   border-radius: 50% 50% 0 !important;
   width: 20px !important;
   height: 20px !important;
-  background-color: #e6a900 !important;
+  background-color: #f66e05 !important;
   top: -30px !important;
 
 }
 
 /deep/ .mat-slider-thumb {
   transform: scale(0) !important;
-  background-color: #e6a900 !important;
+  background-color: #f66e05 !important;
 
 }
 
@@ -80,7 +85,7 @@ mat-form-field {
 }
 
 /deep/ .mat-slider-track-fill {
-  background-color: #e6a900 !important;
+  background-color: #f66e05 !important;
 
 }
 
