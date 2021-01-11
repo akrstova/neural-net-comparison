@@ -64,6 +64,7 @@ def serve_models():
 @app.route('/networkx', methods=['POST'])
 @cross_origin()
 def compare_models_networkx():
+    # TODO add edge match when source and target node are of the same layer type
     global subst_cost_list
     subst_cost_list = list()
     graphs = request.get_json()

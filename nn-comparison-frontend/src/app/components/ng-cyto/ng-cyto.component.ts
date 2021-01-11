@@ -89,6 +89,15 @@ export class NgCytoComponent implements OnInit, OnChanges {
           'source-arrow-color': 'data(colorCode)',
           'target-arrow-color': 'data(colorCode)'
         })
+        .selector('.edge-match')
+        .css({
+          'curve-style': 'unbundled-bezier',
+          'opacity': 0.666,
+          'line-color': 'data(colorCode)',
+          'target-arrow-shape': 'none',
+          'source-arrow-color': 'data(colorCode)',
+          'target-arrow-color': 'data(colorCode)'
+        })
         .selector('edge.questionable')
         .css({
           'line-style': 'dotted',
@@ -148,7 +157,7 @@ export class NgCytoComponent implements OnInit, OnChanges {
       this.render();
   }
 
-  public render() {
+  public async render() {
     let cy_container = this.renderer.selectRootElement("#cy");
     let graph = cytoscape({
       container: cy_container,
@@ -159,7 +168,8 @@ export class NgCytoComponent implements OnInit, OnChanges {
       elements: mergeGraphs(this.firstGraph, this.secondGraph)
     });
     graph.panzoom(this.panzoomDefaults);
-    this.colorNodesDiverging(graph.elements());
+    await this.colorNodesDiverging(graph.elements());
+    this.drawMatchLinks(graph);
 
     graph.on('click', 'node', (e) => {
       this.showAttributeMatrix = true;
@@ -231,6 +241,22 @@ export class NgCytoComponent implements OnInit, OnChanges {
 
   }
 
+  drawMatchLinks(graph) {
+    let elements = graph.elements();
+    const firstGraphNodeIds = this.firstGraph.nodes.map((node) => node['data']['id']);
+    const firstGraphElements = elements.filter((elem) => firstGraphNodeIds.includes(elem.data('id')));
+    if (this.nodeMatches) {
+      for (let i = 0; i < firstGraphElements.length; i++) {
+        const currentNodeId = firstGraphElements[i].data('id');
+        const currentNodeColor = firstGraphElements[i].style('background-color');
+        const topMatchId = this.nodeMatches[currentNodeId][0]['id'];
+        let score = this.nodeMatches[currentNodeId][0]['score'];
+        graph.add([{group: 'edges', data: {id: 'e' + i, source: currentNodeId, target: topMatchId, strength: score * 10, colorCode: currentNodeColor}}])
+        graph.edges("[id='e" + i + "']").addClass('edge-match')
+      }
+    }
+  }
+
   colorNodesDiverging(elements) {
     const firstGraphNodeIds = this.firstGraph.nodes.map((node) => node['data']['id']);
     const secondGraphNodeIds = this.secondGraph.nodes.map((node) => node['data']['id']);
@@ -253,21 +279,21 @@ export class NgCytoComponent implements OnInit, OnChanges {
       for (let i = 0; i < firstGraphElements.length; i++) {
         const topMatchId = this.nodeMatches[firstGraphElements[i].data('id')][0]['id'];
         let score = this.nodeMatches[firstGraphElements[i].data('id')][0]['score'];
-        let node = secondGraphElements.filter((elem) => elem.data('id') == topMatchId)[0];
-        let currentColor = node.style('background-color');
+        let topMatchNode = secondGraphElements.filter((elem) => elem.data('id') == topMatchId)[0];
+        let currentColor = topMatchNode.style('background-color');
         let newColor = this.hexToRgb(assignedColors[firstGraphNodeIds[i]])
         if (currentColor !== newColor && currentColor !== 'rgb(186,184,184)') {   // rgb(186,184,184) is default grey
-          node.style('background-color', currentColor);
-          node.style('background-fill', 'linear-gradient');
-          node.style('background-gradient-stop-colors', currentColor + ' ' + newColor);
-          node.style('background-gradient-direction', 'to-right');
+          topMatchNode.style('background-color', currentColor);
+          topMatchNode.style('background-fill', 'linear-gradient');
+          topMatchNode.style('background-gradient-stop-colors', currentColor + ' ' + newColor);
+          topMatchNode.style('background-gradient-direction', 'to-right');
         } else {
-          node.style('background-color', newColor);
+          topMatchNode.style('background-color', newColor);
         }
         if (score < 0.5) {
           score = 1 - score;
         }
-        node.style('opacity', score);
+        topMatchNode.style('opacity', score);
       }
     }
   }
