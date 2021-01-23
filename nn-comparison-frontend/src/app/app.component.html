@@ -48,8 +48,38 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <br><br>
-    <h4 style="margin: 0">Attribute importance:</h4>
+    <br>
+    <h4 style="margin: 0">Weight on structural similarity:</h4>
+    <div>
+      <mat-slider [disabled]="disableWeightSliders"
+        thumbLabel
+        style="width: 80%"
+        tickInterval="0.1"
+        step="1"
+        min="1"
+        max="10"
+        [value]="gammaStruct"
+        [(ngModel)]="gammaStruct"
+      ></mat-slider>
+    </div>
+    <br>
+    <br>
+    <h4 style="margin: 0">Weight on attribute similarity:</h4>
+    <div>
+      <mat-slider [disabled]="disableWeightSliders"
+        thumbLabel
+        style="width: 80%"
+        tickInterval="0.1"
+        step="1"
+        min="1"
+        max="10"
+        [value]="gammaAttributes"
+        [(ngModel)]="gammaAttributes"
+      ></mat-slider>
+    </div>
+    <br>
+    <br>
+    <h4 style="margin: 0">Attributes importance:</h4>
     <mat-list>
       <mat-list-item *ngFor="let item of attributes">
         <div style="display:flex;justify-content:center;align-items:center;">
@@ -68,18 +98,14 @@
       </mat-list-item>
     </mat-list>
     <br>
-    <button mat-stroked-button color="#fcba03" (click)="compareModels()" style="color: #e6a900;">Compare</button>
+    <button mat-stroked-button color="#fcba03" (click)="compareModels()" style="color: #f66e05;">Compare</button>
     <button mat-stroked-button color="grey" (click)="resetComparison()" style="color: gray; background-color: #f0f2f5;">
       Reset
     </button>
-    <br>
-    <mat-slide-toggle [ngModel]="forceDirected" (change)="layoutChanged($event)">Force directed layout
-    </mat-slide-toggle>
-    <br>
   </mat-drawer>
 
   <div class="example-sidenav-content">
-    <div style="height: 90%; width: 80%;">
+    <div style="height: 80%; width: 80%;">
       <div class="progress-loader" [hidden]="!loading">
         <div class="loading-spinner">
           <div class="spinner-border text-warning"></div>

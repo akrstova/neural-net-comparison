@@ -1,7 +1,7 @@
-<div id="cy"></div>
+<div id="cy" style="overflow: hidden"></div>
 <div id="attr-matrix" *ngIf="showAttributeMatrix"
      style="width: 500px; position: absolute; bottom: 0; right: 0;">
-  <div class="close" (click)="showAttributeMatrix = false">x</div>
+  <div class="close" (click)="closeAttributeMatrix()">x</div>
   <ag-grid-angular
     style="width: 100%;"
     class="ag-theme-alpine"

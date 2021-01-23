@@ -23,6 +23,9 @@ cytoscape.use(panzoom);
     left: 0;
     top: 0;
   }
+  /deep/ #attr-matrix .ag-header-cell {
+    padding: 0;
+  }
   `]
 })
 export class NgCytoComponent implements OnInit, OnChanges {
@@ -89,6 +92,17 @@ export class NgCytoComponent implements OnInit, OnChanges {
           'source-arrow-color': 'data(colorCode)',
           'target-arrow-color': 'data(colorCode)'
         })
+        .selector('.edge-match')
+        .css({
+          'curve-style': 'unbundled-bezier',
+          'opacity': 0.666,
+          'line-color': 'data(colorCode)',
+          'target-arrow-shape': 'none',
+          'source-arrow-color': 'data(colorCode)',
+          'target-arrow-color': 'data(colorCode)',
+          'width': 'data(score)',
+          // 'label': 'data(label)'
+        })
         .selector('edge.questionable')
         .css({
           'line-style': 'dotted',
@@ -148,7 +162,7 @@ export class NgCytoComponent implements OnInit, OnChanges {
       this.render();
   }
 
-  public render() {
+  public async render() {
     let cy_container = this.renderer.selectRootElement("#cy");
     let graph = cytoscape({
       container: cy_container,
@@ -159,12 +173,15 @@ export class NgCytoComponent implements OnInit, OnChanges {
       elements: mergeGraphs(this.firstGraph, this.secondGraph)
     });
     graph.panzoom(this.panzoomDefaults);
-    this.colorNodesDiverging(graph.elements());
+    await this.colorNodesDiverging(graph.elements());
+    this.drawMatchLinks(graph);
 
     graph.on('click', 'node', (e) => {
-      this.showAttributeMatrix = true;
       // Move entire graph to the left to make room for attribute matrix
-      graph.pan()['x'] = graph.pan()['x'] - 250;
+      if (this.showAttributeMatrix == false) {
+        graph.pan()['x'] = graph.pan()['x'] - 250;
+      }
+      this.showAttributeMatrix = true;
 
       graph.elements().removeClass('best-match').removeClass('faded');
       this.destroyAllPoppers();
@@ -231,6 +248,31 @@ export class NgCytoComponent implements OnInit, OnChanges {
 
   }
 
+  drawMatchLinks(graph) {
+    let elements = graph.elements();
+    const firstGraphNodeIds = this.firstGraph.nodes.map((node) => node['data']['id']);
+    const firstGraphElements = elements.filter((elem) => firstGraphNodeIds.includes(elem.data('id')));
+    if (this.nodeMatches) {
+      for (let i = 0; i < firstGraphElements.length; i++) {
+        const currentNodeId = firstGraphElements[i].data('id');
+        const currentNodeColor = firstGraphElements[i].style('background-color');
+        const topMatchId = this.nodeMatches[currentNodeId][0]['id'];
+        let score = this.nodeMatches[currentNodeId][0]['score'];
+        graph.add([{group: 'edges',
+          data: {
+            id: 'e' + i,
+            source: currentNodeId,
+            target: topMatchId,
+            label: score.toFixed(2),
+            score: score * 10,
+            colorCode: currentNodeColor
+          }
+        }])
+        graph.edges("[id='e" + i + "']").addClass('edge-match')
+      }
+    }
+  }
+
   colorNodesDiverging(elements) {
     const firstGraphNodeIds = this.firstGraph.nodes.map((node) => node['data']['id']);
     const secondGraphNodeIds = this.secondGraph.nodes.map((node) => node['data']['id']);
@@ -253,21 +295,21 @@ export class NgCytoComponent implements OnInit, OnChanges {
       for (let i = 0; i < firstGraphElements.length; i++) {
         const topMatchId = this.nodeMatches[firstGraphElements[i].data('id')][0]['id'];
         let score = this.nodeMatches[firstGraphElements[i].data('id')][0]['score'];
-        let node = secondGraphElements.filter((elem) => elem.data('id') == topMatchId)[0];
-        let currentColor = node.style('background-color');
+        let topMatchNode = secondGraphElements.filter((elem) => elem.data('id') == topMatchId)[0];
+        let currentColor = topMatchNode.style('background-color');
         let newColor = this.hexToRgb(assignedColors[firstGraphNodeIds[i]])
         if (currentColor !== newColor && currentColor !== 'rgb(186,184,184)') {   // rgb(186,184,184) is default grey
-          node.style('background-color', currentColor);
-          node.style('background-fill', 'linear-gradient');
-          node.style('background-gradient-stop-colors', currentColor + ' ' + newColor);
-          node.style('background-gradient-direction', 'to-right');
+          topMatchNode.style('background-color', currentColor);
+          topMatchNode.style('background-fill', 'linear-gradient');
+          topMatchNode.style('background-gradient-stop-colors', currentColor + ' ' + newColor);
+          topMatchNode.style('background-gradient-direction', 'to-right');
         } else {
-          node.style('background-color', newColor);
+          topMatchNode.style('background-color', newColor);
         }
         if (score < 0.5) {
           score = 1 - score;
         }
-        node.style('opacity', score);
+        topMatchNode.style('opacity', score);
       }
     }
   }
@@ -291,6 +333,7 @@ export class NgCytoComponent implements OnInit, OnChanges {
         const layerType = node.data('clsName');
         const inputShape = node.data('inputShape').filter((elem) => elem != null);
         const outputShape = node.data('outputShape').filter((elem) => elem != null);
+        const numParameter = node.data('numParameter');
         let div = document.createElement('div');
         div.className = 'node-tooltip';
         div.style.cssText = 'z-index:9999;' +
@@ -298,6 +341,7 @@ export class NgCytoComponent implements OnInit, OnChanges {
           'border-radius: 5px;' +
           'margin: 0 10px 0 10px;' +
           'background-color: #eeeeee;' +
+          'font-size: 0.9em;' +
           'color: #666666';
 
         div.innerHTML = '<table>\n' +
@@ -312,6 +356,9 @@ export class NgCytoComponent implements OnInit, OnChanges {
           '                        <tr>\n' +
           '                        <td>Output shape:</td>\n' +
           '                        <td>' + outputShape + '</td>\n' +
+          '                        </tr>\n' +
+          '                        <td>Num parameters:</td>\n' +
+          '                        <td>' + numParameter + '</td>\n' +
           '                        </tr>\n' +
           '                        <tr>\n' +
           '                        </table>';
@@ -339,11 +386,15 @@ export class NgCytoComponent implements OnInit, OnChanges {
     this.tableRowData = [];
     distances.map((elem, index) => {
       let obj = {};
+      let sum = 0;
       this.attributes.map((attr) => {
-        if (attr.weight !== 0)
+        if (attr.weight !== 0) {
           obj[attr.name] = !isNaN(elem[attr.name]) ? parseFloat(elem[attr.name]).toFixed(2) : elem[attr.name];
+          sum += parseFloat(obj[attr.name]);
+        }
       });
-      obj['Node'] = index;
+      obj['Node'] = this.secondGraph['nodes'][index]['data']['name'];
+      obj['Sum'] = sum.toFixed(2);
       this.tableRowData.push(obj);
     })
   }
@@ -352,17 +403,26 @@ export class NgCytoComponent implements OnInit, OnChanges {
     this.tableColumnDefs = [];
     this.attributes.map((item) => {
       if (item.weight !== 0)
-        this.tableColumnDefs.push({field: item.name, sortable: true, filter: true});
+        this.tableColumnDefs.push({field: item.name, sortable: true, filter: true, width: 100, cellStyle: {padding: 0}});
     });
+
     // Column for node number which shouldn't be removed
-    const found = this.tableColumnDefs.some(el => el.field == 'Node');
+    let found = this.tableColumnDefs.some(el => el.field == 'Node');
     if (!found)
-      this.tableColumnDefs.push({field: 'Node', sortable: true, filter: true, pinned: 'left', width: 120});
+      this.tableColumnDefs.push({field: 'Node', sortable: true, filter: true, pinned: 'left', width: 100, cellStyle: {padding: 0}});
+    // Column for distance sum which shouldn't be removed
+    found = this.tableColumnDefs.some(el => el.field == 'Sum');
+    if (!found)
+      this.tableColumnDefs.push({field: 'Sum', sortable: true, filter: true, pinned: 'right', width: 100, cellStyle: {padding: 0}});
   }
 
   onGridReady(params) {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
+  }
+
+  closeAttributeMatrix() {
+    this.showAttributeMatrix = false;
   }
 
 }

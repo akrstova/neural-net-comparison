@@ -1,6 +1,7 @@
 import json
 import os
 import pickle
+import time
 from functools import reduce
 from os import listdir
 from os.path import join, isfile
@@ -64,6 +65,8 @@ def serve_models():
 @app.route('/networkx', methods=['POST'])
 @cross_origin()
 def compare_models_networkx():
+    # TODO add edge match when source and target node are of the same layer type
+    start = time.time()
     global subst_cost_list
     subst_cost_list = list()
     graphs = request.get_json()
@@ -96,18 +99,25 @@ def compare_models_networkx():
     for (k, v) in g1_mapped.items():
         result[get_node_by_id(first_graph_x, k)['index_original']] = (
             [[1, get_node_by_id(second_graph_x, v)['index_original']]])
-    return jsonpickle.dumps({'matches_g1_g2': result})
+    distance_matrix_all_attr = compute_attr_distance_matrix(first_graph_x, second_graph_x, attr_weights)
+
+    end = time.time()
+    print("Elapsed time: {}s".format(str(end - start)))
+    return json.dumps({'matches_g1_g2': result, 'distance_matrix': distance_matrix_all_attr})
 
 
 @app.route('/regal', methods=['POST'])
 @cross_origin()
 def compare_models_regal():
+    start = time.time()
     data = request.get_json()
     first_graph = data['firstGraph']
     second_graph = data['secondGraph']
     sim_measure = data['simMeasure']
     attr_weights = data['attributeWeights']
     attr_weights = {x['name']: x['weight'] for x in attr_weights}
+    gamma_struct = data['gammaStruct']
+    gamma_attr = data['gammaAttr']
     first_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(first_graph))
     second_graph_x = add_degree_info_to_nodes(json_graph.node_link_graph(second_graph))
     matrix_file, attributes_file, true_alignments_file = generate_regal_files(first_graph_x, second_graph_x,
@@ -122,9 +132,13 @@ def compare_models_regal():
         'alignments': os.path.abspath(true_alignments_file),
         'g1_nodes': len(first_graph_x.nodes),
         'g2_nodes': len(second_graph_x.nodes),
-        'sim_measure': sim_measure
+        'sim_measure': sim_measure,
+        'gamma_struct': gamma_struct,
+        'gamma_attr': gamma_attr
     }
     matched_nodes = requests.post('http://localhost:8000/regal', json=to_send)
+    end = time.time()
+    print("Elapsed time: {}s".format(str(end - start)))
     return json.dumps({'matches_g1_g2': json.loads(matched_nodes.content)['matches_g1_g2'],
                        'matches_g2_g1': json.loads(matched_nodes.content)['matches_g2_g1'],
                        'distance_matrix': distance_matrix_all_attr})
@@ -198,7 +212,8 @@ def compute_similarity_nodes(node1, node2):
 
 def compute_distance_nodes_per_attr(node1, node2, attr, attr_weights=None):
     if isinstance(node1[attr], str) and isinstance(node2[attr], str):
-        return attr_weights[attr] * levenshtein_distance(node1[attr], node2[attr]) / float(max(len(node1[attr]), len(node2[attr])))
+        return attr_weights[attr] * levenshtein_distance(node1[attr], node2[attr]) / float(
+            max(len(node1[attr]), len(node2[attr])))
     elif (isinstance(node1[attr], int) and isinstance(node2[attr], int)) or (
             isinstance(node1[attr], float) and isinstance(node2[attr], float)):
         return attr_weights[attr] * abs(node1[attr] - node2[attr])

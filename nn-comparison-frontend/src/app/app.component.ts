@@ -29,7 +29,7 @@ export class AppComponent implements OnInit {
   firstModelId = null;
   secondModelId = null;
 
-  algorithms = ['GED', 'REGAL', 'Custom'];
+  algorithms = ['GED', 'REGAL'];
   selectedAlgorithm = 'REGAL'; //default option
 
   metrics = ['Manhattan', 'Euclidean', 'Cosine']
@@ -37,6 +37,9 @@ export class AppComponent implements OnInit {
   disableMetric = true;
   disableEmbeddings = true;
 
+  disableWeightSliders = false;
+  gammaStruct = 3;
+  gammaAttributes = 5;
   attributes = [
     {
       name: "index",
@@ -117,14 +120,12 @@ export class AppComponent implements OnInit {
 
 
   selectAlgorithm() {
-    if (this.selectedAlgorithm != "GED" && this.selectedAlgorithm != "REGAL") {
+    if (this.selectedAlgorithm === "GED") {
       this.disableMetric = true;
-      this.disableEmbeddings = true;
+      this.disableWeightSliders = true;
     } else {
-      this.disableEmbeddings = false;
-      if (this.selectedAlgorithm == "REGAL") {
-        this.disableMetric = false;
-      }
+      this.disableMetric = false;
+      this.disableWeightSliders = false;
     }
   }
 
@@ -139,12 +140,13 @@ export class AppComponent implements OnInit {
   }
 
   compareModels() {
+    console.log('gammas', this.gammaStruct, this.gammaAttributes)
     this.getCyGraphs();
     let firstGraph = this.modelGraphs[this.firstModelId];
     let secondGraph = this.modelGraphs[this.secondModelId];
     firstGraph.nodes = this.flattenKeys(firstGraph.nodes);
     secondGraph.nodes = this.flattenKeys(secondGraph.nodes);
-    this.comparisonService.compareGraphs(firstGraph, secondGraph, this.selectedAlgorithm, this.selectedMetric, this.attributes)
+    this.comparisonService.compareGraphs(firstGraph, secondGraph, this.selectedAlgorithm, this.selectedMetric, this.attributes, this.gammaStruct, this.gammaAttributes)
       .subscribe(data => {
         this.attributeDistanceMatrix = data['distance_matrix'];
         this.nodeMatches = this.parseNodeMatches(data['matches_g1_g2'], firstGraph, secondGraph);
