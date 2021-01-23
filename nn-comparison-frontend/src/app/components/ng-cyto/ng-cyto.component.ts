@@ -23,9 +23,15 @@ cytoscape.use(panzoom);
     left: 0;
     top: 0;
   }
+
   /deep/ #attr-matrix .ag-header-cell {
     padding: 0;
   }
+
+  /deep/ .cy-panzoom {
+    right: 6em;
+  }
+
   `]
 })
 export class NgCytoComponent implements OnInit, OnChanges {
@@ -176,6 +182,7 @@ export class NgCytoComponent implements OnInit, OnChanges {
     await this.colorNodesDiverging(graph.elements());
     this.drawMatchLinks(graph);
 
+    // Node events
     graph.on('click', 'node', (e) => {
       // Move entire graph to the left to make room for attribute matrix
       if (this.showAttributeMatrix == false) {
@@ -184,7 +191,7 @@ export class NgCytoComponent implements OnInit, OnChanges {
       this.showAttributeMatrix = true;
 
       graph.elements().removeClass('best-match').removeClass('faded');
-      this.destroyAllPoppers();
+      this.destroyAllPoppers('node-tooltip');
       const node = e.target;
 
       this.renderAttributeDistanceMatrix(node);
@@ -220,6 +227,7 @@ export class NgCytoComponent implements OnInit, OnChanges {
             nodeToHighlight.addClass('best-match')
           }
           nodeToHighlight.style('background-color', sequentialColorScale(score));
+          nodeToHighlight.style('background-fill', 'solid');
           const placement = this.isNodeInFirstGraph(nodeToHighlight) ? 'left' : 'right';
           this.createPopper(nodeToHighlight, placement)
         }
@@ -230,7 +238,7 @@ export class NgCytoComponent implements OnInit, OnChanges {
       if (e.target.length != 1) {
         graph.elements().removeClass('best-match').removeClass('faded');
         this.colorNodesDiverging(graph.elements());
-        this.destroyAllPoppers();
+        this.destroyAllPoppers('node-tooltip');
       }
     });
 
@@ -239,6 +247,16 @@ export class NgCytoComponent implements OnInit, OnChanges {
       const placement = this.isNodeInFirstGraph(node) ? 'left' : 'right';
       this.createPopper(node, placement);
     });
+
+    // Edge events
+    graph.on('mouseover', 'edge', (e)=> {
+      this.createEdgePopper(e.target);
+    });
+
+    graph.on('mouseout', 'edge', (e)=> {
+      this.destroyAllPoppers('edge-tooltip');
+    });
+
 
     graph.on('mouseout', (e) => {
         // TODO if the user has clicked on a node, check if all poppers should be destroyed?
@@ -258,13 +276,14 @@ export class NgCytoComponent implements OnInit, OnChanges {
         const currentNodeColor = firstGraphElements[i].style('background-color');
         const topMatchId = this.nodeMatches[currentNodeId][0]['id'];
         let score = this.nodeMatches[currentNodeId][0]['score'];
-        graph.add([{group: 'edges',
+        graph.add([{
+          group: 'edges',
           data: {
             id: 'e' + i,
             source: currentNodeId,
             target: topMatchId,
             label: score.toFixed(2),
-            score: score * 10,
+            score: score >= 1 ? score * 2 : score * 5,
             colorCode: currentNodeColor
           }
         }])
@@ -327,6 +346,25 @@ export class NgCytoComponent implements OnInit, OnChanges {
     return this.firstGraph.nodes.filter((elem) => elem['data'] === node.data()).length > 0;
   }
 
+  createEdgePopper(edge) {
+    return edge.popper({
+      content: () => {
+        let div = document.createElement('div');
+        div.innerHTML = edge.data('label');
+        div.className = 'edge-tooltip';
+        div.style.cssText = 'z-index:9999;' +
+          'border:2px solid #eeeeee;' +
+          'border-radius: 5px;' +
+          'margin: 0 10px 0 10px;' +
+          'background-color: #eeeeee;' +
+          'font-size: 0.9em;' +
+          'color: #666666';
+        document.body.appendChild(div);
+        return div;
+      }
+    })
+  }
+
   createPopper(node, placement) {
     return node.popper({
       content: () => {
@@ -373,8 +411,8 @@ export class NgCytoComponent implements OnInit, OnChanges {
     });
   }
 
-  destroyAllPoppers() {
-    let elements = document.getElementsByClassName('node-tooltip');
+  destroyAllPoppers(className) {
+    let elements = document.getElementsByClassName(className);
     while (elements.length > 0) {
       elements[0].parentNode.removeChild(elements[0]);
     }
@@ -403,17 +441,37 @@ export class NgCytoComponent implements OnInit, OnChanges {
     this.tableColumnDefs = [];
     this.attributes.map((item) => {
       if (item.weight !== 0)
-        this.tableColumnDefs.push({field: item.name, sortable: true, filter: true, width: 100, cellStyle: {padding: 0}});
+        this.tableColumnDefs.push({
+          field: item.name,
+          sortable: true,
+          filter: true,
+          width: 100,
+          cellStyle: {padding: 0}
+        });
     });
 
     // Column for node number which shouldn't be removed
     let found = this.tableColumnDefs.some(el => el.field == 'Node');
     if (!found)
-      this.tableColumnDefs.push({field: 'Node', sortable: true, filter: true, pinned: 'left', width: 100, cellStyle: {padding: 0}});
+      this.tableColumnDefs.push({
+        field: 'Node',
+        sortable: true,
+        filter: true,
+        pinned: 'left',
+        width: 100,
+        cellStyle: {padding: 0}
+      });
     // Column for distance sum which shouldn't be removed
     found = this.tableColumnDefs.some(el => el.field == 'Sum');
     if (!found)
-      this.tableColumnDefs.push({field: 'Sum', sortable: true, filter: true, pinned: 'right', width: 100, cellStyle: {padding: 0}});
+      this.tableColumnDefs.push({
+        field: 'Sum',
+        sortable: true,
+        filter: true,
+        pinned: 'right',
+        width: 100,
+        cellStyle: {padding: 0}
+      });
   }
 
   onGridReady(params) {
