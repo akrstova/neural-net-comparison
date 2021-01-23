@@ -27,6 +27,11 @@ cytoscape.use(panzoom);
   /deep/ #attr-matrix .ag-header-cell {
     padding: 0;
   }
+
+  /deep/ .cy-panzoom {
+    right: 6em;
+  }
+
   `]
 })
 export class NgCytoComponent implements OnInit, OnChanges {
@@ -222,6 +227,7 @@ export class NgCytoComponent implements OnInit, OnChanges {
             nodeToHighlight.addClass('best-match')
           }
           nodeToHighlight.style('background-color', sequentialColorScale(score));
+          nodeToHighlight.style('background-fill', 'solid');
           const placement = this.isNodeInFirstGraph(nodeToHighlight) ? 'left' : 'right';
           this.createPopper(nodeToHighlight, placement)
         }
