@@ -23,6 +23,9 @@ cytoscape.use(panzoom);
     left: 0;
     top: 0;
   }
+  /deep/ #attr-matrix .ag-header-cell {
+    padding: 0;
+  }
   `]
 })
 export class NgCytoComponent implements OnInit, OnChanges {
@@ -255,7 +258,6 @@ export class NgCytoComponent implements OnInit, OnChanges {
         const currentNodeColor = firstGraphElements[i].style('background-color');
         const topMatchId = this.nodeMatches[currentNodeId][0]['id'];
         let score = this.nodeMatches[currentNodeId][0]['score'];
-        console.log('score', score)
         graph.add([{group: 'edges',
           data: {
             id: 'e' + i,
@@ -266,7 +268,6 @@ export class NgCytoComponent implements OnInit, OnChanges {
             colorCode: currentNodeColor
           }
         }])
-        console.log('graph', graph.edges())
         graph.edges("[id='e" + i + "']").addClass('edge-match')
       }
     }
@@ -385,11 +386,15 @@ export class NgCytoComponent implements OnInit, OnChanges {
     this.tableRowData = [];
     distances.map((elem, index) => {
       let obj = {};
+      let sum = 0;
       this.attributes.map((attr) => {
-        if (attr.weight !== 0)
+        if (attr.weight !== 0) {
           obj[attr.name] = !isNaN(elem[attr.name]) ? parseFloat(elem[attr.name]).toFixed(2) : elem[attr.name];
+          sum += parseFloat(obj[attr.name]);
+        }
       });
-      obj['Node'] = index;
+      obj['Node'] = this.secondGraph['nodes'][index]['data']['name'];
+      obj['Sum'] = sum.toFixed(2);
       this.tableRowData.push(obj);
     })
   }
@@ -398,12 +403,17 @@ export class NgCytoComponent implements OnInit, OnChanges {
     this.tableColumnDefs = [];
     this.attributes.map((item) => {
       if (item.weight !== 0)
-        this.tableColumnDefs.push({field: item.name, sortable: true, filter: true});
+        this.tableColumnDefs.push({field: item.name, sortable: true, filter: true, width: 100, cellStyle: {padding: 0}});
     });
+
     // Column for node number which shouldn't be removed
-    const found = this.tableColumnDefs.some(el => el.field == 'Node');
+    let found = this.tableColumnDefs.some(el => el.field == 'Node');
     if (!found)
-      this.tableColumnDefs.push({field: 'Node', sortable: true, filter: true, pinned: 'left', width: 120});
+      this.tableColumnDefs.push({field: 'Node', sortable: true, filter: true, pinned: 'left', width: 100, cellStyle: {padding: 0}});
+    // Column for distance sum which shouldn't be removed
+    found = this.tableColumnDefs.some(el => el.field == 'Sum');
+    if (!found)
+      this.tableColumnDefs.push({field: 'Sum', sortable: true, filter: true, pinned: 'right', width: 100, cellStyle: {padding: 0}});
   }
 
   onGridReady(params) {
