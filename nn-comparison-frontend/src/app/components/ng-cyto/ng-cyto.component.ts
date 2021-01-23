@@ -96,7 +96,9 @@ export class NgCytoComponent implements OnInit, OnChanges {
           'line-color': 'data(colorCode)',
           'target-arrow-shape': 'none',
           'source-arrow-color': 'data(colorCode)',
-          'target-arrow-color': 'data(colorCode)'
+          'target-arrow-color': 'data(colorCode)',
+          'width': 'data(score)',
+          // 'label': 'data(label)'
         })
         .selector('edge.questionable')
         .css({
@@ -172,9 +174,11 @@ export class NgCytoComponent implements OnInit, OnChanges {
     this.drawMatchLinks(graph);
 
     graph.on('click', 'node', (e) => {
-      this.showAttributeMatrix = true;
       // Move entire graph to the left to make room for attribute matrix
-      graph.pan()['x'] = graph.pan()['x'] - 250;
+      if (this.showAttributeMatrix == false) {
+        graph.pan()['x'] = graph.pan()['x'] - 250;
+      }
+      this.showAttributeMatrix = true;
 
       graph.elements().removeClass('best-match').removeClass('faded');
       this.destroyAllPoppers();
@@ -251,7 +255,18 @@ export class NgCytoComponent implements OnInit, OnChanges {
         const currentNodeColor = firstGraphElements[i].style('background-color');
         const topMatchId = this.nodeMatches[currentNodeId][0]['id'];
         let score = this.nodeMatches[currentNodeId][0]['score'];
-        graph.add([{group: 'edges', data: {id: 'e' + i, source: currentNodeId, target: topMatchId, strength: score * 10, colorCode: currentNodeColor}}])
+        console.log('score', score)
+        graph.add([{group: 'edges',
+          data: {
+            id: 'e' + i,
+            source: currentNodeId,
+            target: topMatchId,
+            label: score.toFixed(2),
+            score: score * 10,
+            colorCode: currentNodeColor
+          }
+        }])
+        console.log('graph', graph.edges())
         graph.edges("[id='e" + i + "']").addClass('edge-match')
       }
     }
@@ -398,7 +413,6 @@ export class NgCytoComponent implements OnInit, OnChanges {
 
   closeAttributeMatrix() {
     this.showAttributeMatrix = false;
-
   }
 
 }
