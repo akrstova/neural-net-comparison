@@ -1,0 +1,12 @@
+#### Requirements without version specifiers ####
+# General libraries
+jsonpickle
+flask
+flask_cors
+
+# Scientific libraries
+networkx
+scipy
+
+# Utilities
+Levenshtein
